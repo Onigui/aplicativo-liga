@@ -1,18 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Instagram, Globe, Check, X, Sparkles, Star, Award } from 'lucide-react';
+import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Instagram, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn } from 'lucide-react';
+import MockAPI from './api';
 import './App.css';
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState('welcome');
   const [loadingButton, setLoadingButton] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
-  const [user] = useState({
-    name: 'João Silva',
-    cpf: '123.456.789-00',
-    isActive: true,
-    memberSince: '2023',
-    totalDonated: 850.50
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loginData, setLoginData] = useState({ cpf: '', password: '' });
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [registerData, setRegisterData] = useState({ 
+    name: '', 
+    cpf: '', 
+    password: '', 
+    confirmPassword: '' 
   });
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [registerError, setRegisterError] = useState('');
 
   const menuRef = useRef(null);
 
@@ -153,8 +160,560 @@ const App = () => {
     setShowMenu(!showMenu);
   };
 
+  // Função para formatar CPF
+  const formatCPF = (value) => {
+    const cpf = value.replace(/\D/g, '');
+    if (cpf.length <= 11) {
+      return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    return value;
+  };
+
+  // Função de login
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError('');
+
+    // Remover formatação do CPF para enviar ao backend
+    const cleanCPF = loginData.cpf.replace(/\D/g, '');
+
+    try {
+      console.log('🔐 Tentando login com CPF:', cleanCPF);
+      const result = await MockAPI.login(cleanCPF, loginData.password);
+
+      if (result.success) {
+        // Login bem-sucedido
+        console.log('✅ Login bem-sucedido!', result.user);
+        setUser(result.user);
+        setIsAuthenticated(true);
+        setCurrentPage('home');
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('user', JSON.stringify(result.user));
+      } else {
+        // Erro no login
+        console.log('❌ Erro no login:', result.message);
+        setLoginError(result.message);
+      }
+    } catch (error) {
+      console.error('❌ Erro no login:', error);
+      setLoginError('Erro interno. Tente novamente.');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  // Função de logout
+  const handleLogout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    setCurrentPage('welcome');
+    setLoginData({ cpf: '', password: '' });
+    setRegisterData({ name: '', cpf: '', password: '', confirmPassword: '' });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setShowMenu(false);
+  };
+
+
+
+  // Função de cadastro
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setRegisterLoading(true);
+    setRegisterError('');
+
+    // Validações front-end
+    if (!registerData.name || !registerData.name.trim()) {
+      setRegisterError('Nome é obrigatório');
+      setRegisterLoading(false);
+      return;
+    }
+
+    if (!registerData.cpf || !registerData.cpf.trim()) {
+      setRegisterError('CPF é obrigatório');
+      setRegisterLoading(false);
+      return;
+    }
+
+    if (!registerData.password || !registerData.password.trim()) {
+      setRegisterError('Senha é obrigatória');
+      setRegisterLoading(false);
+      return;
+    }
+
+    if (!registerData.confirmPassword || !registerData.confirmPassword.trim()) {
+      setRegisterError('Confirmação de senha é obrigatória');
+      setRegisterLoading(false);
+      return;
+    }
+
+    if (registerData.password !== registerData.confirmPassword) {
+      setRegisterError('As senhas não coincidem');
+      setRegisterLoading(false);
+      return;
+    }
+
+    if (registerData.password.length < 6) {
+      setRegisterError('A senha deve ter pelo menos 6 caracteres');
+      setRegisterLoading(false);
+      return;
+    }
+
+    // Remover formatação do CPF para enviar ao backend
+    const cleanCPF = registerData.cpf.replace(/\D/g, '');
+
+    if (cleanCPF.length !== 11) {
+      setRegisterError('CPF deve conter 11 dígitos');
+      setRegisterLoading(false);
+      return;
+    }
+
+    try {
+
+      const requestBody = {
+        name: registerData.name.trim(),
+        cpf: cleanCPF,
+        password: registerData.password.trim()
+      };
+
+      console.log('📝 Tentando cadastro:', requestBody);
+      const result = await MockAPI.register(requestBody.name, requestBody.cpf, requestBody.password);
+      
+      console.log('📦 Register Response:', result);
+
+      if (result.success) {
+        // Cadastro bem-sucedido - agora fazer login automaticamente
+        try {
+          console.log('🔐 Fazendo login automático...');
+          const loginResult = await MockAPI.login(cleanCPF, registerData.password);
+
+          if (loginResult.success) {
+            console.log('✅ Login automático bem-sucedido!');
+            setUser(loginResult.user);
+            setIsAuthenticated(true);
+            setCurrentPage('home');
+            localStorage.setItem('token', loginResult.token);
+            localStorage.setItem('user', JSON.stringify(loginResult.user));
+          } else {
+            // Cadastro ok, mas erro no login automático - redirecionar para login
+            setCurrentPage('login');
+            setRegisterError('Conta criada com sucesso! Faça login para continuar.');
+          }
+        } catch (loginError) {
+          // Erro no login automático - redirecionar para login
+          setCurrentPage('login');
+          setRegisterError('Conta criada com sucesso! Faça login para continuar.');
+        }
+      } else {
+        // Erro no cadastro - mostrar mensagem específica
+        console.log('❌ Erro no cadastro:', result.message);
+        setRegisterError(result.message);
+      }
+    } catch (error) {
+      console.error('Erro no cadastro:', error);
+      setRegisterError('Erro de conexão. Tente novamente.');
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
+  // Verificar se há login salvo ao carregar a página
+  useEffect(() => {
+    const savedToken = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (savedToken && savedUser) {
+      try {
+        const userData = JSON.parse(savedUser);
+        // Verificar se o token ainda é válido (aqui você faria uma chamada para o backend)
+        setUser(userData);
+        setIsAuthenticated(true);
+        setCurrentPage('home');
+      } catch (error) {
+        console.error('Erro ao recuperar dados salvos:', error);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    }
+  }, []);
+
+  const renderWelcome = () => (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* Logo/Header */}
+        <div className="text-center mb-12">
+          <div className="glass rounded-full p-8 mx-auto w-fit pulse-glow mb-6">
+            <Heart className="h-20 w-20 text-pink-300" fill="currentColor" />
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-4">
+            Liga do Bem
+          </h1>
+          <p className="text-purple-200 text-xl font-medium mb-2">Botucatu 🐾</p>
+          <p className="text-purple-300 text-base">
+            Juntos fazemos a diferença na vida dos animais
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="space-y-4">
+          {/* Login Button */}
+          <button
+            onClick={() => setCurrentPage('login')}
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
+          >
+            <LogIn className="h-6 w-6" />
+            <span>Fazer Login</span>
+          </button>
+
+          {/* Register Button */}
+          <button
+            onClick={() => setCurrentPage('register')}
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
+          >
+            <UserPlus className="h-6 w-6" />
+            <span>Criar Conta</span>
+          </button>
+        </div>
+
+        {/* Info Section */}
+        <div className="mt-8 glass border border-white/20 rounded-2xl p-6">
+          <div className="text-center">
+            <div className="flex justify-center mb-3">
+              <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-2 rounded-lg">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Por que fazer parte?</h3>
+            <p className="text-purple-200 text-sm leading-relaxed">
+              Tenha acesso a descontos exclusivos em petshops, clínicas veterinárias, 
+              eventos de adoção e muito mais! Sua contribuição ajuda diretamente os animais de Botucatu.
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-purple-300 text-sm">
+            Dúvidas? Entre em contato:
+          </p>
+          <button
+            onClick={() => makeCall('(14) 3815-1234')}
+            className="text-cyan-300 hover:text-cyan-200 font-semibold text-sm mt-1 hover:underline transition-colors duration-200"
+          >
+            (14) 3815-1234
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderLogin = () => (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => setCurrentPage('welcome')}
+            className="glass rounded-full p-3 hover:bg-white/20 transition-all duration-300 glow-animation flex items-center space-x-2"
+          >
+            <ArrowLeft className="h-5 w-5 text-purple-200" />
+            <span className="text-purple-200 text-sm">Voltar</span>
+          </button>
+        </div>
+
+        {/* Logo/Header */}
+        <div className="text-center mb-8">
+          <div className="glass rounded-full p-6 mx-auto w-fit pulse-glow mb-4">
+            <Heart className="h-16 w-16 text-pink-300" fill="currentColor" />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-2">
+            Liga do Bem
+          </h1>
+          <p className="text-purple-200 text-lg font-medium">Botucatu 🐾</p>
+        </div>
+
+        {/* Login Form */}
+        <div className="glass border border-white/20 rounded-3xl p-8 shadow-2xl">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Fazer Login</h2>
+          
+          <form onSubmit={handleLogin} className="space-y-6">
+            {/* CPF Input */}
+            <div>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">
+                CPF
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <input
+                  type="text"
+                  value={loginData.cpf}
+                  onChange={(e) => setLoginData({ 
+                    ...loginData, 
+                    cpf: formatCPF(e.target.value) 
+                  })}
+                  placeholder="000.000.000-00"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300 text-base font-mono tracking-wide"
+                  required
+                  maxLength="14"
+                  inputMode="numeric"
+                />
+              </div>
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">
+                Senha
+              </label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <input
+                  type="password"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ 
+                    ...loginData, 
+                    password: e.target.value 
+                  })}
+                  placeholder="Digite sua senha"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {loginError && (
+              <div className="bg-red-500/20 border border-red-400/50 rounded-2xl p-4">
+                <div className="flex items-center space-x-2">
+                  <X className="h-5 w-5 text-red-300" />
+                  <p className="text-red-200 font-medium">{loginError}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loginLoading}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {loginLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Entrando...</span>
+                </div>
+              ) : (
+                'Entrar'
+              )}
+            </button>
+          </form>
+
+          {/* Help Text */}
+          <div className="mt-6 text-center space-y-3">
+            <p className="text-purple-200 text-sm">
+              Não tem uma conta ainda?{' '}
+              <button
+                onClick={() => setCurrentPage('register')}
+                className="text-cyan-300 hover:text-cyan-200 font-semibold hover:underline transition-colors duration-200"
+              >
+                Criar Conta
+              </button>
+            </p>
+            <div className="border-t border-white/10 pt-3">
+              <p className="text-purple-200 text-sm">
+                Problemas para acessar? Entre em contato:
+              </p>
+              <button
+                onClick={() => makeCall('(14) 3815-1234')}
+                className="text-cyan-300 hover:text-cyan-200 font-semibold text-sm mt-1 hover:underline transition-colors duration-200"
+              >
+                (14) 3815-1234
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-purple-300 text-sm">
+            Seja bem-vindo à família Liga do Bem! 💝
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderRegister = () => (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => setCurrentPage('welcome')}
+            className="glass rounded-full p-3 hover:bg-white/20 transition-all duration-300 glow-animation flex items-center space-x-2"
+          >
+            <ArrowLeft className="h-5 w-5 text-purple-200" />
+            <span className="text-purple-200 text-sm">Voltar</span>
+          </button>
+        </div>
+
+        {/* Logo/Header */}
+        <div className="text-center mb-8">
+          <div className="glass rounded-full p-6 mx-auto w-fit pulse-glow mb-4">
+            <Heart className="h-16 w-16 text-pink-300" fill="currentColor" />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-2">
+            Liga do Bem
+          </h1>
+          <p className="text-purple-200 text-lg font-medium">Botucatu 🐾</p>
+        </div>
+
+        {/* Register Form */}
+        <div className="glass border border-white/20 rounded-3xl p-8 shadow-2xl">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">Criar Conta</h2>
+          
+          <form onSubmit={handleRegister} className="space-y-6">
+            {/* Name Input */}
+            <div>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">
+                Nome Completo
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <input
+                  type="text"
+                  value={registerData.name}
+                  onChange={(e) => setRegisterData({ 
+                    ...registerData, 
+                    name: e.target.value 
+                  })}
+                  placeholder="Digite seu nome completo"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* CPF Input */}
+            <div>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">
+                CPF
+              </label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <input
+                  type="text"
+                  value={registerData.cpf}
+                  onChange={(e) => setRegisterData({ 
+                    ...registerData, 
+                    cpf: formatCPF(e.target.value) 
+                  })}
+                  placeholder="000.000.000-00"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300 text-base font-mono tracking-wide"
+                  required
+                  maxLength="14"
+                  inputMode="numeric"
+                />
+              </div>
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">
+                Senha
+              </label>
+              <div className="relative">
+                <Info className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <input
+                  type="password"
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData({ 
+                    ...registerData, 
+                    password: e.target.value 
+                  })}
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                  required
+                  minLength="6"
+                />
+              </div>
+            </div>
+
+            {/* Confirm Password Input */}
+            <div>
+              <label className="block text-sm font-semibold text-purple-200 mb-2">
+                Confirmar Senha
+              </label>
+              <div className="relative">
+                <Check className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-purple-300" />
+                <input
+                  type="password"
+                  value={registerData.confirmPassword}
+                  onChange={(e) => setRegisterData({ 
+                    ...registerData, 
+                    confirmPassword: e.target.value 
+                  })}
+                  placeholder="Digite a senha novamente"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {registerError && (
+              <div className="bg-red-500/20 border border-red-400/50 rounded-2xl p-4">
+                <div className="flex items-center space-x-2">
+                  <X className="h-5 w-5 text-red-300" />
+                  <p className="text-red-200 font-medium">{registerError}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Register Button */}
+            <button
+              type="submit"
+              disabled={registerLoading}
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {registerLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Criando conta...</span>
+                </div>
+              ) : (
+                'Criar Conta'
+              )}
+            </button>
+          </form>
+
+          {/* Help Text */}
+          <div className="mt-6 text-center">
+            <p className="text-purple-200 text-sm">
+              Já tem uma conta?{' '}
+              <button
+                onClick={() => setCurrentPage('login')}
+                className="text-cyan-300 hover:text-cyan-200 font-semibold hover:underline transition-colors duration-200"
+              >
+                Fazer Login
+              </button>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-purple-300 text-sm">
+            Seja bem-vindo à família Liga do Bem! 💝
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderHeader = () => (
-    <div className="glass text-white p-6 flex items-center justify-between relative shadow-2xl border-b border-white/10">
+    <div className="glass text-white p-6 flex items-center justify-between relative shadow-2xl border-b border-white/10 z-50">
       {currentPage !== 'home' && (
         <div className="glass rounded-full p-3 hover:bg-white/20 transition-all duration-300 glow-animation">
           <ArrowLeft 
@@ -176,7 +735,7 @@ const App = () => {
         </div>
       </div>
       {currentPage === 'home' && (
-        <div className="relative" ref={menuRef}>
+        <div className="menu-container" ref={menuRef}>
           <div className="glass rounded-full p-3 hover:bg-white/20 transition-all duration-300 glow-animation">
             <Menu 
               className="cursor-pointer h-6 w-6" 
@@ -185,7 +744,7 @@ const App = () => {
             />
           </div>
           {showMenu && (
-            <div className="absolute right-0 top-full mt-4 glass rounded-2xl shadow-2xl py-4 min-w-64 z-50 overflow-hidden border border-white/20 slide-up">
+            <div className="menu-dropdown right-0 top-full mt-4 rounded-2xl py-4 min-w-64 overflow-hidden slide-up">
               <button 
                 className="w-full text-left px-6 py-4 text-white hover:bg-white/10 flex items-center space-x-4 transition-all duration-300"
                 onClick={() => {
@@ -222,6 +781,16 @@ const App = () => {
                 </div>
                 <span className="font-semibold">Entrar em Contato</span>
               </button>
+              <div className="border-t border-white/10 my-2"></div>
+              <button 
+                className="w-full text-left px-6 py-4 text-white hover:bg-red-500/20 flex items-center space-x-4 transition-all duration-300"
+                onClick={handleLogout}
+              >
+                <div className="bg-gradient-to-br from-red-400 to-red-500 p-3 rounded-xl shadow-lg">
+                  <ArrowLeft size={18} className="text-white" />
+                </div>
+                <span className="font-semibold">Sair</span>
+              </button>
             </div>
           )}
         </div>
@@ -243,9 +812,9 @@ const App = () => {
             </div>
             <div>
               <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
-                Olá, {user.name}! ✨
+                Olá, {user?.name || 'Usuário'}! ✨
               </h2>
-              <p className="text-purple-200 text-lg">Membro desde {user.memberSince}</p>
+              <p className="text-purple-200 text-lg">Membro desde {user?.memberSince || '2024'}</p>
             </div>
           </div>
           
@@ -258,7 +827,7 @@ const App = () => {
             </div>
             <div className="glass rounded-2xl px-4 py-3 flex items-center space-x-2">
               <Star className="h-5 w-5 text-yellow-300" />
-              <span className="text-yellow-200 font-medium">R$ {user.totalDonated.toFixed(2)}</span>
+              <span className="text-yellow-200 font-medium">R$ {user?.totalDonated?.toFixed(2) || '0.00'}</span>
             </div>
           </div>
         </div>
@@ -432,7 +1001,7 @@ const App = () => {
             </div>
             <h3 className="text-xl font-bold">Contribuição Total</h3>
           </div>
-          <p className="text-4xl font-bold mb-2">R$ {user.totalDonated.toFixed(2)}</p>
+          <p className="text-4xl font-bold mb-2">R$ {user?.totalDonated?.toFixed(2) || '0.00'}</p>
           <p className="text-amber-100 text-lg">Obrigado por sua generosidade!</p>
           <div className="mt-4 bg-white/20 backdrop-blur-sm rounded-lg p-3">
             <p className="text-sm text-amber-100">
@@ -955,6 +1524,9 @@ const App = () => {
 
   const renderCurrentPage = () => {
     switch (currentPage) {
+      case 'welcome': return renderWelcome();
+      case 'login': return renderLogin();
+      case 'register': return renderRegister();
       case 'home': return renderHome();
       case 'profile': return renderProfile();
       case 'partners': return renderPartners();
@@ -966,9 +1538,29 @@ const App = () => {
       case 'legislation': return renderLegislation();
       case 'phones': return renderPhones();
       case 'events': return renderEvents();
-      default: return renderHome();
+      default: return renderWelcome();
     }
   };
+
+  // Se não estiver autenticado, mostrar páginas de welcome/login/register
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto min-h-screen relative overflow-hidden">
+        {/* Background animado */}
+        <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+          <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20"></div>
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-pink-400 to-purple-600 rounded-full opacity-20 float-animation"></div>
+          <div className="absolute top-32 right-8 w-24 h-24 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full opacity-30 float-animation" style={{animationDelay: '0.5s'}}></div>
+          <div className="absolute bottom-20 left-6 w-28 h-28 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full opacity-25 float-animation" style={{animationDelay: '1s'}}></div>
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10">
+          {renderCurrentPage()}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto min-h-screen relative overflow-hidden">
