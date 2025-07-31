@@ -8,6 +8,7 @@ import companiesRoutes from './routes/companies.js';
 import usersRoutes from './routes/users.js';
 import paymentsRoutes from './routes/payments.js';
 import authRoutes from './routes/auth.js';
+import adminRoutes from './routes/admin.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -62,6 +63,7 @@ app.use('/api/admin/companies', companiesRoutes);
 app.use('/api/admin/users', usersRoutes);
 app.use('/api/admin/payments', paymentsRoutes);
 app.use('/api/admin/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Rota raiz
 app.get('/', (req, res) => {
