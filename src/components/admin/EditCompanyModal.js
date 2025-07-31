@@ -123,6 +123,7 @@ const EditCompanyModal = ({ company, isOpen, onClose, onSave, isLoading }) => {
       discount: formData.discount,
       description: formData.description,
       working_hours: formData.workingHours,
+      logo_url: formData.logo, // Adicionar logo
       updatedAt: new Date().toISOString()
     };
     console.log('💾 [MODAL] Dados mapeados para backend:', updatedCompany);

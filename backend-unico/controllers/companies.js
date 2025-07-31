@@ -15,7 +15,7 @@ const mapCompanyFields = (company) => {
     status: company.status,
     workingHours: company.working_hours,
     coordinates: company.coordinates,
-    logoUrl: company.logo_url,
+    logo: company.logo_url, // Corrigido para 'logo' em vez de 'logoUrl'
     website: company.website,
     approvedAt: company.approved_at,
     approvedBy: company.approved_by,
@@ -207,6 +207,7 @@ export async function updateCompany(req, res) {
       description,
       category,
       working_hours,
+      logo_url,
       status
     } = req.body;
     
@@ -235,9 +236,10 @@ export async function updateCompany(req, res) {
         description = $7,
         category = COALESCE($8, category),
         working_hours = $9,
-        status = COALESCE($10, status),
+        logo_url = $10,
+        status = COALESCE($11, status),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $11
+      WHERE id = $12
       RETURNING *`,
       [
         company_name,
@@ -249,6 +251,7 @@ export async function updateCompany(req, res) {
         description || null,
         category,
         working_hours ? JSON.stringify(working_hours) : null,
+        logo_url || null,
         status,
         id
       ]
