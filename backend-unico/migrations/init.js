@@ -141,7 +141,7 @@ const createTables = async () => {
 
     // Inserir usuário administrador padrão
     const bcrypt = await import('bcryptjs');
-    const adminPasswordHash = await bcrypt.hash('admin123', 10);
+    const adminPasswordHash = await bcrypt.default.hash('admin123', 10);
     
     await query(`
       INSERT INTO users (name, cpf, email, password_hash, role, is_active) VALUES
@@ -151,7 +151,7 @@ const createTables = async () => {
     console.log('✅ Usuário administrador criado');
 
     // Inserir usuário de teste
-    const testPasswordHash = await bcrypt.hash('123456', 10);
+    const testPasswordHash = await bcrypt.default.hash('123456', 10);
     
     await query(`
       INSERT INTO users (name, cpf, email, password_hash, role, is_active) VALUES
