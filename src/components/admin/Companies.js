@@ -149,9 +149,20 @@ const Companies = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
+    if (!dateString) return 'Data não informada';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Data inválida';
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return 'Data inválida';
+    }
   };
 
   const statsData = {
@@ -245,7 +256,7 @@ const Companies = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredCompanies.map((company) => (
-                <tr key={company._id} className="hover:bg-gray-50">
+                <tr key={company.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="bg-admin-100 rounded-lg p-2"><Building className="h-5 w-5 text-admin-600" /></div>
@@ -262,13 +273,13 @@ const Companies = () => {
                       {(company.status === 'pending' || company.status === 'approved') && (
                         <>
                           <button onClick={() => handleEdit(company)} className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="Editar empresa"><Edit className="h-4 w-4" /></button>
-                          <button onClick={() => handleDelete(company._id)} disabled={actionLoading === company._id} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50" title="Excluir empresa">{actionLoading === company._id ? (<div className="h-4 w-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>) : (<Trash2 className="h-4 w-4" />)}</button>
+                          <button onClick={() => handleDelete(company.id)} disabled={actionLoading === company.id} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50" title="Excluir empresa">{actionLoading === company.id ? (<div className="h-4 w-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>) : (<Trash2 className="h-4 w-4" />)}</button>
                         </>
                       )}
                       {company.status === 'pending' && (
                         <>
-                          <button onClick={() => handleApprove(company._id)} disabled={actionLoading === company._id} className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 disabled:opacity-50" title="Aprovar">{actionLoading === company._id ? (<div className="animate-spin h-4 w-4 border-2 border-green-600 border-t-transparent rounded-full"></div>) : (<Check className="h-4 w-4" />)}</button>
-                          <button onClick={() => handleReject(company._id)} disabled={actionLoading === company._id} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50" title="Rejeitar">{actionLoading === company._id ? (<div className="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full"></div>) : (<X className="h-4 w-4" />)}</button>
+                          <button onClick={() => handleApprove(company.id)} disabled={actionLoading === company.id} className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 disabled:opacity-50" title="Aprovar">{actionLoading === company.id ? (<div className="animate-spin h-4 w-4 border-2 border-green-600 border-t-transparent rounded-full"></div>) : (<Check className="h-4 w-4" />)}</button>
+                          <button onClick={() => handleReject(company.id)} disabled={actionLoading === company.id} className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50" title="Rejeitar">{actionLoading === company.id ? (<div className="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full"></div>) : (<X className="h-4 w-4" />)}</button>
                         </>
                       )}
                     </div>
@@ -306,8 +317,8 @@ const Companies = () => {
                 </div>
               </div>
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
-                {selectedCompany.status === 'pending' && (<><button type="button" onClick={() => handleApprove(selectedCompany._id)} disabled={actionLoading === selectedCompany._id} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">{actionLoading === selectedCompany._id ? (<div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>) : (<Check className="h-4 w-4 mr-2" />)}Aprovar</button><button type="button" onClick={() => handleReject(selectedCompany._id)} disabled={actionLoading === selectedCompany._id} className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">{actionLoading === selectedCompany._id ? (<div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>) : (<X className="h-4 w-4 mr-2" />)}Rejeitar</button></>)}
-                {selectedCompany.status === 'approved' && (<><button type="button" onClick={() => handleEdit(selectedCompany)} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"><Edit className="h-4 w-4 mr-2" />Editar</button><button type="button" onClick={() => handleDelete(selectedCompany._id)} disabled={actionLoading === selectedCompany._id} className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">{actionLoading === selectedCompany._id ? (<div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>) : (<Trash2 className="h-4 w-4 mr-2" />)}Excluir</button></>)}
+                {selectedCompany.status === 'pending' && (<><button type="button" onClick={() => handleApprove(selectedCompany.id)} disabled={actionLoading === selectedCompany.id} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">{actionLoading === selectedCompany.id ? (<div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>) : (<Check className="h-4 w-4 mr-2" />)}Aprovar</button><button type="button" onClick={() => handleReject(selectedCompany.id)} disabled={actionLoading === selectedCompany.id} className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">{actionLoading === selectedCompany.id ? (<div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>) : (<X className="h-4 w-4 mr-2" />)}Rejeitar</button></>)}
+                {selectedCompany.status === 'approved' && (<><button type="button" onClick={() => handleEdit(selectedCompany)} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"><Edit className="h-4 w-4 mr-2" />Editar</button><button type="button" onClick={() => handleDelete(selectedCompany.id)} disabled={actionLoading === selectedCompany.id} className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">{actionLoading === selectedCompany.id ? (<div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>) : (<Trash2 className="h-4 w-4 mr-2" />)}Excluir</button></>)}
                 <button type="button" onClick={() => setShowModal(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-admin-500 sm:mt-0 sm:w-auto sm:text-sm">Fechar</button>
               </div>
             </div>

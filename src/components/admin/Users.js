@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Search,
   Plus,
@@ -180,7 +180,7 @@ const Users = () => {
     }
   };
 
-  const UserModal = () => (
+  const UserModal = useCallback(() => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h3 className="text-lg font-semibold mb-4">Criar Novo Usuário</h3>
@@ -252,7 +252,7 @@ const Users = () => {
         </div>
       </div>
     </div>
-  );
+  ), [newUserData, handleCreateUser]);
 
   const UserDetailsModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
