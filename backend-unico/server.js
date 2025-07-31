@@ -59,10 +59,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // Rotas da API
+app.use('/api/auth', authRoutes); // Rota pública para autenticação
 app.use('/api/admin/companies', companiesRoutes);
 app.use('/api/admin/users', usersRoutes);
 app.use('/api/admin/payments', paymentsRoutes);
-app.use('/api/admin/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Rota raiz
