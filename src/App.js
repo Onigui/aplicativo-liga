@@ -706,7 +706,7 @@ const App = () => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            cpf: cleanCPF,
+            username: cleanCPF,
             password: loginData.password
           })
         });
