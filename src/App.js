@@ -698,25 +698,41 @@ const App = () => {
     if (cleanCPF === '00000000000' && loginData.password === 'admin123') {
       console.log('🔐 [ADMIN] Acesso de administrador detectado');
       
-      // Criar dados do admin para o sistema administrativo
-      const adminData = {
-        id: 1,
-        name: 'Administrador',
-        cpf: '000.000.000-00',
-        role: 'admin',
-        permissions: ['all']
-      };
-      
-      // Criar token admin
-      const adminToken = 'admin_token_' + Date.now();
-      
-      // Salvar dados do admin
-      localStorage.setItem('admin_token', adminToken);
-      localStorage.setItem('admin_user', JSON.stringify(adminData));
-      
-      // Redirecionar para área administrativa completa
-      setCurrentPage('admin');
-      return;
+      try {
+        // Fazer login real no backend
+        const response = await fetch('https://liga-do-bem-api.onrender.com/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            cpf: cleanCPF,
+            password: loginData.password
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          console.log('✅ [ADMIN] Login admin bem-sucedido no backend');
+          
+          // Salvar dados do admin com token real
+          localStorage.setItem('admin_token', data.token);
+          localStorage.setItem('admin_user', JSON.stringify(data.user));
+          
+          // Redirecionar para área administrativa completa
+          setCurrentPage('admin');
+          return;
+        } else {
+          console.log('❌ [ADMIN] Erro no login admin:', data.message);
+          setLoginError(data.message || 'Erro no login admin');
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [ADMIN] Erro ao conectar com backend:', error);
+        setLoginError('Erro de conexão com o servidor');
+        return;
+      }
     }
 
     try {
