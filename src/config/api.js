@@ -17,8 +17,8 @@ const API_URLS = {
   // Desenvolvimento local (navegador) 
   development: 'http://localhost:3001', 
   
-  // Produção online (Render) - TEMPORÁRIO: usar servidor gratuito
-  production: 'https://my-json-server.typicode.com/typicode/demo', 
+  // Produção online (Render) - Backend real
+  production: 'https://liga-do-bem-api.onrender.com', 
   
   // Rede local (para testes na mesma rede) 
   local_network: `http://${getLocalIP()}:3001`, 
