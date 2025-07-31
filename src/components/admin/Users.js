@@ -189,7 +189,7 @@ const Users = () => {
             type="text"
             placeholder="Nome completo"
             value={newUserData.name}
-            onChange={(e) => setNewUserData({...newUserData, name: e.target.value})}
+            onChange={(e) => setNewUserData(prev => ({...prev, name: e.target.value}))}
             className="input-field"
             required
           />
@@ -197,7 +197,7 @@ const Users = () => {
             type="text"
             placeholder="CPF"
             value={newUserData.cpf}
-            onChange={(e) => setNewUserData({...newUserData, cpf: e.target.value})}
+            onChange={(e) => setNewUserData(prev => ({...prev, cpf: e.target.value}))}
             className="input-field"
             required
           />
@@ -205,21 +205,21 @@ const Users = () => {
             type="email"
             placeholder="Email (opcional)"
             value={newUserData.email}
-            onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
+            onChange={(e) => setNewUserData(prev => ({...prev, email: e.target.value}))}
             className="input-field"
           />
           <input
             type="tel"
             placeholder="Telefone (opcional)"
             value={newUserData.phone}
-            onChange={(e) => setNewUserData({...newUserData, phone: e.target.value})}
+            onChange={(e) => setNewUserData(prev => ({...prev, phone: e.target.value}))}
             className="input-field"
           />
           <input
             type="password"
             placeholder="Senha"
             value={newUserData.password}
-            onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
+            onChange={(e) => setNewUserData(prev => ({...prev, password: e.target.value}))}
             className="input-field"
             required
           />
@@ -228,7 +228,7 @@ const Users = () => {
               type="checkbox" 
               id="isActive" 
               checked={newUserData.isActive}
-              onChange={(e) => setNewUserData({...newUserData, isActive: e.target.checked})}
+              onChange={(e) => setNewUserData(prev => ({...prev, isActive: e.target.checked}))}
               className="rounded" 
             />
             <label htmlFor="isActive" className="text-sm text-gray-700">

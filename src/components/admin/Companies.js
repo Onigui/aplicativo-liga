@@ -96,9 +96,9 @@ const Companies = () => {
   const handleSaveEdit = async (updatedCompany) => {
     setActionLoading('saving');
     try {
-      const response = await apiService.updateCompany(updatedCompany._id, updatedCompany);
+      const response = await apiService.updateCompany(updatedCompany.id, updatedCompany);
       if (response.success) {
-        setCompanies(prev => prev.map(c => c._id === updatedCompany._id ? response.company : c));
+        setCompanies(prev => prev.map(c => c.id === updatedCompany.id ? response.company : c));
         setShowEditModal(false);
         setEditingCompany(null);
       } else {
