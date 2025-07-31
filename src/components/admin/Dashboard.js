@@ -40,10 +40,14 @@ const Dashboard = () => {
         
         // 2. Tentar buscar com URL completa
         try {
+          const token = localStorage.getItem('admin_token');
+          console.log('🔑 [DASHBOARD] Token encontrado:', token ? 'SIM' : 'NÃO');
+          console.log('🔑 [DASHBOARD] Token:', token ? token.substring(0, 20) + '...' : 'NENHUM');
+          
           const response = await axios.get('https://liga-do-bem-api.onrender.com/api/admin/dashboard', { 
             timeout: 5000,
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+              'Authorization': `Bearer ${token}`
             }
           });
           console.log('✅ Dados do dashboard recebidos da URL completa:', response.data);

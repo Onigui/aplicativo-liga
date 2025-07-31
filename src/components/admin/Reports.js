@@ -41,7 +41,13 @@ const Reports = () => {
         type: 'all'
       };
 
-      const response = await axios.get('/api/admin/reports', { params });
+      const token = localStorage.getItem('admin_token');
+      const response = await axios.get('https://liga-do-bem-api.onrender.com/api/admin/reports', { 
+        params,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Dados de relatório recebidos:', response.data);
       setReportData(response.data);
     } catch (error) {

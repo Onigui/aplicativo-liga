@@ -29,7 +29,12 @@ const Settings = () => {
     try {
       setLoading(true);
       console.log('🔍 Buscando configurações...');
-      const response = await axios.get('/api/admin/settings');
+      const token = localStorage.getItem('admin_token');
+      const response = await axios.get('https://liga-do-bem-api.onrender.com/api/admin/settings', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Configurações recebidas:', response.data);
       setSettings(response.data);
     } catch (error) {
@@ -44,7 +49,12 @@ const Settings = () => {
     try {
       setSaving(true);
       console.log('💾 Salvando configurações:', settings);
-      await axios.put('/api/admin/settings', settings);
+      const token = localStorage.getItem('admin_token');
+      await axios.put('https://liga-do-bem-api.onrender.com/api/admin/settings', settings, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setMessage('Configurações salvas com sucesso!');
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {

@@ -110,8 +110,7 @@ const Users = () => {
         ));
       }
       
-      await axios.put(`${API_BASE_URL}/users/${userId}`, updatedUser);
-      console.log('✅ Status atualizado com sucesso');
+             console.log('✅ Status atualizado com sucesso');
       
       fetchUsers();
     } catch (error) {
