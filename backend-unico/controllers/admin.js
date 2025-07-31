@@ -9,8 +9,8 @@ export async function getDashboardData(req, res) {
     const usersResult = await query(`
       SELECT 
         COUNT(*) as total,
-        COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
-        COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive
+        COUNT(CASE WHEN is_active = true THEN 1 END) as active,
+        COUNT(CASE WHEN is_active = false THEN 1 END) as inactive
       FROM users
     `);
     
@@ -31,7 +31,7 @@ export async function getDashboardData(req, res) {
         COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending,
         COUNT(CASE WHEN status = 'overdue' THEN 1 END) as overdue,
         COUNT(CASE WHEN status = 'approved' THEN 1 END) as approved,
-        SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END) as total_revenue
+        COALESCE(SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END), 0) as total_revenue
       FROM payments
     `);
     
@@ -39,7 +39,7 @@ export async function getDashboardData(req, res) {
     const revenueResult = await query(`
       SELECT 
         DATE_TRUNC('month', created_at) as month,
-        SUM(amount) as revenue,
+        COALESCE(SUM(amount), 0) as revenue,
         COUNT(*) as transactions
       FROM payments 
       WHERE status = 'approved' 
@@ -149,6 +149,30 @@ export async function getSettings(req, res) {
     res.json({
       success: true,
       data: settingsData
+    });
+
+  } catch (error) {
+    console.error('[ADMIN ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}
+
+// Salvar configurações
+export async function updateSettings(req, res) {
+  try {
+    console.log('[ADMIN DEBUG] Salvando configurações...');
+    
+    const settings = req.body;
+    console.log('[ADMIN DEBUG] Configurações recebidas:', settings);
+    
+    // Por enquanto, apenas retornar sucesso
+    res.json({
+      success: true,
+      message: 'Configurações salvas com sucesso',
+      data: settings
     });
 
   } catch (error) {

@@ -65,6 +65,22 @@ const createTables = async () => {
     `);
     console.log('✅ Tabela donations criada');
 
+    // Tabela de pagamentos (alias para donations)
+    await query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        amount DECIMAL(10,2) NOT NULL,
+        payment_method VARCHAR(50),
+        status VARCHAR(20) DEFAULT 'pending',
+        transaction_id VARCHAR(255),
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Tabela payments criada');
+
     // Tabela de eventos
     await query(`
       CREATE TABLE IF NOT EXISTS events (

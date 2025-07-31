@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDashboardData, getReports, getSettings } from '../controllers/admin.js';
+import { getDashboardData, getReports, getSettings, updateSettings } from '../controllers/admin.js';
 import { validateToken, requireAdmin } from '../controllers/auth.js';
 
 const router = express.Router();
@@ -16,5 +16,6 @@ router.get('/reports', getReports);
 
 // Configurações
 router.get('/settings', getSettings);
+router.put('/settings', updateSettings);
 
 export default router; 
