@@ -96,15 +96,23 @@ const Companies = () => {
   const handleSaveEdit = async (updatedCompany) => {
     setActionLoading('saving');
     try {
+      console.log('🔧 [COMPANIES] Salvando empresa:', updatedCompany);
+      console.log('🔧 [COMPANIES] ID da empresa:', updatedCompany.id);
+      
       const response = await apiService.updateCompany(updatedCompany.id, updatedCompany);
+      console.log('🔧 [COMPANIES] Resposta da API:', response);
+      
       if (response.success) {
+        console.log('✅ [COMPANIES] Empresa atualizada com sucesso');
         setCompanies(prev => prev.map(c => c.id === updatedCompany.id ? response.company : c));
         setShowEditModal(false);
         setEditingCompany(null);
       } else {
+        console.error('❌ [COMPANIES] Erro na resposta:', response.message);
         setError(response.message || 'Erro ao editar empresa');
       }
     } catch (err) {
+      console.error('❌ [COMPANIES] Erro ao editar empresa:', err);
       setError('Erro ao editar empresa no servidor');
     } finally {
       setActionLoading(null);
