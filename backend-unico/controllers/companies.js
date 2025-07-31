@@ -154,7 +154,13 @@ export async function createCompany(req, res) {
 // Atualizar empresa
 export async function updateCompany(req, res) {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
+    
+    // Se o ID não estiver nos params, tentar pegar do body
+    if (!id || id === 'undefined') {
+      id = req.body.id;
+    }
+    
     console.log('[COMPANIES DEBUG] Atualizando empresa ID:', id);
     console.log('[COMPANIES DEBUG] Dados para atualização:', req.body);
     
