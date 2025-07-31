@@ -1,70 +1,193 @@
-# Getting Started with Create React App
+# 🐾 Liga do Bem - Botucatu
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Sistema completo para ONG de proteção animal em Botucatu-SP, integrando app público, painel administrativo e sistema de parcerias empresariais.
 
-## Available Scripts
+## 🌟 Características
 
-In the project directory, you can run:
+- **App Público**: Para membros da comunidade
+- **Painel Administrativo**: Gestão completa da ONG
+- **Sistema de Parcerias**: Empresas oferecem descontos aos membros
+- **App Mobile**: Versão Android com Capacitor
+- **Geolocalização**: Encontre empresas parceiras próximas
+- **Sistema de Doações**: Histórico e gestão de contribuições
 
-### `npm start`
+## 🚀 Tecnologias
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Frontend**: React 19 + Tailwind CSS
+- **Backend**: Node.js + Express
+- **Mobile**: Capacitor Android
+- **Banco de Dados**: PostgreSQL (Render)
+- **Deploy**: Render + GitHub
+- **Autenticação**: JWT Tokens
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📱 Funcionalidades
 
-### `npm test`
+### Para Membros
+- ✅ Cadastro e login por CPF
+- ✅ Carteirinha digital
+- ✅ Busca de empresas parceiras
+- ✅ Sistema de doações
+- ✅ Guia PET e legislação
+- ✅ Eventos da ONG
+- ✅ Telefones de emergência
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Para Empresas
+- ✅ Cadastro como parceira
+- ✅ Definição de descontos
+- ✅ Horários de funcionamento
+- ✅ Aprovação administrativa
 
-### `npm run build`
+### Para Administradores
+- ✅ Dashboard com métricas
+- ✅ Gestão de usuários
+- ✅ Aprovação de empresas
+- ✅ Relatórios e analytics
+- ✅ Configurações do sistema
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🛠️ Instalação Local
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Pré-requisitos
+- Node.js 18+
+- npm ou yarn
+- Git
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Passos
 
-### `npm run eject`
+1. **Clone o repositório**
+```bash
+git clone https://github.com/seu-usuario/liga-do-bem-app.git
+cd liga-do-bem-app
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+2. **Instale as dependências**
+```bash
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. **Configure as variáveis de ambiente**
+```bash
+cp .env.example .env.local
+# Edite o arquivo .env.local com suas configurações
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. **Inicie o desenvolvimento**
+```bash
+# Inicia frontend + backend
+npm run dev
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Ou apenas o frontend
+npm start
+```
 
-## Learn More
+## 🌐 URLs de Acesso
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:3001
+- **Admin**: http://localhost:3000/admin
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🔐 Credenciais de Teste
 
-### Code Splitting
+### Administrador
+- **CPF**: 000.000.000-00
+- **Senha**: admin123
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Usuário Teste
+- **CPF**: 123.456.789-01
+- **Senha**: 123456
 
-### Analyzing the Bundle Size
+## 📊 Métricas Atuais
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- 🐕 **847 animais resgatados**
+- 👥 **2.341 membros ativos**
+- 🏢 **156 empresas parceiras**
+- 💰 **R$ 89k arrecadados em 2024**
 
-### Making a Progressive Web App
+## 🚀 Deploy
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Render (Recomendado)
 
-### Advanced Configuration
+1. **Conecte seu repositório GitHub ao Render**
+2. **Configure as variáveis de ambiente**:
+   - `NODE_ENV=production`
+   - `DATABASE_URL=sua_url_postgresql`
+   - `JWT_SECRET=sua_chave_secreta`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+3. **Deploy automático** a cada push para `main`
 
-### Deployment
+### Netlify (Alternativo)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```bash
+npm run build
+# Faça upload da pasta build/
+```
 
-### `npm run build` fails to minify
+## 📱 App Mobile
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Build Android
+```bash
+npm run build
+npx cap add android
+npx cap sync
+npx cap open android
+```
+
+### Build iOS
+```bash
+npm run build
+npx cap add ios
+npx cap sync
+npx cap open ios
+```
+
+## 🔧 Scripts Disponíveis
+
+- `npm start` - Inicia o servidor de desenvolvimento
+- `npm run build` - Build de produção
+- `npm run dev` - Inicia frontend + backend
+- `npm test` - Executa testes
+- `npm run deploy:prepare` - Prepara para deploy
+
+## 📁 Estrutura do Projeto
+
+```
+liga-do-bem-app/
+├── src/
+│   ├── components/          # Componentes React
+│   │   ├── admin/          # Painel administrativo
+│   │   └── services/       # Serviços de API
+│   ├── config/             # Configurações
+│   └── App.js              # App principal
+├── backend-unico/          # Backend Express
+├── android/                # App Android (Capacitor)
+├── netlify/                # Funções Netlify
+└── public/                 # Arquivos estáticos
+```
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 📞 Contato
+
+- **Email**: contato@ligadobembotucatu.org.br
+- **Telefone**: (14) 3815-1234
+- **Site**: https://ligadobembotucatu.org.br
+
+## 🙏 Agradecimentos
+
+- Comunidade de Botucatu
+- Empresas parceiras
+- Voluntários da ONG
+- Contribuidores do projeto
+
+---
+
+**🐾 Juntos fazemos a diferença na vida dos animais! 🐾** 

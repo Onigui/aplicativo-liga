@@ -1,43 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="description" content="Liga do Bem Botucatu - Aplicativo oficial para cuidados com animais, parcerias empresariais e doações. Juntos fazemos a diferença na vida dos animais!" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Liga do Bem" />
+    <meta name="application-name" content="Liga do Bem" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-TileColor" content="#2563eb" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://liga-do-bem.netlify.app/" />
+    <meta property="og:title" content="Liga do Bem Botucatu" />
+    <meta property="og:description" content="Cuidando dos animais com amor e dedicação. Aplicativo oficial da Liga do Bem Botucatu." />
+    <meta property="og:image" content="%PUBLIC_URL%/logo512.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://liga-do-bem.netlify.app/" />
+    <meta property="twitter:title" content="Liga do Bem Botucatu" />
+    <meta property="twitter:description" content="Cuidando dos animais com amor e dedicação. Aplicativo oficial da Liga do Bem Botucatu." />
+    <meta property="twitter:image" content="%PUBLIC_URL%/logo512.png" />
+    
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <link rel="apple-touch-icon" sizes="152x152" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="%PUBLIC_URL%/logo192.png" />
+    
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    
+    <title>Liga do Bem Botucatu - Cuidando dos Animais</title>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
+        <h2>Liga do Bem Botucatu</h2>
+        <p>Você precisa habilitar JavaScript para usar este aplicativo.</p>
+        <p>Por favor, ative o JavaScript em seu navegador e recarregue a página.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('✅ [PWA] Service Worker registrado com sucesso:', registration.scope);
+              
+              // Verificar atualizações
+              registration.addEventListener('updatefound', () => {
+                console.log('🔄 [PWA] Nova versão disponível');
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nova versão disponível
+                    if (confirm('🔄 Nova versão disponível! Deseja atualizar o aplicativo?')) {
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch(function(error) {
+              console.log('❌ [PWA] Falha ao registrar Service Worker:', error);
+            });
+        });
+      } else {
+        console.log('❌ [PWA] Service Worker não é suportado neste navegador');
+      }
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+      // Prompt de instalação PWA
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('📱 [PWA] Prompt de instalação disponível');
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Mostrar botão de instalação customizado
+        const installButton = document.createElement('button');
+        installButton.innerHTML = '📱 Instalar App';
+        installButton.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: #2563eb;
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 25px;
+          font-weight: bold;
+          cursor: pointer;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+          z-index: 1000;
+          font-size: 14px;
+        `;
+        
+        installButton.addEventListener('click', async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('📱 [PWA] Resultado da instalação:', outcome);
+            deferredPrompt = null;
+            installButton.remove();
+          }
+        });
+        
+        document.body.appendChild(installButton);
+        
+        // Remover botão após 10 segundos se não usado
+        setTimeout(() => {
+          if (installButton.parentNode) {
+            installButton.remove();
+          }
+        }, 10000);
+      });
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+      // Detectar quando o app foi instalado
+      window.addEventListener('appinstalled', (evt) => {
+        console.log('🎉 [PWA] App instalado com sucesso!');
+      });
+    </script>
   </body>
 </html>

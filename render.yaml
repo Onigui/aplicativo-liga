@@ -1,0 +1,52 @@
+services:
+  # Backend API
+  - type: web
+    name: liga-do-bem-api
+    env: node
+    plan: free
+    buildCommand: cd backend-unico && npm install
+    startCommand: cd backend-unico && npm run migrate && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 86400
+      - key: LOG_LEVEL
+        value: info
+      - key: DEBUG
+        value: false
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+  # Frontend React App
+  - type: web
+    name: liga-do-bem-app
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://liga-do-bem-api.onrender.com
+      - key: REACT_APP_ENV
+        value: production
+    routes:
+      - type: rewrite
+        source: /admin/*
+        destination: /admin/index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    autoDeploy: true
+
+databases:
+  # PostgreSQL Database
+  - name: liga-do-bem-db
+    databaseName: liga_do_bem
+    user: liga_do_bem_user
+    plan: free
+    ipAllowList: [] 

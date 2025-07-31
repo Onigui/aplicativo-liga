@@ -1,0 +1,33 @@
+# Configuração do Netlify para Liga do Bem - App Integrado
+
+[build]
+  # Comando para build do React
+  command = "npm run build"
+  
+  # Pasta que será publicada
+  publish = "build"
+  
+  # Variáveis de ambiente
+  [build.environment]
+    NODE_VERSION = "18"
+    REACT_APP_API_URL = "https://liga-do-bem-api.netlify.app/.netlify/functions"
+
+# Regras de redirecionamento para SPA (Single Page Application)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers para CORS
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Cache para arquivos estáticos
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
