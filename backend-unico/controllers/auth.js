@@ -201,9 +201,13 @@ export async function register(req, res) {
 // Função para validar token (middleware)
 export const validateToken = async (req, res, next) => {
   try {
+    console.log('[TOKEN DEBUG] Validando token...');
+    console.log('[TOKEN DEBUG] Headers:', req.headers);
+    
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[TOKEN DEBUG] Header Authorization inválido:', authHeader);
       return res.status(401).json({
         success: false,
         message: 'Token não fornecido'
@@ -211,8 +215,10 @@ export const validateToken = async (req, res, next) => {
     }
 
     const token = authHeader.substring(7);
+    console.log('[TOKEN DEBUG] Token extraído:', token.substring(0, 20) + '...');
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_key');
+    console.log('[TOKEN DEBUG] Token decodificado:', decoded);
     
     // Buscar usuário no banco
     const result = await query(
@@ -221,12 +227,14 @@ export const validateToken = async (req, res, next) => {
     );
 
     if (result.rows.length === 0) {
+      console.log('[TOKEN DEBUG] Usuário não encontrado no banco');
       return res.status(401).json({
         success: false,
         message: 'Token inválido'
       });
     }
 
+    console.log('[TOKEN DEBUG] Usuário encontrado:', result.rows[0]);
     req.user = result.rows[0];
     next();
 

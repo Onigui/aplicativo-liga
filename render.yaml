@@ -14,7 +14,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
-        value: 86400
+        value: 7d
       - key: LOG_LEVEL
         value: info
       - key: DEBUG
