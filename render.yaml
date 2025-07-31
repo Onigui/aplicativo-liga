@@ -36,8 +36,11 @@ services:
         value: production
     routes:
       - type: rewrite
+        source: /admin
+        destination: /index.html
+      - type: rewrite
         source: /admin/*
-        destination: /admin/index.html
+        destination: /index.html
       - type: rewrite
         source: /*
         destination: /index.html
