@@ -1,0 +1,11 @@
+# Configuração específica do Render para SPA
+routes:
+  - source: /admin
+    destination: /index.html
+    type: rewrite
+  - source: /admin/*
+    destination: /index.html
+    type: rewrite
+  - source: /*
+    destination: /index.html
+    type: rewrite 
