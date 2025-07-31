@@ -268,7 +268,7 @@ const Companies = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="bg-admin-100 rounded-lg p-2"><Building className="h-5 w-5 text-admin-600" /></div>
-                      <div className="ml-3"><div className="text-sm font-medium text-gray-900">{company.companyName}</div><div className="text-sm text-gray-500">{company.email}</div></div>
+                      <div className="ml-3"><div className="text-sm font-medium text-gray-900">{company.company_name || company.companyName}</div><div className="text-sm text-gray-500">{company.email}</div></div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{company.cnpj}</td>
@@ -308,7 +308,7 @@ const Companies = () => {
             <div className="fixed inset-0 transition-opacity" aria-hidden="true"><div className="absolute inset-0 bg-gray-900 opacity-80" onClick={() => setShowModal(false)}></div></div>
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border-2 border-admin-200">
               <div className="bg-gradient-to-br from-white to-gray-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="flex items-start"><div className="bg-admin-100 rounded-lg p-3"><Building className="h-8 w-8 text-admin-600" /></div><div className="mt-3 ml-4 flex-1"><h3 className="text-lg leading-6 font-medium text-gray-900">{selectedCompany.companyName}</h3><div className="mt-2">{getStatusBadge(selectedCompany.status)}</div></div></div>
+                <div className="flex items-start"><div className="bg-admin-100 rounded-lg p-3"><Building className="h-8 w-8 text-admin-600" /></div><div className="mt-3 ml-4 flex-1"><h3 className="text-lg leading-6 font-medium text-gray-900">{selectedCompany.company_name || selectedCompany.companyName}</h3><div className="mt-2">{getStatusBadge(selectedCompany.status)}</div></div></div>
                 <div className="mt-6 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label className="block text-sm font-medium text-gray-700">CNPJ</label><p className="mt-1 text-sm text-gray-900">{selectedCompany.cnpj}</p></div>

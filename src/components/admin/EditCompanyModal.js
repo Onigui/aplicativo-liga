@@ -30,7 +30,7 @@ const EditCompanyModal = ({ company, isOpen, onClose, onSave, isLoading }) => {
     if (isOpen && company) {
       console.log('🔧 [MODAL] Inicializando dados:', company);
       setFormData({
-        companyName: company.companyName || '',
+        companyName: company.company_name || company.companyName || '',
         cnpj: company.cnpj || '',
         address: company.address || '',
         phone: company.phone || '',
@@ -38,7 +38,7 @@ const EditCompanyModal = ({ company, isOpen, onClose, onSave, isLoading }) => {
         discount: company.discount || '',
         description: company.description || '',
         logo: company.logo || '',
-        workingHours: company.workingHours || {
+        workingHours: company.working_hours || company.workingHours || {
           monday: { open: '08:00', close: '18:00', closed: false },
           tuesday: { open: '08:00', close: '18:00', closed: false },
           wednesday: { open: '08:00', close: '18:00', closed: false },
