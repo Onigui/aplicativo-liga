@@ -72,6 +72,7 @@ const App = () => {
   // Verificar se estamos na rota /admin
   const isAdminRoute = window.location.pathname.startsWith('/admin');
   if (isAdminRoute) {
+    console.log('🔍 [APP] Detectada rota admin, não renderizando App.js');
     return null; // Deixar o AppRouter lidar com /admin
   }
   const [currentPage, setCurrentPage] = useState('welcome');

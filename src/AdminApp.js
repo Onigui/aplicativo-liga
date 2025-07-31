@@ -19,6 +19,7 @@ axios.defaults.baseURL = API_BASE_URL;
 axios.defaults.timeout = 10000;
 
 function AdminApp() {
+  console.log('🚀 [ADMIN] AdminApp.js carregado!');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
