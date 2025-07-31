@@ -711,8 +711,8 @@ const App = () => {
       localStorage.setItem('admin_token', adminToken);
       localStorage.setItem('admin_user', JSON.stringify(adminData));
       
-      // Redirecionar para área administrativa
-      window.location.href = '/admin';
+      // Redirecionar para área administrativa usando React Router
+      setCurrentPage('admin');
       return;
     }
 
