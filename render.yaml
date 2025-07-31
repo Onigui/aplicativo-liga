@@ -34,16 +34,7 @@ services:
         value: https://liga-do-bem-api.onrender.com
       - key: REACT_APP_ENV
         value: production
-    routes:
-      - type: rewrite
-        source: /admin
-        destination: /index.html
-      - type: rewrite
-        source: /admin/*
-        destination: /index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html
+
     autoDeploy: true
 
 databases:
