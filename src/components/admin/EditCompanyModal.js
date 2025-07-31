@@ -114,9 +114,18 @@ const EditCompanyModal = ({ company, isOpen, onClose, onSave, isLoading }) => {
     console.log('💾 [MODAL] Salvando alterações:', formData);
     const updatedCompany = {
       ...company,
-      ...formData,
+      // Mapear campos do frontend para o backend
+      company_name: formData.companyName,
+      cnpj: formData.cnpj,
+      address: formData.address,
+      phone: formData.phone,
+      email: formData.email,
+      discount: formData.discount,
+      description: formData.description,
+      working_hours: formData.workingHours,
       updatedAt: new Date().toISOString()
     };
+    console.log('💾 [MODAL] Dados mapeados para backend:', updatedCompany);
     onSave(updatedCompany);
   };
 
