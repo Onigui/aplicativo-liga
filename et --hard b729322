@@ -1,0 +1,12 @@
+[33m71fe811[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: corrigir recursão infinita e restaurar app original funcionando
+[33m58c771c[m fix: corrigir roteamento SPA para /admin no Render
+[33m38d4ba2[m feat: forçar deploy automático - atualizar App.js com timestamp
+[33m8cd58eb[m test: verificar deploy automático no Render - forçar build
+[33m20d084c[m fix: corrigir roteamento SPA no Render - adicionar redirecionamentos para /admin
+[33m5fa9249[m feat: forçar deploy automático no Render - sistema completo
+[33m97744fb[m fix: corrigir configuração da API para produção e adicionar redirecionamentos SPA
+[33m6e04de8[m fix: corrigir erro bcrypt.hash no deploy - usar bcrypt.default.hash
+[33mf93e5f6[m docs: adicionar configuração de deploy com URL do PostgreSQL
+[33mb729322[m feat: sistema completo Liga do Bem com PostgreSQL e deploy automático
+[33m15f4948[m teste
+[33m4db76c1[m :tada: Commit Inicial
