@@ -165,7 +165,7 @@ export async function updateCompany(req, res) {
     console.log('[COMPANIES DEBUG] Dados para atualização:', req.body);
     
     const {
-      companyName,
+      company_name,
       cnpj,
       address,
       phone,
@@ -173,7 +173,7 @@ export async function updateCompany(req, res) {
       discount,
       description,
       category,
-      workingHours,
+      working_hours,
       status
     } = req.body;
     
@@ -207,7 +207,7 @@ export async function updateCompany(req, res) {
       WHERE id = $11
       RETURNING *`,
       [
-        companyName,
+        company_name,
         cnpj,
         address,
         phone || null,
@@ -215,7 +215,7 @@ export async function updateCompany(req, res) {
         discount,
         description || null,
         category,
-        workingHours ? JSON.stringify(workingHours) : null,
+        working_hours ? JSON.stringify(working_hours) : null,
         status,
         id
       ]
