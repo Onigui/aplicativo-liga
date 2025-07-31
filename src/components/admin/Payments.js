@@ -24,7 +24,13 @@ const Payments = () => {
       };
 
       console.log('🔍 Buscando pagamentos com params:', params);
-      const response = await axios.get('/api/admin/payments', { params });
+      const token = localStorage.getItem('admin_token');
+      const response = await axios.get(`${API_BASE_URL}/api/admin/payments`, { 
+        params,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Pagamentos recebidos:', response.data);
       
       setPayments(response.data.payments || []);
@@ -44,7 +50,12 @@ const Payments = () => {
 
     try {
       console.log('🔍 Aprovando pagamento:', paymentId);
-      await axios.put(`/admin/payments/${paymentId}/approve`);
+      const token = localStorage.getItem('admin_token');
+      await axios.put(`${API_BASE_URL}/api/admin/payments/${paymentId}/approve`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Pagamento aprovado com sucesso');
       fetchPayments();
     } catch (error) {
@@ -59,7 +70,12 @@ const Payments = () => {
 
     try {
       console.log('🔍 Rejeitando pagamento:', paymentId, 'Motivo:', reason);
-      await axios.put(`/admin/payments/${paymentId}/reject`, { reason });
+      const token = localStorage.getItem('admin_token');
+      await axios.put(`${API_BASE_URL}/api/admin/payments/${paymentId}/reject`, { reason }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Pagamento rejeitado com sucesso');
       fetchPayments();
     } catch (error) {

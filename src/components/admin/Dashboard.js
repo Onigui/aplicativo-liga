@@ -40,7 +40,12 @@ const Dashboard = () => {
         
         // 2. Tentar buscar com URL completa
         try {
-          const response = await axios.get('http://localhost:3001/api/admin/dashboard', { timeout: 5000 });
+          const response = await axios.get('https://liga-do-bem-api.onrender.com/api/admin/dashboard', { 
+            timeout: 5000,
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+            }
+          });
           console.log('✅ Dados do dashboard recebidos da URL completa:', response.data);
           dashboardData = response.data;
         } catch (fullUrlError) {

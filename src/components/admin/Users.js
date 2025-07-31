@@ -43,11 +43,16 @@ const Users = () => {
       setLoading(true);
       console.log('🔍 Buscando usuários da API...');
       
-      // Buscar usuários diretamente do JSON Server
-      const response = await axios.get(`${API_BASE_URL}/users`);
+      // Buscar usuários do backend com autenticação
+      const token = localStorage.getItem('admin_token');
+      const response = await axios.get(`${API_BASE_URL}/api/admin/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Usuários recebidos:', response.data);
       
-      let filteredUsers = response.data || [];
+      let filteredUsers = response.data.users || [];
       
       // Aplicar filtro de busca se existir
       if (searchTerm) {
@@ -87,16 +92,23 @@ const Users = () => {
     try {
       console.log('🔄 Alterando status do usuário:', { userId, currentStatus });
       
-      // Buscar usuário atual
-      const userResponse = await axios.get(`${API_BASE_URL}/users/${userId}`);
-      const user = userResponse.data;
+      const token = localStorage.getItem('admin_token');
       
-      // Atualizar status
-      const updatedUser = {
-        ...user,
-        isActive: !currentStatus,
-        updatedAt: new Date().toISOString()
-      };
+      // Atualizar status via backend
+      const response = await axios.put(`${API_BASE_URL}/api/admin/users/${userId}/toggle-status`, {
+        isActive: !currentStatus
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.data.success) {
+        // Atualizar lista local
+        setUsers(prev => prev.map(user => 
+          user.id === userId ? { ...user, isActive: !currentStatus } : user
+        ));
+      }
       
       await axios.put(`${API_BASE_URL}/users/${userId}`, updatedUser);
       console.log('✅ Status atualizado com sucesso');
@@ -130,31 +142,22 @@ const Users = () => {
         return;
       }
       
-      // Verificar se CPF já existe
-      const existingUsers = await axios.get(`${API_BASE_URL}/users`);
+      const token = localStorage.getItem('admin_token');
       const cleanCPF = newUserData.cpf.replace(/\D/g, '');
-      const cpfExists = existingUsers.data.find(user => 
-        user.cpf.replace(/\D/g, '') === cleanCPF
-      );
       
-      if (cpfExists) {
-        alert('CPF já cadastrado no sistema');
-        return;
-      }
-      
-      // Criar novo usuário
-      const newUser = {
-        id: Date.now().toString(),
+      // Criar novo usuário via backend
+      const response = await axios.post(`${API_BASE_URL}/api/admin/users`, {
         name: newUserData.name.trim(),
         cpf: cleanCPF,
         email: newUserData.email.trim() || null,
         phone: newUserData.phone.trim() || null,
         password: newUserData.password.trim(),
-        isActive: newUserData.isActive,
-        createdAt: new Date().toISOString()
-      };
-      
-      await axios.post(`${API_BASE_URL}/users`, newUser);
+        isActive: newUserData.isActive
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('✅ Usuário criado com sucesso');
       
       // Resetar formulário e fechar modal
