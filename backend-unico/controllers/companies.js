@@ -1,5 +1,29 @@
 import { query } from '../config/database.js';
 
+// Função para mapear campos do banco para o formato do frontend
+const mapCompanyFields = (company) => {
+  return {
+    id: company.id,
+    companyName: company.company_name,
+    cnpj: company.cnpj,
+    address: company.address,
+    phone: company.phone,
+    email: company.email,
+    discount: company.discount,
+    description: company.description,
+    category: company.category,
+    status: company.status,
+    workingHours: company.working_hours,
+    coordinates: company.coordinates,
+    logoUrl: company.logo_url,
+    website: company.website,
+    approvedAt: company.approved_at,
+    approvedBy: company.approved_by,
+    createdAt: company.created_at,
+    updatedAt: company.updated_at
+  };
+};
+
 // Buscar todas as empresas
 export async function getCompanies(req, res) {
   try {
@@ -22,10 +46,13 @@ export async function getCompanies(req, res) {
     
     console.log('[COMPANIES DEBUG] Retornando', result.rows.length, 'empresas');
     
+    // Mapear campos para o formato do frontend
+    const mappedCompanies = result.rows.map(mapCompanyFields);
+    
     res.json({
       success: true,
-      companies: result.rows,
-      total: result.rows.length
+      companies: mappedCompanies,
+      total: mappedCompanies.length
     });
 
   } catch (error) {
@@ -58,9 +85,12 @@ export async function getCompanyById(req, res) {
     const company = result.rows[0];
     console.log('[COMPANIES DEBUG] Empresa encontrada:', company.company_name);
     
+    // Mapear campos para o formato do frontend
+    const mappedCompany = mapCompanyFields(company);
+    
     res.json({
       success: true,
-      company: company
+      company: mappedCompany
     });
 
   } catch (error) {
@@ -136,9 +166,12 @@ export async function createCompany(req, res) {
     
     console.log('[COMPANIES DEBUG] Empresa criada com sucesso:', newCompany.company_name);
     
+    // Mapear campos para o formato do frontend
+    const mappedCompany = mapCompanyFields(newCompany);
+    
     res.status(201).json({
       success: true,
-      company: newCompany,
+      company: mappedCompany,
       message: 'Empresa criada com sucesso'
     });
 
@@ -225,9 +258,12 @@ export async function updateCompany(req, res) {
     
     console.log('[COMPANIES DEBUG] Empresa atualizada:', updatedCompany.company_name);
     
+    // Mapear campos para o formato do frontend
+    const mappedCompany = mapCompanyFields(updatedCompany);
+    
     res.json({
       success: true,
-      company: updatedCompany,
+      company: mappedCompany,
       message: 'Empresa atualizada com sucesso'
     });
 
@@ -314,9 +350,12 @@ export async function approveCompany(req, res) {
     
     console.log('[COMPANIES DEBUG] Empresa aprovada:', approvedCompany.company_name);
     
+    // Mapear campos para o formato do frontend
+    const mappedCompany = mapCompanyFields(approvedCompany);
+    
     res.json({
       success: true,
-      company: approvedCompany,
+      company: mappedCompany,
       message: 'Empresa aprovada com sucesso'
     });
 
@@ -363,9 +402,12 @@ export async function rejectCompany(req, res) {
     
     console.log('[COMPANIES DEBUG] Empresa rejeitada:', rejectedCompany.company_name);
     
+    // Mapear campos para o formato do frontend
+    const mappedCompany = mapCompanyFields(rejectedCompany);
+    
     res.json({
       success: true,
-      company: rejectedCompany,
+      company: mappedCompany,
       message: 'Empresa rejeitada com sucesso'
     });
 
