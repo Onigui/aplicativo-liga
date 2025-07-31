@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Navigate } from 'react-router-dom';
 import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Mail, MapPin as Location, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp } from 'lucide-react';
 import apiService from './services/api2';
 import './App.css';
@@ -711,8 +712,8 @@ const App = () => {
       localStorage.setItem('admin_token', adminToken);
       localStorage.setItem('admin_user', JSON.stringify(adminData));
       
-      // Redirecionar para área administrativa usando React Router
-      setCurrentPage('admin');
+      // Redirecionar para área administrativa completa
+      window.location.href = '/admin';
       return;
     }
 
@@ -3406,7 +3407,7 @@ const App = () => {
       case 'legislation': return renderLegislation();
       case 'phones': return renderPhones();
       case 'events': return renderEvents();
-      case 'admin': return renderAdmin();
+      case 'admin': return <Navigate to="/admin" replace />;
       default: return renderWelcome();
     }
   };
