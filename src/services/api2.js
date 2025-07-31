@@ -137,9 +137,9 @@ class ApiService {
   // === MÉTODOS PARA USUÁRIOS E AUTENTICAÇÃO ===
   async login(username, password) {
     try {
-      const response = await this.request('/api/admin/auth/login', {
+      const response = await this.request('/api/auth/login', {
         method: 'POST',
-        body: { username, password },
+        body: { username: username, password },
       });
       // Salvar token se existir
       if (response.token) {
