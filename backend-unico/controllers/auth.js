@@ -4,6 +4,10 @@ import { query } from '../config/database.js';
 
 // Função para gerar token JWT
 const generateToken = (user) => {
+  // Forçar expiração de 7 dias
+  const expiresIn = '7d';
+  console.log('[JWT DEBUG] expiresIn forçado para:', expiresIn);
+  
   return jwt.sign(
     { 
       id: user.id, 
@@ -12,7 +16,7 @@ const generateToken = (user) => {
     },
     process.env.JWT_SECRET || 'fallback_secret_key',
     { 
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d' 
+      expiresIn: expiresIn
     }
   );
 };
