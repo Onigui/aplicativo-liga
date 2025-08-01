@@ -1884,11 +1884,11 @@ const App = () => {
                   setShowMenu(false);
                 }}
               >
-                <div className="bg-gradient-to-br from-orange-400 to-amber-500 p-3 rounded-xl shadow-lg">
+                <div className="bg-gradient-to-br from-emerald-400 to-green-500 p-3 rounded-xl shadow-lg">
                   <img 
                     src="/icone-usuario.png" 
                     alt="Ícone Usuário" 
-                    className="h-[18px] w-[18px] object-contain"
+                    className="h-[18px] w-[18px] object-contain filter brightness-0 invert"
                   />
                 </div>
                 <span className="font-semibold">Meu Perfil</span>
@@ -2011,11 +2011,11 @@ const App = () => {
           }}
           className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
         >
-          <div className="bg-gradient-to-br from-orange-400 to-amber-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
+          <div className="bg-gradient-to-br from-emerald-400 to-green-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
             <img 
               src="/icone-usuario.png" 
               alt="Ícone Usuário" 
-              className="h-10 w-10 object-contain"
+              className="h-10 w-10 object-contain filter brightness-0 invert"
             />
           </div>
           <span className="text-white font-bold text-lg">Meu Perfil</span>
@@ -2035,11 +2035,11 @@ const App = () => {
           onClick={() => setCurrentPage('adoption')}
           className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
         >
-          <div className="bg-gradient-to-br from-orange-500 to-red-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
+          <div className="bg-gradient-to-br from-pink-400 to-rose-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
             <img 
               src="/icone-adocao.png" 
               alt="Ícone Adoção" 
-              className="h-10 w-10 object-contain"
+              className="h-10 w-10 object-contain filter brightness-0 invert"
             />
           </div>
           <span className="text-white font-bold text-lg">Adoção</span>
