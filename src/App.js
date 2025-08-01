@@ -3870,6 +3870,25 @@ const App = () => {
     </div>
   );
 
+  // Funções para área empresarial
+  const handleCompanyLogin = (companyData) => {
+    setCompanyUser(companyData);
+    setIsCompanyAuthenticated(true);
+    setShowCompanyLogin(false);
+    console.log('✅ Empresa logada:', companyData);
+  };
+
+  const handleCompanyLogout = () => {
+    setCompanyUser(null);
+    setIsCompanyAuthenticated(false);
+    setCurrentPage('welcome');
+    console.log('🚪 Empresa deslogada');
+  };
+
+  const handleBackToMainLogin = () => {
+    setShowCompanyLogin(false);
+  };
+
   const renderCurrentPage = () => {
     // Se empresa estiver autenticada, mostrar dashboard empresarial
     if (isCompanyAuthenticated && companyUser) {
@@ -4443,25 +4462,6 @@ const App = () => {
       )}
     </div>
   );
-
-  // Funções para área empresarial
-  const handleCompanyLogin = (companyData) => {
-    setCompanyUser(companyData);
-    setIsCompanyAuthenticated(true);
-    setShowCompanyLogin(false);
-    console.log('✅ Empresa logada:', companyData);
-  };
-
-  const handleCompanyLogout = () => {
-    setCompanyUser(null);
-    setIsCompanyAuthenticated(false);
-    setCurrentPage('welcome');
-    console.log('🚪 Empresa deslogada');
-  };
-
-  const handleBackToMainLogin = () => {
-    setShowCompanyLogin(false);
-  };
 
   return (
     <div className="max-w-md mx-auto min-h-screen relative overflow-hidden">
