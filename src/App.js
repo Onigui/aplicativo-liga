@@ -1154,8 +1154,11 @@ const App = () => {
 
     const initAdvancedServices = async () => {
       try {
+        console.log('🔄 Inicializando serviços avançados...');
         await notificationService.init();
+        console.log('✅ NotificationService inicializado');
         await gamificationService.init();
+        console.log('✅ GamificationService inicializado');
         console.log('✅ Serviços avançados inicializados com sucesso');
       } catch (error) {
         console.error('❌ Erro ao inicializar serviços avançados:', error);
@@ -2376,7 +2379,10 @@ const App = () => {
         </button>
         
         <button
-          onClick={() => setShowUserProgress(true)}
+          onClick={() => {
+            console.log('🎯 Botão Meu Progresso clicado!');
+            setShowUserProgress(true);
+          }}
           className="bg-gradient-to-br from-purple-500 to-pink-600 text-white p-4 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl"
         >
           <div className="flex items-center justify-center space-x-3">

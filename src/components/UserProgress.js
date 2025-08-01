@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Star, Award, Gift, TrendingUp, Target, Users, Crown, Zap, Heart, Shield, MapPin } from 'lucide-react';
+import { Trophy, Star, Award, Gift, TrendingUp, Target, Users, Crown, Zap, Heart, Shield, MapPin, X } from 'lucide-react';
 import gamificationService from '../services/gamificationService';
 
 const UserProgress = ({ user, onClose }) => {
