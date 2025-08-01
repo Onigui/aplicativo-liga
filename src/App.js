@@ -18,6 +18,7 @@ import QRCodeValidator from './components/QRCodeValidator';
 import UserProgress from './components/UserProgress';
 import CompanyLogin from './components/CompanyLogin';
 import CompanyDashboard from './components/CompanyDashboard';
+import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
 console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais');
@@ -233,6 +234,7 @@ const App = () => {
   const [showCompanyLogin, setShowCompanyLogin] = useState(false);
   const [companyUser, setCompanyUser] = useState(null);
   const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
+  const [showCompanyRegistrationModal, setShowCompanyRegistrationModal] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -1663,34 +1665,53 @@ const App = () => {
           </p>
         </div>
 
-        {/* Success Message */}
-        {companySuccess && (
-          <div className="mb-6 p-4 bg-green-500/20 border border-green-400/30 rounded-2xl">
-            <div className="flex items-center space-x-3">
-              <Check className="h-6 w-6 text-green-400" />
-              <div>
-                <p className="text-green-300 font-semibold">Cadastro enviado com sucesso!</p>
-                <p className="text-green-400 text-sm mt-1">
-                  Aguarde a aprovação da administração. Você será contactado em breve.
-                </p>
+        {/* Content */}
+        <div className="glass border border-white/20 rounded-3xl p-8 backdrop-blur-xl text-center">
+          <div className="mb-8">
+            <div className="w-24 h-24 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Building className="h-12 w-12 text-blue-300" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Cadastro Simplificado
+            </h2>
+            <p className="text-purple-200 mb-6">
+              Preencha os dados básicos da sua empresa e comece a oferecer descontos para nossos usuários.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowCompanyRegistrationModal(true)}
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
+          >
+            <Building className="h-6 w-6" />
+            <span>Cadastrar Empresa</span>
+          </button>
+
+          <div className="mt-8 p-6 bg-white/10 rounded-2xl">
+            <h3 className="text-lg font-semibold text-white mb-3">Benefícios</h3>
+            <div className="space-y-3 text-left">
+              <div className="flex items-center space-x-3">
+                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span className="text-purple-200 text-sm">Acesso à base de clientes qualificados</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span className="text-purple-200 text-sm">Dashboard para gerenciar descontos</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span className="text-purple-200 text-sm">Validador de carteirinhas em tempo real</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
+                <span className="text-purple-200 text-sm">Suporte completo da equipe</span>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Form Container */}
-        <div className="glass border border-white/20 rounded-3xl p-8 backdrop-blur-xl">
-          {/* Error Message */}
-          {companyError && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-2xl">
-              <div className="flex items-center space-x-3">
-                <X className="h-5 w-5 text-red-400" />
-                <p className="text-red-300 text-sm">{companyError}</p>
-              </div>
-            </div>
-          )}
-          
-          <form onSubmit={handleCompanyRegister} className="space-y-6">
+        </div>
+      </div>
+    </div>
+  );
             {/* Company Name Input */}
             <div>
               <label className="block text-sm font-semibold text-purple-200 mb-2">
@@ -1938,37 +1959,8 @@ const App = () => {
                 'Enviar Cadastro'
               )}
             </button>
-          </form>
 
-          {/* Help Text */}
-          <div className="mt-6 text-center">
-            <p className="text-purple-200 text-sm">
-              <button
-                onClick={() => setCurrentPage('welcome')}
-                className="text-cyan-300 hover:text-cyan-200 font-semibold hover:underline transition-colors duration-200"
-              >
-                ← Voltar ao início
-              </button>
-            </p>
-          </div>
-        </div>
-
-        {/* Info Box */}
-        <div className="mt-6 glass border border-white/20 rounded-2xl p-4">
-          <div className="flex items-start space-x-3">
-            <Info className="h-5 w-5 text-blue-300 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-blue-200 text-sm font-semibold mb-1">Processo de Aprovação</p>
-              <p className="text-purple-200 text-xs leading-relaxed">
-                Após o envio, nossa equipe analisará sua empresa e entrará em contato em até 2 dias úteis. 
-                Empresas aprovadas receberão um certificado digital de parceria.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const renderHeader = () => (
 
 
 
@@ -3887,6 +3879,14 @@ const App = () => {
 
   const handleBackToMainLogin = () => {
     setShowCompanyLogin(false);
+  };
+
+  const handleCompanyRegistration = (companyData) => {
+    // Simular cadastro bem-sucedido
+    console.log('✅ Empresa cadastrada:', companyData);
+    setShowCompanyRegistrationModal(false);
+    setCurrentPage('welcome');
+    // Aqui você pode adicionar uma notificação de sucesso
   };
 
   const renderCurrentPage = () => {

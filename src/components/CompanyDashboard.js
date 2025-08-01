@@ -267,49 +267,100 @@ const CompanyDashboard = ({ company, onLogout }) => {
           <h3 className="text-lg font-semibold text-gray-800">Horários de Funcionamento</h3>
         </div>
         <div className="p-6">
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
             {Object.entries(companyData.workingHours).map(([day, hours]) => (
-              <div key={day} className="flex items-center space-x-4">
-                <div className="w-24">
-                  <span className="text-sm font-medium text-gray-700 capitalize">
-                    {day === 'monday' ? 'Segunda' :
-                     day === 'tuesday' ? 'Terça' :
-                     day === 'wednesday' ? 'Quarta' :
-                     day === 'thursday' ? 'Quinta' :
-                     day === 'friday' ? 'Sexta' :
-                     day === 'saturday' ? 'Sábado' : 'Domingo'}
-                  </span>
+              <div key={day} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <div className="w-20">
+                    <span className="text-sm font-medium text-gray-700 capitalize">
+                      {day === 'monday' ? 'Segunda' :
+                       day === 'tuesday' ? 'Terça' :
+                       day === 'wednesday' ? 'Quarta' :
+                       day === 'thursday' ? 'Quinta' :
+                       day === 'friday' ? 'Sexta' :
+                       day === 'saturday' ? 'Sábado' : 'Domingo'}
+                    </span>
+                  </div>
+                  
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={hours.isOpen}
+                      onChange={(e) => updateWorkingHours(day, 'isOpen', e.target.checked)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-600">Aberto</span>
+                  </label>
                 </div>
-                
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={hours.isOpen}
-                    onChange={(e) => updateWorkingHours(day, 'isOpen', e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-600">Aberto</span>
-                </label>
 
                 {hours.isOpen && (
-                  <>
+                  <div className="flex items-center space-x-2">
                     <input
                       type="time"
                       value={hours.open}
                       onChange={(e) => updateWorkingHours(day, 'open', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
-                    <span className="text-gray-600">às</span>
+                    <span className="text-gray-600 text-sm">às</span>
                     <input
                       type="time"
                       value={hours.close}
                       onChange={(e) => updateWorkingHours(day, 'close', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
-                  </>
+                  </div>
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Logo da empresa */}
+      <div className="bg-white rounded-xl shadow-sm border">
+        <div className="p-6 border-b">
+          <h3 className="text-lg font-semibold text-gray-800">Logo da Empresa</h3>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center space-x-6">
+            <div className="w-24 h-24 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+              {companyData.logo ? (
+                <img 
+                  src={companyData.logo} 
+                  alt="Logo da empresa" 
+                  className="w-20 h-20 object-contain rounded"
+                />
+              ) : (
+                <div className="text-center">
+                  <Building className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-xs text-gray-500">Sem logo</p>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload de Logo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      setCompanyData(prev => ({ ...prev, logo: e.target.result }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 2MB
+              </p>
+            </div>
           </div>
         </div>
       </div>
