@@ -27,21 +27,26 @@ const API_URLS = {
   app: 'https://my-json-server.typicode.com/typicode/demo' 
 }; 
  
-// Determinar qual URL usar baseado no ambiente 
-let baseURL; 
- 
-if (isApp) { 
-  baseURL = API_URLS.app; 
-  console.log('🔧 Detectado: App móvel'); 
-} else if (process.env.NODE_ENV === 'production') { 
-  baseURL = API_URLS.production; 
-  console.log('🔧 Detectado: Produção'); 
-} else if (process.env.REACT_APP_USE_NETWORK) { 
-  baseURL = API_URLS.local_network; 
-  console.log('🔧 Detectado: Rede local'); 
-} else { 
-  baseURL = API_URLS.development; 
-  console.log('🔧 Detectado: Desenvolvimento local'); 
+// Determinar qual URL usar baseado no ambiente
+let baseURL;
+
+// Forçar uso da API de produção para garantir que funcione no deploy
+if (process.env.REACT_APP_API_URL) {
+  baseURL = process.env.REACT_APP_API_URL;
+  console.log('🔧 Override: Usando variável de ambiente');
+} else if (isApp) {
+  baseURL = API_URLS.app;
+  console.log('🔧 Detectado: App móvel');
+} else if (process.env.NODE_ENV === 'production') {
+  baseURL = API_URLS.production;
+  console.log('🔧 Detectado: Produção');
+} else if (process.env.REACT_APP_USE_NETWORK) {
+  baseURL = API_URLS.local_network;
+  console.log('🔧 Detectado: Rede local');
+} else {
+  // Forçar produção mesmo em desenvolvimento para testar o deploy
+  baseURL = API_URLS.production;
+  console.log('🔧 Forçado: Usando API de produção para teste');
 } 
  
 // Permitir override via variável de ambiente 

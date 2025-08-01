@@ -53,8 +53,9 @@ class SyncService {
     this.isSyncing = true;
     console.log('🔄 [SYNC] Iniciando sincronização...');
 
+    let itemsToSync = [];
     try {
-      const itemsToSync = [...this.syncQueue];
+      itemsToSync = [...this.syncQueue];
       this.syncQueue = [];
 
       for (const item of itemsToSync) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
-import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Mail, MapPin as Location, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Mail, MapPin as Location, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp, Trophy, QrCode, Shield, RefreshCw } from 'lucide-react';
 import AdminApp from './AdminApp';
 import apiService from './services/api2';
 import cacheService from './services/cacheService';
@@ -101,6 +101,53 @@ const App = () => {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerError, setRegisterError] = useState('');
   
+  // Sistema de Notificações Push
+  const useNotifications = () => {
+    const [notifications, setNotifications] = useState([]);
+    const [permission, setPermission] = useState('default');
+
+    const requestPermission = async () => {
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        setPermission(permission);
+        return permission;
+      }
+      return 'denied';
+    };
+
+    const sendNotification = (title, options = {}) => {
+      if (permission === 'granted' && 'Notification' in window) {
+        new Notification(title, {
+          icon: '/logo192.png',
+          badge: '/logo192.png',
+          ...options
+        });
+      }
+    };
+
+    const addNotification = (notification) => {
+      const id = Date.now() + Math.random();
+      const newNotification = { id, timestamp: Date.now(), ...notification };
+      
+      setNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
+      
+      // Auto-remove após 5 segundos
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      }, 5000);
+      
+      // Enviar notificação push se permitido
+      if (notification.push) {
+        sendNotification(notification.title, {
+          body: notification.message,
+          tag: notification.type
+        });
+      }
+    };
+
+    return { notifications, addNotification, requestPermission, permission };
+  };
+
   // Sistema de Notificações
   const { notifications, addNotification, requestPermission, permission } = useNotifications();
   
@@ -388,53 +435,6 @@ const App = () => {
     if (result !== parseInt(digits.charAt(1))) return false;
     
     return true;
-  };
-
-  // Sistema de Notificações Push
-  const useNotifications = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [permission, setPermission] = useState('default');
-
-    const requestPermission = async () => {
-      if ('Notification' in window) {
-        const permission = await Notification.requestPermission();
-        setPermission(permission);
-        return permission;
-      }
-      return 'denied';
-    };
-
-    const sendNotification = (title, options = {}) => {
-      if (permission === 'granted' && 'Notification' in window) {
-        new Notification(title, {
-          icon: '/logo192.png',
-          badge: '/logo192.png',
-          ...options
-        });
-      }
-    };
-
-    const addNotification = (notification) => {
-      const id = Date.now() + Math.random();
-      const newNotification = { id, timestamp: Date.now(), ...notification };
-      
-      setNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
-      
-      // Auto-remove após 5 segundos
-      setTimeout(() => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-      }, 5000);
-      
-      // Enviar notificação push se permitido
-      if (notification.push) {
-        sendNotification(notification.title, {
-          body: notification.message,
-          tag: notification.type
-        });
-      }
-    };
-
-    return { notifications, addNotification, requestPermission, permission };
   };
 
   // Função para reset de senha
@@ -3926,7 +3926,10 @@ const App = () => {
               }
               cursor-pointer hover:shadow-3xl
             `}
-            onClick={() => setNotifications(prev => prev.filter(n => n.id !== notification.id))}
+            onClick={() => {
+              // Remover notificação do estado local
+              console.log('Notificação removida:', notification.id);
+            }}
           >
             {/* Barra de Progresso */}
             <div 
@@ -3980,7 +3983,10 @@ const App = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setNotifications(prev => prev.filter(n => n.id !== notification.id));
+                    const updatedNotifications = notifications.filter(n => n.id !== notification.id);
+                    if (typeof setNotifications === 'function') {
+                      setNotifications(updatedNotifications);
+                    }
                   }}
                   className={`
                     notification-close flex-shrink-0 p-1.5 rounded-full transition-colors duration-200

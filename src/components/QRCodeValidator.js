@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { QrCode, Check, X, Search, RefreshCw, User, Calendar, Shield, AlertTriangle } from 'lucide-react';
 import paymentService from '../services/paymentService';
+import analyticsService from '../services/analyticsService';
 
 const QRCodeValidator = ({ company, onClose }) => {
   const [scanResult, setScanResult] = useState(null);
