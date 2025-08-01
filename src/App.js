@@ -3,6 +3,9 @@ import { Navigate } from 'react-router-dom';
 import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Mail, MapPin as Location, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp } from 'lucide-react';
 import AdminApp from './AdminApp';
 import apiService from './services/api2';
+import cacheService from './services/cacheService';
+import analyticsService from './services/analyticsService';
+import syncService from './services/syncService';
 import './App.css';
 
 console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais');
@@ -88,6 +91,9 @@ const App = () => {
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerError, setRegisterError] = useState('');
   
+  // Sistema de Notificações
+  const { notifications, addNotification, requestPermission, permission } = useNotifications();
+  
   // Estados para reset de senha
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -103,8 +109,7 @@ const App = () => {
     address: ''
   });
   
-  // Estados para notificações
-  const [notifications, setNotifications] = useState([]);
+
   
   // Estados para geolocalização
   const [userLocation, setUserLocation] = useState(null);
@@ -169,6 +174,25 @@ const App = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showMenu]);
+
+  // Inicializar sistema de notificações
+  useEffect(() => {
+    const initNotifications = async () => {
+      if ('Notification' in window) {
+        const permission = await requestPermission();
+        if (permission === 'granted') {
+          addNotification({
+            title: 'Liga do Bem',
+            message: 'Notificações ativadas! Você receberá atualizações importantes.',
+            type: 'success',
+            push: false
+          });
+        }
+      }
+    };
+
+    initNotifications();
+  }, []);
 
 
 
@@ -342,30 +366,52 @@ const App = () => {
     return true;
   };
 
-  // Função para adicionar notificação com debounce
-  const addNotification = useCallback((message, type = 'info') => {
-    // Evitar notificações duplicadas nos últimos 2 segundos
-    const now = Date.now();
-    const recentNotifications = notifications.filter(n => 
-      n.message === message && (now - n.timestamp.getTime()) < 2000
-    );
-    
-    if (recentNotifications.length > 0) {
-      console.log('🚫 Notificação duplicada ignorada:', message);
-      return;
-    }
-    
-    const id = now;
-    const notification = { id, message, type, timestamp: new Date() };
-    setNotifications(prev => [notification, ...prev.slice(0, 4)]); // Manter apenas 5 notificações
-    
-    console.log('📢 Notificação adicionada:', message, type);
-    
-    // Remover automaticamente após 5 segundos
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 5000);
-  }, [notifications]);
+  // Sistema de Notificações Push
+  const useNotifications = () => {
+    const [notifications, setNotifications] = useState([]);
+    const [permission, setPermission] = useState('default');
+
+    const requestPermission = async () => {
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        setPermission(permission);
+        return permission;
+      }
+      return 'denied';
+    };
+
+    const sendNotification = (title, options = {}) => {
+      if (permission === 'granted' && 'Notification' in window) {
+        new Notification(title, {
+          icon: '/logo192.png',
+          badge: '/logo192.png',
+          ...options
+        });
+      }
+    };
+
+    const addNotification = (notification) => {
+      const id = Date.now() + Math.random();
+      const newNotification = { id, timestamp: Date.now(), ...notification };
+      
+      setNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
+      
+      // Auto-remove após 5 segundos
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+      }, 5000);
+      
+      // Enviar notificação push se permitido
+      if (notification.push) {
+        sendNotification(notification.title, {
+          body: notification.message,
+          tag: notification.type
+        });
+      }
+    };
+
+    return { notifications, addNotification, requestPermission, permission };
+  };
 
   // Função para reset de senha
   const handleResetPassword = async (e) => {
@@ -741,6 +787,11 @@ const App = () => {
       console.log('🔐 [DEBUG] Senha fornecida:', loginData.password ? 'SIM' : 'NÃO');
       console.log('🔐 [DEBUG] API Service disponível:', typeof apiService);
       
+      // Rastrear tentativa de login
+      analyticsService.trackUserAction('login_attempt', {
+        cpf: cleanCPF.substring(0, 3) + '***' // Mascarar CPF
+      });
+      
       const result = await apiService.login(cleanCPF, loginData.password);
       console.log('🔐 [DEBUG] Resultado API Service:', result);
 
@@ -757,12 +808,42 @@ const App = () => {
         setCurrentPage('home');
         localStorage.setItem('token', result.token);
         localStorage.setItem('user', JSON.stringify(result.user));
-        addNotification(`Bem-vindo, ${result.user.name}!`, 'success');
+        
+        // Adicionar notificação de sucesso
+        addNotification({
+          title: 'Login realizado com sucesso!',
+          message: `Bem-vindo(a), ${result.user.name}!`,
+          type: 'success',
+          push: true
+        });
+        
+        // Rastrear login bem-sucedido
+        analyticsService.trackUserAction('login_success', {
+          userId: result.user.id,
+          userType: result.user.role || 'user'
+        });
+        
+        // Rastrear visualização da página inicial
+        analyticsService.trackPageView('home', { userId: result.user.id });
+        
+        // Sincronizar dados do usuário
+        syncService.addToQueue('user_update', result.user, 'high');
+        
       } else {
         // Erro no login
         console.log('❌ Erro no login:', result.message);
         setLoginError(result.message);
-        addNotification(result.message || 'CPF ou senha incorretos', 'error');
+        
+        // Rastrear falha no login
+        analyticsService.trackUserAction('login_failed', {
+          reason: result.message
+        });
+        
+        addNotification({
+          title: 'Erro no login',
+          message: result.message || 'CPF ou senha incorretos',
+          type: 'error'
+        });
       }
     } catch (error) {
       console.error('❌ Erro no login:', error);
