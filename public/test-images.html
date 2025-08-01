@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Imagens - Liga do Bem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .image-test {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .image-test img {
+            max-width: 100px;
+            height: auto;
+            border: 2px solid white;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: rgba(0, 255, 0, 0.2); }
+        .error { background: rgba(255, 0, 0, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste de Imagens - Liga do Bem</h1>
+        
+        <div class="image-test">
+            <h3>1. Logo da Patinha</h3>
+            <img src="/patinha-logo.png" alt="Logo Patinha" onload="this.parentElement.querySelector('.status').innerHTML='✅ Carregado com sucesso'" onerror="this.parentElement.querySelector('.status').innerHTML='❌ Erro ao carregar'">
+            <div class="status">⏳ Carregando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>2. Nome Liga do Bem</h3>
+            <img src="/nome-liga-do-bem.png" alt="Nome Liga do Bem" onload="this.parentElement.querySelector('.status').innerHTML='✅ Carregado com sucesso'" onerror="this.parentElement.querySelector('.status').innerHTML='❌ Erro ao carregar'">
+            <div class="status">⏳ Carregando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>3. Ícone Adoção</h3>
+            <img src="/icone-adocao.png" alt="Ícone Adoção" onload="this.parentElement.querySelector('.status').innerHTML='✅ Carregado com sucesso'" onerror="this.parentElement.querySelector('.status').innerHTML='❌ Erro ao carregar'">
+            <div class="status">⏳ Carregando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>4. Ícone Usuário</h3>
+            <img src="/icone-usuario.png" alt="Ícone Usuário" onload="this.parentElement.querySelector('.status').innerHTML='✅ Carregado com sucesso'" onerror="this.parentElement.querySelector('.status').innerHTML='❌ Erro ao carregar'">
+            <div class="status">⏳ Carregando...</div>
+        </div>
+
+        <div class="image-test">
+            <h3>5. Verificação de Cache</h3>
+            <p>Se as imagens não carregarem, tente:</p>
+            <ul>
+                <li>Pressionar Ctrl+F5 (forçar recarregamento)</li>
+                <li>Limpar cache do navegador</li>
+                <li>Aguardar mais alguns minutos para o deploy completar</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Verificar se as imagens estão sendo carregadas
+        setTimeout(() => {
+            const images = document.querySelectorAll('img');
+            let loadedCount = 0;
+            let errorCount = 0;
+            
+            images.forEach(img => {
+                if (img.complete && img.naturalHeight !== 0) {
+                    loadedCount++;
+                } else {
+                    errorCount++;
+                }
+            });
+            
+            console.log(`📊 Status das imagens: ${loadedCount} carregadas, ${errorCount} com erro`);
+        }, 2000);
+    </script>
+</body>
+</html> 
