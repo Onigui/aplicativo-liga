@@ -10,6 +10,9 @@ import paymentService from './services/paymentService';
 import transparencyService from './services/transparencyService';
 import PaymentModal from './components/PaymentModal';
 import PaymentHistory from './components/PaymentHistory';
+import SubscriptionPlans from './components/SubscriptionPlans';
+import DigitalCard from './components/DigitalCard';
+import QRCodeValidator from './components/QRCodeValidator';
 import './App.css';
 
 console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais');
@@ -165,6 +168,11 @@ const App = () => {
   const [paymentType, setPaymentType] = useState('subscription');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showPaymentHistory, setShowPaymentHistory] = useState(false);
+  
+  // Estados para assinaturas e carteirinha
+  const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
+  const [showDigitalCard, setShowDigitalCard] = useState(false);
+  const [showQRValidator, setShowQRValidator] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -2384,29 +2392,40 @@ const App = () => {
                 <h2 className="text-2xl font-bold">Empresas Parceiras</h2>
               </div>
               
-              {/* Botão de Localização */}
-              <button
-                onClick={getUserLocation}
-                disabled={locationLoading}
-                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
-              >
-                {locationLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    <span className="text-sm">Localizando...</span>
-                  </>
-                ) : userLocation ? (
-                  <>
-                    <MapPin className="h-4 w-4 text-green-300" />
-                    <span className="text-sm">📍 Ativo</span>
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="h-4 w-4" />
-                    <span className="text-sm">Localizar</span>
-                  </>
-                )}
-              </button>
+              <div className="flex items-center space-x-2">
+                {/* Botão Validador QR Code */}
+                <button
+                  onClick={() => setShowQRValidator(true)}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span className="text-sm">Validar QR</span>
+                </button>
+                
+                {/* Botão de Localização */}
+                <button
+                  onClick={getUserLocation}
+                  disabled={locationLoading}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 disabled:opacity-50"
+                >
+                  {locationLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span className="text-sm">Localizando...</span>
+                    </>
+                  ) : userLocation ? (
+                    <>
+                      <MapPin className="h-4 w-4 text-green-300" />
+                      <span className="text-sm">📍 Ativo</span>
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="h-4 w-4" />
+                      <span className="text-sm">Localizar</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             
             <p className="text-blue-100 text-lg mb-3">Apresente sua carteirinha e ganhe descontos especiais!</p>
@@ -3027,64 +3046,175 @@ const App = () => {
     </div>
   );
 
-  const renderCard = () => (
-    <div className="p-4">
-      <div className="bg-gradient-to-br from-green-600 to-green-700 text-white rounded-lg p-6 mb-4">
-        <div className="flex justify-between items-start mb-6">
+  const renderCard = () => {
+    // Verificar status da assinatura
+    const history = paymentService.getPaymentHistory(user?.id);
+    const activeSubscription = history.find(payment => 
+      payment.type === 'subscription' && 
+      payment.status === 'completed' &&
+      !payment.cancelledAt
+    );
+
+    const isSubscriptionValid = activeSubscription && 
+      (new Date() - new Date(activeSubscription.timestamp)) <= (30 * 24 * 60 * 60 * 1000);
+
+    return (
+      <div className="px-6 py-4">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold">CARTEIRINHA</h3>
-            <p className="text-sm opacity-90">Amigo da Liga</p>
+            <h2 className="text-2xl font-bold text-gray-800">Carteirinha Digital</h2>
+            <p className="text-gray-600">Sua identidade como membro da Liga do Bem</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm opacity-90">Status</p>
-            <div className="flex items-center space-x-1">
-              {user.isActive ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span className="text-sm font-bold">ATIVO</span>
-                </>
-              ) : (
-                <>
-                  <X className="h-4 w-4" />
-                  <span className="text-sm font-bold">INATIVO</span>
-                </>
-              )}
+          <button
+            onClick={() => setCurrentPage('home')}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Status da assinatura */}
+        <div className="mb-6">
+          {!activeSubscription ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <Shield className="h-6 w-6 text-yellow-600" />
+                <div>
+                  <h3 className="font-semibold text-yellow-800">Assinatura Necessária</h3>
+                  <p className="text-yellow-700 text-sm">
+                    Para ter uma carteirinha válida, você precisa de uma assinatura ativa.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : !isSubscriptionValid ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <X className="h-6 w-6 text-red-600" />
+                <div>
+                  <h3 className="font-semibold text-red-800">Assinatura Expirada</h3>
+                  <p className="text-red-700 text-sm">
+                    Sua assinatura expirou. Renove para manter sua carteirinha válida.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <Check className="h-6 w-6 text-green-600" />
+                <div>
+                  <h3 className="font-semibold text-green-800">Carteirinha Válida</h3>
+                  <p className="text-green-700 text-sm">
+                    Sua carteirinha está ativa e você pode usar os benefícios.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Carteirinha visual */}
+        <div className={`relative rounded-xl p-6 text-white mb-6 ${
+          isSubscriptionValid 
+            ? 'bg-gradient-to-br from-green-500 to-emerald-600' 
+            : 'bg-gradient-to-br from-red-500 to-pink-600'
+        }`}>
+          
+          {/* Status badge */}
+          <div className="absolute top-4 right-4">
+            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
+              isSubscriptionValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}>
+              {isSubscriptionValid ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+              <span>{isSubscriptionValid ? 'VÁLIDA' : 'INVÁLIDA'}</span>
+            </div>
+          </div>
+
+          {/* Logo e título */}
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+              <Shield className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">Liga do Bem</h3>
+              <p className="text-sm opacity-90">Proteção Animal</p>
+            </div>
+          </div>
+
+          {/* Dados do usuário */}
+          <div className="space-y-2 mb-6">
+            <div>
+              <p className="text-xs opacity-80">Nome</p>
+              <p className="font-semibold">{user?.name}</p>
+            </div>
+            <div>
+              <p className="text-xs opacity-80">CPF</p>
+              <p className="font-mono text-sm">{user?.cpf}</p>
+            </div>
+            {activeSubscription && (
+              <div>
+                <p className="text-xs opacity-80">Plano</p>
+                <p className="font-semibold">{activeSubscription.planName}</p>
+              </div>
+            )}
+          </div>
+
+          {/* QR Code placeholder */}
+          <div className="bg-white bg-opacity-20 rounded-lg p-4 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center mx-auto mb-2">
+                <QrCode className="h-16 w-16 text-gray-800" />
+              </div>
+              <p className="text-xs opacity-90">QR Code para validação</p>
             </div>
           </div>
         </div>
-        
+
+        {/* Ações */}
         <div className="space-y-3">
-          <div>
-            <p className="text-sm opacity-75">Nome</p>
-            <p className="text-lg font-bold">{user.name}</p>
-          </div>
-          
-          <div>
-            <p className="text-sm opacity-75">CPF</p>
-            <p className="font-mono">{user.cpf}</p>
-          </div>
-          
-          <div>
-            <p className="text-sm opacity-75">Membro desde</p>
-            <p>{user.memberSince}</p>
-          </div>
+          <button
+            onClick={() => setShowDigitalCard(true)}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+          >
+            <QrCode className="h-4 w-4" />
+            <span>Ver Carteirinha Completa</span>
+          </button>
+
+          {!activeSubscription && (
+            <button
+              onClick={() => setShowSubscriptionPlans(true)}
+              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+            >
+              <CreditCard className="h-4 w-4" />
+              <span>Assinar Plano</span>
+            </button>
+          )}
+
+          {activeSubscription && !isSubscriptionValid && (
+            <button
+              onClick={() => setShowSubscriptionPlans(true)}
+              className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Renovar Assinatura</span>
+            </button>
+          )}
         </div>
-        
-        <div className="mt-6 pt-4 border-t border-green-500">
-          <p className="text-xs text-center opacity-75">
-            Apresente esta carteirinha nas empresas parceiras para receber seu desconto
-          </p>
+
+        {/* Informações */}
+        <div className="mt-6 bg-gray-50 rounded-lg p-4">
+          <h4 className="font-semibold text-gray-800 mb-2">Como usar sua carteirinha:</h4>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>• Apresente o QR Code nas empresas parceiras</li>
+            <li>• O estabelecimento validará sua carteirinha</li>
+            <li>• Receba descontos exclusivos automaticamente</li>
+            <li>• Mantenha sua assinatura em dia para continuar válida</li>
+          </ul>
         </div>
       </div>
-      
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800 text-sm">
-          <strong>Como usar:</strong> Apresente esta tela para o vendedor no momento da compra 
-          para validar seu desconto como contribuinte ativo da Liga do Bem.
-        </p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderDonations = () => (
     <div className="px-6 py-4">
@@ -3143,10 +3273,7 @@ const App = () => {
       {/* Ações principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <button
-          onClick={() => {
-            setPaymentType('subscription');
-            setShowPaymentModal(true);
-          }}
+          onClick={() => setShowSubscriptionPlans(true)}
           className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl"
         >
           <CreditCard className="h-8 w-8 mb-3 mx-auto" />
@@ -3241,6 +3368,36 @@ const App = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de planos de assinatura */}
+      {showSubscriptionPlans && (
+        <SubscriptionPlans
+          user={user}
+          onSelectPlan={(plan) => {
+            setSelectedPlan(plan.id);
+            setPaymentType('subscription');
+            setShowSubscriptionPlans(false);
+            setShowPaymentModal(true);
+          }}
+          onClose={() => setShowSubscriptionPlans(false)}
+        />
+      )}
+
+      {/* Modal de carteirinha digital */}
+      {showDigitalCard && (
+        <DigitalCard
+          user={user}
+          onClose={() => setShowDigitalCard(false)}
+        />
+      )}
+
+      {/* Modal de validação de QR Code */}
+      {showQRValidator && (
+        <QRCodeValidator
+          company={user}
+          onClose={() => setShowQRValidator(false)}
+        />
       )}
     </div>
   );
