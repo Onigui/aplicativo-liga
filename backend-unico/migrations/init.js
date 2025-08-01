@@ -39,7 +39,7 @@ const createTables = async () => {
         status VARCHAR(20) DEFAULT 'pending',
         working_hours JSONB,
         coordinates JSONB,
-        logo_url VARCHAR(500),
+        logo_url TEXT,
         website VARCHAR(500),
         approved_at TIMESTAMP,
         approved_by INTEGER REFERENCES users(id),
@@ -138,6 +138,14 @@ const createTables = async () => {
       );
     `);
     console.log('✅ Tabela system_settings criada');
+
+    // Migração: Atualizar logo_url para TEXT
+    try {
+      await query(`ALTER TABLE companies ALTER COLUMN logo_url TYPE TEXT;`);
+      console.log('✅ Migração: logo_url atualizado para TEXT');
+    } catch (error) {
+      console.log('ℹ️ Migração logo_url: coluna já é TEXT ou não existe');
+    }
 
     // Inserir configurações padrão
     await query(`
