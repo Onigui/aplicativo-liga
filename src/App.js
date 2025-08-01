@@ -16,6 +16,8 @@ import SubscriptionPlans from './components/SubscriptionPlans';
 import DigitalCard from './components/DigitalCard';
 import QRCodeValidator from './components/QRCodeValidator';
 import UserProgress from './components/UserProgress';
+import CompanyLogin from './components/CompanyLogin';
+import CompanyDashboard from './components/CompanyDashboard';
 import './App.css';
 
 console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais');
@@ -226,6 +228,11 @@ const App = () => {
   
   // Estados para gamificação e progresso
   const [showUserProgress, setShowUserProgress] = useState(false);
+
+  // Estados para área empresarial
+  const [showCompanyLogin, setShowCompanyLogin] = useState(false);
+  const [companyUser, setCompanyUser] = useState(null);
+  const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -1257,6 +1264,15 @@ const App = () => {
           >
             <Building className="h-6 w-6" />
             <span>Parceiro Empresarial</span>
+          </button>
+
+          {/* Área Empresarial Button */}
+          <button
+            onClick={() => setShowCompanyLogin(true)}
+            className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
+          >
+            <Building className="h-6 w-6" />
+            <span>Área Empresarial</span>
           </button>
         </div>
 
@@ -3855,6 +3871,26 @@ const App = () => {
   );
 
   const renderCurrentPage = () => {
+    // Se empresa estiver autenticada, mostrar dashboard empresarial
+    if (isCompanyAuthenticated && companyUser) {
+      return (
+        <CompanyDashboard 
+          company={companyUser} 
+          onLogout={handleCompanyLogout}
+        />
+      );
+    }
+
+    // Se mostrar login empresarial
+    if (showCompanyLogin) {
+      return (
+        <CompanyLogin 
+          onLogin={handleCompanyLogin}
+          onBack={handleBackToMainLogin}
+        />
+      );
+    }
+
     switch (currentPage) {
       case 'welcome': return renderWelcome();
       case 'login': return renderLogin();
@@ -3896,6 +3932,536 @@ const App = () => {
       </div>
     );
   }
+
+  return (
+    <div className="max-w-md mx-auto min-h-screen relative overflow-hidden">
+      {/* Background animado */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-pink-400 to-purple-600 rounded-full opacity-20 float-animation"></div>
+        <div className="absolute top-32 right-8 w-24 h-24 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full opacity-30 float-animation" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute bottom-20 left-6 w-28 h-28 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full opacity-25 float-animation" style={{animationDelay: '1s'}}></div>
+      </div>
+      
+      {/* Sistema de Notificações Aprimorado */}
+      <div className="fixed top-6 right-6 z-50 space-y-4 max-w-sm w-full notification-container sm:max-w-sm">
+        {notifications.map((notification, index) => (
+          <div
+            key={notification.id}
+            className={`
+              notification-card notification-hover relative overflow-hidden rounded-2xl shadow-2xl 
+              transform transition-all duration-500 ease-out backdrop-blur-md
+              ${index === 0 ? 'animate-slideInRight' : ''}
+              ${notification.type === 'success' 
+                ? 'bg-gradient-to-br from-green-50/95 via-emerald-50/95 to-green-100/95 border border-green-200/70 notification-success' 
+                : notification.type === 'error' 
+                ? 'bg-gradient-to-br from-red-50/95 via-pink-50/95 to-red-100/95 border border-red-200/70 notification-error' 
+                : notification.type === 'warning' 
+                ? 'bg-gradient-to-br from-amber-50/95 via-yellow-50/95 to-amber-100/95 border border-amber-200/70 notification-warning' 
+                : 'bg-gradient-to-br from-blue-50/95 via-indigo-50/95 to-blue-100/95 border border-blue-200/70 notification-info'
+              }
+              cursor-pointer hover:shadow-3xl
+            `}
+            onClick={() => {
+              // Remover notificação do estado local
+              console.log('Notificação removida:', notification.id);
+            }}
+          >
+            {/* Barra de Progresso */}
+            <div 
+              className={`
+                absolute top-0 left-0 h-1 animate-shrink
+                ${notification.type === 'success' ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
+                  notification.type === 'error' ? 'bg-gradient-to-r from-red-400 to-pink-500' :
+                  notification.type === 'warning' ? 'bg-gradient-to-r from-amber-400 to-yellow-500' :
+                  'bg-gradient-to-r from-blue-400 to-indigo-500'
+                }
+              `}
+              style={{
+                width: '100%',
+                animation: 'shrink 5s linear forwards'
+              }}
+            />
+
+            {/* Conteúdo da Notificação */}
+            <div className="p-4">
+              <div className="flex items-start space-x-3">
+                {/* Ícone com Background Colorido */}
+                <div className={`
+                  flex-shrink-0 p-2 rounded-full
+                  ${notification.type === 'success' ? 'bg-green-100' :
+                    notification.type === 'error' ? 'bg-red-100' :
+                    notification.type === 'warning' ? 'bg-amber-100' :
+                    'bg-blue-100'
+                  }
+                `}>
+                  {notification.type === 'success' && <Check className="h-5 w-5 text-green-600" />}
+                  {notification.type === 'error' && <X className="h-5 w-5 text-red-600" />}
+                  {notification.type === 'warning' && <Info className="h-5 w-5 text-amber-600" />}
+                  {notification.type === 'info' && <Info className="h-5 w-5 text-blue-600" />}
+                </div>
+
+                {/* Mensagem */}
+                <div className="flex-1 min-w-0">
+                  <p className={`
+                    text-sm font-medium leading-relaxed notification-text
+                    ${notification.type === 'success' ? 'text-green-800' :
+                      notification.type === 'error' ? 'text-red-800' :
+                      notification.type === 'warning' ? 'text-amber-800' :
+                      'text-blue-800'
+                    }
+                  `}>
+                    {notification.message}
+                  </p>
+                </div>
+
+                {/* Botão de Fechar */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Notificação fechada:', notification.id);
+                  }}
+                  className={`
+                    notification-close flex-shrink-0 p-1.5 rounded-full transition-colors duration-200
+                    ${notification.type === 'success' ? 'text-green-400 hover:text-green-600 hover:bg-green-100/80' :
+                      notification.type === 'error' ? 'text-red-400 hover:text-red-600 hover:bg-red-100/80' :
+                      notification.type === 'warning' ? 'text-amber-400 hover:text-amber-600 hover:bg-amber-100/80' :
+                      'text-blue-400 hover:text-blue-600 hover:bg-blue-100/80'
+                    }
+                  `}
+                  aria-label="Fechar notificação"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Efeito de Brilho */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full animate-shine"></div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10">
+        {renderHeader()}
+        <div className="pb-6">
+          {renderCurrentPage()}
+        </div>
+      </div>
+
+      {/* Modal de Reset de Senha */}
+      {showResetPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">Recuperar Senha</h3>
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email cadastrado
+                </label>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="seu@email.com"
+                  required
+                />
+              </div>
+              
+              {resetMessage && (
+                <div className={`p-3 rounded-lg text-sm ${
+                  resetMessage.includes('receberá') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                }`}>
+                  {resetMessage}
+                </div>
+              )}
+              
+              <div className="flex space-x-3">
+                <button
+                  type="submit"
+                  disabled={resetLoading}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {resetLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                      Enviando...
+                    </>
+                  ) : (
+                    'Enviar'
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowResetPassword(false);
+                    setResetEmail('');
+                    setResetMessage('');
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Perfil */}
+      {showProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Meu Perfil</h3>
+              <button
+                onClick={() => setShowProfile(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome completo
+                </label>
+                <input
+                  type="text"
+                  value={profileData.name}
+                  onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CPF
+                </label>
+                <input
+                  type="text"
+                  value={user?.cpf || ''}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100"
+                  disabled
+                />
+                <p className="text-xs text-gray-500 mt-1">CPF não pode ser alterado</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="seu@email.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Telefone
+                </label>
+                <input
+                  type="tel"
+                  value={profileData.phone}
+                  onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="(14) 99999-9999"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Endereço
+                </label>
+                <input
+                  type="text"
+                  value={profileData.address}
+                  onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Rua, número, bairro"
+                />
+              </div>
+              
+              <div className="flex space-x-3 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+                >
+                  Salvar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowProfile(false)}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição de Empresa - Admin */}
+      {showAdminModal && selectedCompany && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          {/* BANNER DE TESTE */}
+          <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
+            <strong>🆕 MODAL DE EDIÇÃO EMPRESAS - VERSÃO INTEGRADA v2.0</strong>
+          </div>
+          
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-900 opacity-80" onClick={() => setShowAdminModal(false)}></div>
+            </div>
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border-2 border-blue-200"
+                 onClick={(e) => e.stopPropagation()}>
+              
+              <div className="bg-gradient-to-br from-white to-blue-50 px-6 pt-6 pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-blue-100 rounded-lg p-3">
+                      <Building className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg leading-6 font-medium text-gray-900">
+                        🆕 NOVO Modal de Edição Empresas v2.0
+                      </h3>
+                      <p className="text-sm text-red-600 font-bold">
+                        ✅ Modal integrado com upload de logo e horários!
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowAdminModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nome da Empresa
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={selectedCompany.companyName}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      CNPJ
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={selectedCompany.cnpj}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Endereço
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={selectedCompany.address}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Telefone
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={selectedCompany.phone}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      defaultValue={selectedCompany.email}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Desconto Oferecido
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue={selectedCompany.discount}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Ex: 10% em rações premium"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Descrição
+                    </label>
+                    <textarea
+                      defaultValue={selectedCompany.description}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Descreva os produtos e serviços oferecidos..."
+                    />
+                  </div>
+
+                  {/* NOVA SEÇÃO: UPLOAD DE LOGO */}
+                  <div className="md:col-span-2 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Building className="inline h-4 w-4 mr-2" />
+                      🆕 Logo da Empresa (NOVO!)
+                    </label>
+                    <div className="mt-2 flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        <div className="h-20 w-20 border-2 border-gray-300 border-dashed rounded-lg flex items-center justify-center bg-gray-50">
+                          <Building className="h-8 w-8 text-gray-400" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/svg+xml"
+                          className="hidden"
+                          id="logo-upload"
+                        />
+                        <label
+                          htmlFor="logo-upload"
+                          className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                          <Building className="h-4 w-4 mr-2" />
+                          Escolher Logo
+                        </label>
+                        <p className="mt-2 text-xs text-gray-500">
+                          JPG, PNG ou SVG. Máximo 5MB.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* NOVA SEÇÃO: HORÁRIOS DE FUNCIONAMENTO */}
+                  <div className="md:col-span-2 bg-green-50 border border-green-200 p-4 rounded-lg">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <Clock className="inline h-4 w-4 mr-2" />
+                      🆕 Horários de Funcionamento (NOVO!)
+                    </label>
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                      {[
+                        { day: 'Segunda-feira', key: 'monday' },
+                        { day: 'Terça-feira', key: 'tuesday' },
+                        { day: 'Quarta-feira', key: 'wednesday' },
+                        { day: 'Quinta-feira', key: 'thursday' },
+                        { day: 'Sexta-feira', key: 'friday' },
+                        { day: 'Sábado', key: 'saturday' },
+                        { day: 'Domingo', key: 'sunday' }
+                      ].map(({ day, key }) => (
+                        <div key={key} className="flex items-center space-x-4">
+                          <div className="w-24 text-sm font-medium text-gray-700">
+                            {day}
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              defaultChecked={key !== 'sunday'}
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <span className="text-sm text-gray-600">Aberto</span>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">De:</span>
+                            <input
+                              type="time"
+                              defaultValue="08:00"
+                              className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">Até:</span>
+                            <input
+                              type="time"
+                              defaultValue={key === 'saturday' || key === 'sunday' ? '12:00' : '18:00'}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-gray-50 to-blue-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    alert('💾 Funcionalidade de salvar será implementada aqui!');
+                    setShowAdminModal(false);
+                  }}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  Salvar Alterações
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setShowAdminModal(false)}
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // Funções para área empresarial
+  const handleCompanyLogin = (companyData) => {
+    setCompanyUser(companyData);
+    setIsCompanyAuthenticated(true);
+    setShowCompanyLogin(false);
+    console.log('✅ Empresa logada:', companyData);
+  };
+
+  const handleCompanyLogout = () => {
+    setCompanyUser(null);
+    setIsCompanyAuthenticated(false);
+    setCurrentPage('welcome');
+    console.log('🚪 Empresa deslogada');
+  };
+
+  const handleBackToMainLogin = () => {
+    setShowCompanyLogin(false);
+  };
 
   return (
     <div className="max-w-md mx-auto min-h-screen relative overflow-hidden">
