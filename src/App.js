@@ -3284,7 +3284,7 @@ const App = () => {
             <div>
               <p className="text-sm opacity-90">Total Pago</p>
               <p className="text-2xl font-bold">
-                R$ {paymentService.getPaymentStats(user?.id)?.totalAmount.toFixed(2) || '0,00'}
+                R$ {((paymentService.getPaymentStats(user?.id)?.totalAmount) || 0).toFixed(2)}
               </p>
             </div>
             <DollarSign className="h-8 w-8 opacity-80" />

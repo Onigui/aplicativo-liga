@@ -174,7 +174,7 @@ const PaymentHistory = ({ userId }) => {
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-600">Total Pago</p>
                 <p className="text-lg font-semibold text-gray-900">
-                  R$ {stats.totalAmount.toFixed(2)}
+                  R$ {(stats.totalAmount || 0).toFixed(2)}
                 </p>
               </div>
             </div>
