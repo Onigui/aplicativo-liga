@@ -1092,11 +1092,19 @@ const App = () => {
         {/* Logo/Header */}
         <div className="text-center mb-12">
           <div className="glass rounded-full p-8 mx-auto w-fit pulse-glow mb-6">
-            <Heart className="h-20 w-20 text-pink-300" fill="currentColor" />
+            <img 
+              src="/patinha-logo.png" 
+              alt="Logo Liga do Bem" 
+              className="h-20 w-20 object-contain"
+            />
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-4">
-            Liga do Bem
-          </h1>
+          <div className="mb-4">
+            <img 
+              src="/nome-liga-do-bem.png" 
+              alt="Liga do Bem" 
+              className="h-16 mx-auto object-contain"
+            />
+          </div>
           <p className="text-purple-200 text-xl font-medium mb-2">Botucatu 🐾</p>
           <p className="text-purple-300 text-base">
             Juntos fazemos a diferença na vida dos animais
@@ -1186,11 +1194,19 @@ const App = () => {
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="glass rounded-full p-6 mx-auto w-fit pulse-glow mb-4">
-            <Heart className="h-16 w-16 text-pink-300" fill="currentColor" />
+            <img 
+              src="/patinha-logo.png" 
+              alt="Logo Liga do Bem" 
+              className="h-16 w-16 object-contain"
+            />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-2">
-            Liga do Bem
-          </h1>
+          <div className="mb-2">
+            <img 
+              src="/nome-liga-do-bem.png" 
+              alt="Liga do Bem" 
+              className="h-12 mx-auto object-contain"
+            />
+          </div>
           <p className="text-purple-200 text-lg font-medium">Botucatu 🐾</p>
         </div>
 
@@ -1337,11 +1353,19 @@ const App = () => {
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="glass rounded-full p-6 mx-auto w-fit pulse-glow mb-4">
-            <Heart className="h-16 w-16 text-pink-300" fill="currentColor" />
+            <img 
+              src="/patinha-logo.png" 
+              alt="Logo Liga do Bem" 
+              className="h-16 w-16 object-contain"
+            />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-2">
-            Liga do Bem
-          </h1>
+          <div className="mb-2">
+            <img 
+              src="/nome-liga-do-bem.png" 
+              alt="Liga do Bem" 
+              className="h-12 mx-auto object-contain"
+            />
+          </div>
           <p className="text-purple-200 text-lg font-medium">Botucatu 🐾</p>
         </div>
 
@@ -1826,12 +1850,18 @@ const App = () => {
       )}
       <div className="flex items-center space-x-4 flex-1 justify-center">
         <div className="glass rounded-full p-4 pulse-glow">
-          <Heart className="h-8 w-8 text-pink-300" fill="currentColor" />
+          <img 
+            src="/patinha-logo.png" 
+            alt="Logo Liga do Bem" 
+            className="h-8 w-8 object-contain"
+          />
         </div>
         <div className="text-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
-            Liga do Bem
-          </h1>
+          <img 
+            src="/nome-liga-do-bem.png" 
+            alt="Liga do Bem" 
+            className="h-6 mx-auto object-contain"
+          />
           <p className="text-sm text-purple-200 font-medium">✨ Botucatu ✨</p>
         </div>
       </div>
