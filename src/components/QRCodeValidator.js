@@ -67,12 +67,12 @@ const QRCodeValidator = ({ company, onClose }) => {
       setValidationHistory(prev => [result, ...prev.slice(0, 9)]);
       
       // Registrar validação
-      analyticsService.track('qr_code_validated', {
-        userId: parsedData.userId,
-        companyId: company?.id,
-        isValid,
-        timestamp: new Date().toISOString()
-      });
+      // analyticsService.track('qr_code_validated', {
+      //   userId: parsedData.userId,
+      //   companyId: company?.id,
+      //   isValid,
+      //   timestamp: new Date().toISOString()
+      // });
 
     } catch (error) {
       setScanResult({

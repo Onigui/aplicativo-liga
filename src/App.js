@@ -3983,10 +3983,7 @@ const App = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const updatedNotifications = notifications.filter(n => n.id !== notification.id);
-                    if (typeof setNotifications === 'function') {
-                      setNotifications(updatedNotifications);
-                    }
+                    console.log('Notificação fechada:', notification.id);
                   }}
                   className={`
                     notification-close flex-shrink-0 p-1.5 rounded-full transition-colors duration-200
