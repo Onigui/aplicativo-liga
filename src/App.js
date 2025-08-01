@@ -1959,10 +1959,37 @@ const App = () => {
                 'Enviar Cadastro'
               )}
             </button>
+          </form>
 
-  const renderHeader = () => (
+          {/* Help Text */}
+          <div className="mt-6 text-center">
+            <p className="text-purple-200 text-sm">
+              <button
+                onClick={() => setCurrentPage('welcome')}
+                className="text-cyan-300 hover:text-cyan-200 font-semibold hover:underline transition-colors duration-200"
+              >
+                ← Voltar ao início
+              </button>
+            </p>
+          </div>
+        </div>
 
-
+        {/* Info Box */}
+        <div className="mt-6 glass border border-white/20 rounded-2xl p-4">
+          <div className="flex items-start space-x-3">
+            <Info className="h-5 w-5 text-blue-300 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-blue-200 text-sm font-semibold mb-1">Processo de Aprovação</p>
+              <p className="text-purple-200 text-xs leading-relaxed">
+                Após o envio, nossa equipe analisará sua empresa e entrará em contato em até 2 dias úteis. 
+                Empresas aprovadas receberão um certificado digital de parceria.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const renderHeader = () => (
     <div className="glass text-white p-6 flex items-center justify-between relative shadow-2xl border-b border-white/10 z-50">
