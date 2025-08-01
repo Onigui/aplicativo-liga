@@ -6,6 +6,10 @@ import apiService from './services/api2';
 import cacheService from './services/cacheService';
 import analyticsService from './services/analyticsService';
 import syncService from './services/syncService';
+import paymentService from './services/paymentService';
+import transparencyService from './services/transparencyService';
+import PaymentModal from './components/PaymentModal';
+import PaymentHistory from './components/PaymentHistory';
 import './App.css';
 
 console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais');
@@ -155,6 +159,12 @@ const App = () => {
   const [adminLoading, setAdminLoading] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [showAdminModal, setShowAdminModal] = useState(false);
+  
+  // Estados para pagamentos
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentType, setPaymentType] = useState('subscription');
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -3077,58 +3087,161 @@ const App = () => {
   );
 
   const renderDonations = () => (
-    <div className="p-4 space-y-6">
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-bold mb-4">Suas Doações</h3>
-        <div className="space-y-3">
-          {donations.map((donation, index) => (
-            <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-              <div>
-                <p className="font-medium">R$ {donation.amount.toFixed(2)}</p>
-                <p className="text-sm text-gray-600">{donation.method}</p>
+    <div className="px-6 py-4">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Doações e Pagamentos</h2>
+          <p className="text-gray-600">Apoie nossa causa e gerencie seus pagamentos</p>
+        </div>
+        <button
+          onClick={() => setCurrentPage('home')}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="bg-gradient-to-r from-pink-500 to-rose-600 rounded-xl p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Total Pago</p>
+              <p className="text-2xl font-bold">
+                R$ {paymentService.getPaymentStats(user?.id)?.totalAmount.toFixed(2) || '0,00'}
+              </p>
+            </div>
+            <DollarSign className="h-8 w-8 opacity-80" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Assinaturas</p>
+              <p className="text-2xl font-bold">
+                {paymentService.getPaymentStats(user?.id)?.subscriptions || 0}
+              </p>
+            </div>
+            <CreditCard className="h-8 w-8 opacity-80" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-90">Doações</p>
+              <p className="text-2xl font-bold">
+                {paymentService.getPaymentStats(user?.id)?.donations || 0}
+              </p>
+            </div>
+            <Heart className="h-8 w-8 opacity-80" />
+          </div>
+        </div>
+      </div>
+
+      {/* Ações principais */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <button
+          onClick={() => {
+            setPaymentType('subscription');
+            setShowPaymentModal(true);
+          }}
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <CreditCard className="h-8 w-8 mb-3 mx-auto" />
+          <div className="text-center">
+            <h3 className="text-lg font-bold mb-1">Assinatura</h3>
+            <p className="text-blue-100 text-sm">Acesse todos os benefícios</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => {
+            setPaymentType('donation');
+            setShowPaymentModal(true);
+          }}
+          className="bg-gradient-to-r from-pink-500 to-rose-600 text-white p-6 rounded-xl font-semibold hover:from-pink-600 hover:to-rose-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <Heart className="h-8 w-8 mb-3 mx-auto" />
+          <div className="text-center">
+            <h3 className="text-lg font-bold mb-1">Fazer Doação</h3>
+            <p className="text-pink-100 text-sm">Apoie nossa causa</p>
+          </div>
+        </button>
+      </div>
+
+      {/* Histórico de pagamentos */}
+      <div className="bg-white rounded-xl shadow-sm border mb-6">
+        <div className="p-4 border-b flex items-center justify-between">
+          <h3 className="font-semibold text-gray-800">Histórico de Pagamentos</h3>
+          <button
+            onClick={() => setShowPaymentHistory(true)}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          >
+            Ver completo
+          </button>
+        </div>
+        <div className="p-4">
+          {paymentService.getPaymentHistory(user?.id).slice(0, 5).map((payment) => (
+            <div key={payment.id} className="flex items-center justify-between py-3 border-b last:border-b-0">
+              <div className="flex items-center space-x-3">
+                <div className="text-2xl">
+                  {payment.type === 'subscription' ? '💳' : '💝'}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800">
+                    {payment.type === 'subscription' ? payment.planName : payment.categoryName}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {new Date(payment.timestamp).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-gray-600">{new Date(donation.date).toLocaleDateString('pt-BR')}</p>
+              <div className="text-right">
+                <p className="font-semibold text-gray-800">R$ {payment.amount.toFixed(2)}</p>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  payment.status === 'completed' ? 'bg-green-100 text-green-800' :
+                  payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {payment.status === 'completed' ? 'Concluído' :
+                   payment.status === 'pending' ? 'Pendente' : 'Falhou'}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-green-800 mb-4">Fazer uma Doação PIX</h3>
-        <div className="bg-white rounded-lg p-4">
-          <p className="text-sm text-gray-600 mb-2">Chave PIX (CNPJ)</p>
-          <p className="font-mono text-lg">12.345.678/0001-90</p>
-          <p className="text-sm text-gray-600 mt-2">Liga do Bem Botucatu</p>
-        </div>
-        <button 
-          className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
-          onClick={() => {
-            navigator.clipboard.writeText('12.345.678/0001-90').then(() => {
-              alert('Chave PIX copiada para a área de transferência!');
-            }).catch(() => {
-              alert('Erro ao copiar. Chave PIX: 12.345.678/0001-90');
-            });
-          }}
-        >
-          Copiar Chave PIX
-        </button>
-      </div>
+      {/* Modal de pagamento */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        type={paymentType}
+        planId={selectedPlan}
+        userData={user}
+      />
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-bold text-blue-800 mb-4">Doe seu Cupom Fiscal</h3>
-        <p className="text-blue-700 mb-4">
-          Você pode doar seus cupons fiscais para a Liga do Bem! É simples e ajuda muito nossa causa.
-        </p>
-        <button 
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg mb-2 hover:bg-blue-700 transition-colors"
-          onClick={() => openWebsite('https://www.youtube.com/watch?v=exemplo-cupom-fiscal', 'video-tutorial')}
-        >
-          Ver Vídeo Tutorial
-        </button>
-        <p className="text-xs text-blue-600">
-          Assista ao vídeo e aprenda como doar seus cupons em poucos passos.
-        </p>
-      </div>
+      {/* Modal de histórico completo */}
+      {showPaymentHistory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Histórico Completo de Pagamentos</h3>
+                <button
+                  onClick={() => setShowPaymentHistory(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+              <PaymentHistory userId={user?.id} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 
