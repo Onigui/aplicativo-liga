@@ -8,11 +8,14 @@ import analyticsService from './services/analyticsService';
 import syncService from './services/syncService';
 import paymentService from './services/paymentService';
 import transparencyService from './services/transparencyService';
+import notificationService from './services/notificationService';
+import gamificationService from './services/gamificationService';
 import PaymentModal from './components/PaymentModal';
 import PaymentHistory from './components/PaymentHistory';
 import SubscriptionPlans from './components/SubscriptionPlans';
 import DigitalCard from './components/DigitalCard';
 import QRCodeValidator from './components/QRCodeValidator';
+import UserProgress from './components/UserProgress';
 import './App.css';
 
 console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais');
@@ -173,6 +176,9 @@ const App = () => {
   const [showSubscriptionPlans, setShowSubscriptionPlans] = useState(false);
   const [showDigitalCard, setShowDigitalCard] = useState(false);
   const [showQRValidator, setShowQRValidator] = useState(false);
+  
+  // Estados para gamificação e progresso
+  const [showUserProgress, setShowUserProgress] = useState(false);
 
   const menuRef = useRef(null);
 
@@ -1146,7 +1152,18 @@ const App = () => {
       }
     };
 
+    const initAdvancedServices = async () => {
+      try {
+        await notificationService.init();
+        await gamificationService.init();
+        console.log('✅ Serviços avançados inicializados com sucesso');
+      } catch (error) {
+        console.error('❌ Erro ao inicializar serviços avançados:', error);
+      }
+    };
+
     validateSession();
+    initAdvancedServices();
   }, []);
 
   // Periodicamente validar o token durante o uso da aplicação
@@ -2345,6 +2362,29 @@ const App = () => {
           </div>
         </div>
       </div>
+
+      {/* Action Buttons */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button
+          onClick={() => setCurrentPage('card')}
+          className="bg-gradient-to-br from-green-500 to-emerald-600 text-white p-4 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <div className="flex items-center justify-center space-x-3">
+            <CreditCard className="h-6 w-6" />
+            <span>Minha Carteirinha</span>
+          </div>
+        </button>
+        
+        <button
+          onClick={() => setShowUserProgress(true)}
+          className="bg-gradient-to-br from-purple-500 to-pink-600 text-white p-4 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          <div className="flex items-center justify-center space-x-3">
+            <Trophy className="h-6 w-6" />
+            <span>Meu Progresso</span>
+          </div>
+        </button>
+      </div>
     </div>
   );
 
@@ -3397,6 +3437,14 @@ const App = () => {
         <QRCodeValidator
           company={user}
           onClose={() => setShowQRValidator(false)}
+        />
+      )}
+
+      {/* Modal de progresso do usuário */}
+      {showUserProgress && (
+        <UserProgress
+          user={user}
+          onClose={() => setShowUserProgress(false)}
         />
       )}
     </div>
