@@ -267,20 +267,18 @@ const CompanyDashboard = ({ company, onLogout }) => {
           <h3 className="text-lg font-semibold text-gray-800">Horários de Funcionamento</h3>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-4">
             {Object.entries(companyData.workingHours).map(([day, hours]) => (
-              <div key={day} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div className="flex items-center space-x-4">
-                  <div className="w-20">
-                    <span className="text-sm font-medium text-gray-700 capitalize">
-                      {day === 'monday' ? 'Segunda' :
-                       day === 'tuesday' ? 'Terça' :
-                       day === 'wednesday' ? 'Quarta' :
-                       day === 'thursday' ? 'Quinta' :
-                       day === 'friday' ? 'Sexta' :
-                       day === 'saturday' ? 'Sábado' : 'Domingo'}
-                    </span>
-                  </div>
+              <div key={day} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-gray-700 capitalize">
+                    {day === 'monday' ? 'Segunda-feira' :
+                     day === 'tuesday' ? 'Terça-feira' :
+                     day === 'wednesday' ? 'Quarta-feira' :
+                     day === 'thursday' ? 'Quinta-feira' :
+                     day === 'friday' ? 'Sexta-feira' :
+                     day === 'saturday' ? 'Sábado' : 'Domingo'}
+                  </span>
                   
                   <label className="flex items-center space-x-2">
                     <input
@@ -294,20 +292,30 @@ const CompanyDashboard = ({ company, onLogout }) => {
                 </div>
 
                 {hours.isOpen && (
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="time"
-                      value={hours.open}
-                      onChange={(e) => updateWorkingHours(day, 'open', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    />
-                    <span className="text-gray-600 text-sm">às</span>
-                    <input
-                      type="time"
-                      value={hours.close}
-                      onChange={(e) => updateWorkingHours(day, 'close', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    />
+                  <div className="grid grid-cols-3 gap-3 items-center">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Abertura</label>
+                      <input
+                        type="time"
+                        value={hours.open}
+                        onChange={(e) => updateWorkingHours(day, 'open', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-center">
+                      <span className="text-gray-400 text-sm">às</span>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Fechamento</label>
+                      <input
+                        type="time"
+                        value={hours.close}
+                        onChange={(e) => updateWorkingHours(day, 'close', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

@@ -1,0 +1,5 @@
+[33md6bd877[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Correção do layout dos horários de funcionamento no modal de admin no App.js
+[33m16574bf[m Reescrita completa do layout dos horários de funcionamento com design mais limpo e organizado
+[33m329feb8[m Correção do alinhamento vertical dos campos de tempo nos horários de funcionamento
+[33mf9ef9fb[m Correção do layout dos horários de funcionamento na área empresarial
+[33m4ccba13[m Correção de elementos JSX adjacentes no App.js
