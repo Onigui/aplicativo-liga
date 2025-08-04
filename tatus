@@ -1,0 +1,5 @@
+[33me5e7468[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: atualiza configuração da API para melhor compatibilidade com deploy
+[33m074b439[m Fix company registration API call
+[33m9794ae0[m Fix JSX syntax errors in App.js
+[33m7b499f8[m Correção final do layout dos horários de funcionamento usando grid layout
+[33m4ccba13[m Correção de elementos JSX adjacentes no App.js
