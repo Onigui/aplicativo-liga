@@ -1680,7 +1680,11 @@ const App = () => {
           </div>
 
           <button
-            onClick={() => setShowCompanyRegistrationModal(true)}
+            onClick={() => {
+              console.log('🔧 Botão Cadastrar Empresa clicado');
+              setShowCompanyRegistrationModal(true);
+              console.log('🔧 Modal state:', showCompanyRegistrationModal);
+            }}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
           >
             <Building className="h-6 w-6" />
@@ -4213,6 +4217,7 @@ const App = () => {
   );
 
   {/* Modal de Cadastro de Empresas */}
+  {console.log('🔧 Renderizando modal, isOpen:', showCompanyRegistrationModal)}
   <CompanyRegistrationModal
     isOpen={showCompanyRegistrationModal}
     onClose={() => setShowCompanyRegistrationModal(false)}
