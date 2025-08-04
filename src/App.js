@@ -1959,10 +1959,7 @@ const App = () => {
                 'Enviar Cadastro'
               )}
             </button>
-          <div>
-            <form onSubmit={handleCompanyRegister} className="space-y-6">
-              {/* Form content will be here */}
-            </form>
+
 
             {/* Help Text */}
             <div className="mt-6 text-center">
@@ -1989,7 +1986,6 @@ const App = () => {
                 </div>
               </div>
             </div>
-          </div>
       </div>
     </div>
   );
