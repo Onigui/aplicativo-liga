@@ -1063,7 +1063,7 @@ const App = () => {
     }
 
     try {
-      const response = await apiService.registerCompany(companyData);
+      const response = await apiService.createCompany(companyData);
       
       if (response.success) {
         setCompanySuccess(true);
