@@ -1959,9 +1959,11 @@ const App = () => {
                 'Enviar Cadastro'
               )}
             </button>
-          </form>
+          <div>
+            <form onSubmit={handleCompanyRegister} className="space-y-6">
+              {/* Form content will be here */}
+            </form>
 
-          <React.Fragment>
             {/* Help Text */}
             <div className="mt-6 text-center">
               <p className="text-purple-200 text-sm">
@@ -1987,7 +1989,7 @@ const App = () => {
                 </div>
               </div>
             </div>
-          </React.Fragment>
+          </div>
       </div>
     </div>
   );
