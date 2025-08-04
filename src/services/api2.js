@@ -84,6 +84,11 @@ class ApiService {
     }
   }
 
+  // Alias para createCompany (para compatibilidade)
+  async registerCompany(companyData) {
+    return this.createCompany(companyData);
+  }
+
   // Atualizar empresa existente
   async updateCompany(id, companyData) {
     try {
