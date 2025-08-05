@@ -236,6 +236,11 @@ const App = () => {
   const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
   const [showCompanyRegistrationModal, setShowCompanyRegistrationModal] = useState(false);
 
+  // Monitora mudanças no estado do modal
+  useEffect(() => {
+    console.log('🔧 Modal state mudou para:', showCompanyRegistrationModal);
+  }, [showCompanyRegistrationModal]);
+
   const menuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -1683,7 +1688,6 @@ const App = () => {
             onClick={() => {
               console.log('🔧 Botão Cadastrar Empresa clicado');
               setShowCompanyRegistrationModal(true);
-              console.log('🔧 Modal state:', showCompanyRegistrationModal);
             }}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
           >
@@ -4215,12 +4219,20 @@ const App = () => {
       )}
 
       {/* Modal de Cadastro de Empresas */}
-      {console.log('🔧 Renderizando modal, isOpen:', showCompanyRegistrationModal)}
-      <CompanyRegistrationModal
-        isOpen={showCompanyRegistrationModal}
-        onClose={() => setShowCompanyRegistrationModal(false)}
-        onRegister={handleCompanyRegistration}
-      />
+      {showCompanyRegistrationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <h2 className="text-xl font-bold mb-4">Teste do Modal</h2>
+            <p className="mb-4">Modal está funcionando!</p>
+            <button
+              onClick={() => setShowCompanyRegistrationModal(false)}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
