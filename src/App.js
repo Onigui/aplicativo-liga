@@ -4216,20 +4216,11 @@ const App = () => {
 
       {/* Modal de Cadastro de Empresas */}
       {console.log('🔧 Renderizando modal, isOpen:', showCompanyRegistrationModal)}
-      {showCompanyRegistrationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">Teste do Modal</h2>
-            <p className="mb-4">Modal está funcionando!</p>
-            <button
-              onClick={() => setShowCompanyRegistrationModal(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
+      <CompanyRegistrationModal
+        isOpen={showCompanyRegistrationModal}
+        onClose={() => setShowCompanyRegistrationModal(false)}
+        onRegister={handleCompanyRegistration}
+      />
     </div>
   );
 };
