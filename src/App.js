@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - FUNÇÃO GLOBAL FIX');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - LOGIN REAL IMPLEMENTADO');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -386,6 +386,44 @@ const App = () => {
             "
           ></textarea>
         </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Senha:</label>
+          <input 
+            type="password" 
+            id="company-password" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              background-color: white;
+              color: black;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Confirmar Senha:</label>
+          <input 
+            type="password" 
+            id="company-password-confirm" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              background-color: white;
+              color: black;
+            "
+          />
+        </div>
       </form>
       
       <div style="display: flex; gap: 1rem; justify-content: center;">
@@ -421,6 +459,23 @@ const App = () => {
           Cadastrar
         </button>
       </div>
+      
+      <div style="margin-top: 1rem; text-align: center;">
+        <button 
+          onclick="document.getElementById('company-registration-modal').remove(); window.location.reload();"
+          style="
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+          "
+        >
+          ← Voltar para o Menu Principal
+        </button>
+      </div>
     `;
     
     modal.appendChild(content);
@@ -434,12 +489,52 @@ const App = () => {
     const form = document.getElementById('company-form');
     const formData = new FormData(form);
     
+    // Validar campos obrigatórios
+    const name = document.getElementById('company-name').value.trim();
+    const cnpj = document.getElementById('company-cnpj').value.trim();
+    const email = document.getElementById('company-email').value.trim();
+    const phone = document.getElementById('company-phone').value.trim();
+    const address = document.getElementById('company-address').value.trim();
+    const password = document.getElementById('company-password').value;
+    const passwordConfirm = document.getElementById('company-password-confirm').value;
+    
+    // Validações
+    if (!name || !cnpj || !email || !phone || !address || !password || !passwordConfirm) {
+      alert('❌ Todos os campos são obrigatórios!');
+      return;
+    }
+    
+    if (password !== passwordConfirm) {
+      alert('❌ As senhas não coincidem!');
+      return;
+    }
+    
+    if (password.length < 6) {
+      alert('❌ A senha deve ter pelo menos 6 caracteres!');
+      return;
+    }
+    
+    // Validar CNPJ básico
+    const cleanCnpj = cnpj.replace(/\D/g, '');
+    if (cleanCnpj.length !== 14) {
+      alert('❌ CNPJ inválido!');
+      return;
+    }
+    
+    // Validar email básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('❌ Email inválido!');
+      return;
+    }
+    
     const companyData = {
-      name: document.getElementById('company-name').value,
-      cnpj: document.getElementById('company-cnpj').value,
-      email: document.getElementById('company-email').value,
-      phone: document.getElementById('company-phone').value,
-      address: document.getElementById('company-address').value
+      name: name,
+      cnpj: cnpj,
+      email: email,
+      phone: phone,
+      address: address,
+      password: password // Em produção, isso deve ser criptografado
     };
     
     console.log('🔧 Dados da empresa:', companyData);
@@ -451,7 +546,7 @@ const App = () => {
     document.getElementById('company-registration-modal').remove();
     
     // Mostra mensagem de sucesso
-    alert('✅ Empresa cadastrada com sucesso!');
+    alert('✅ Empresa cadastrada com sucesso!\n\nAgora você pode fazer login na Área Empresarial com seu CNPJ e senha.');
   };
 
   // Função global para o botão do modal

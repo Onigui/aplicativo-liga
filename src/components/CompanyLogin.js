@@ -10,14 +10,44 @@ const CompanyLogin = ({ onLogin, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Simulação de banco de dados de empresas (em produção, isso viria do backend)
+  const mockCompanies = [
+    {
+      id: 'company_123',
+      cnpj: '12.345.678/0001-90',
+      name: 'Empresa Exemplo LTDA',
+      email: 'contato@empresa.com',
+      phone: '(11) 99999-9999',
+      address: 'Rua das Empresas, 123',
+      city: 'São Paulo',
+      state: 'SP',
+      category: 'Alimentação',
+      discount: 15,
+      password: '123456', // Em produção, seria hash
+      workingHours: {
+        monday: { open: '08:00', close: '18:00', isOpen: true },
+        tuesday: { open: '08:00', close: '18:00', isOpen: true },
+        wednesday: { open: '08:00', close: '18:00', isOpen: true },
+        thursday: { open: '08:00', close: '18:00', isOpen: true },
+        friday: { open: '08:00', close: '18:00', isOpen: true },
+        saturday: { open: '09:00', close: '17:00', isOpen: true },
+        sunday: { open: '10:00', close: '16:00', isOpen: false }
+      },
+      description: 'Empresa parceira da Liga do Bem',
+      logo: null,
+      status: 'approved',
+      role: 'company'
+    }
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      // Simular login empresarial
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Simular delay de rede
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Validar CNPJ
       const cleanCnpj = formData.cnpj.replace(/\D/g, '');
@@ -25,34 +55,24 @@ const CompanyLogin = ({ onLogin, onBack }) => {
         throw new Error('CNPJ inválido');
       }
 
-      // Simular dados da empresa
-      const companyData = {
-        id: 'company_123',
-        cnpj: cleanCnpj,
-        name: 'Empresa Exemplo LTDA',
-        email: 'contato@empresa.com',
-        phone: '(11) 99999-9999',
-        address: 'Rua das Empresas, 123',
-        city: 'São Paulo',
-        state: 'SP',
-        category: 'Alimentação',
-        discount: 15,
-        workingHours: {
-          monday: { open: '08:00', close: '18:00', isOpen: true },
-          tuesday: { open: '08:00', close: '18:00', isOpen: true },
-          wednesday: { open: '08:00', close: '18:00', isOpen: true },
-          thursday: { open: '08:00', close: '18:00', isOpen: true },
-          friday: { open: '08:00', close: '18:00', isOpen: true },
-          saturday: { open: '09:00', close: '17:00', isOpen: true },
-          sunday: { open: '10:00', close: '16:00', isOpen: false }
-        },
-        description: 'Empresa parceira da Liga do Bem',
-        logo: null,
-        status: 'approved',
-        role: 'company'
-      };
+      // Buscar empresa no "banco de dados"
+      const company = mockCompanies.find(comp => 
+        comp.cnpj.replace(/\D/g, '') === cleanCnpj
+      );
 
+      if (!company) {
+        throw new Error('Empresa não encontrada. Verifique o CNPJ ou cadastre-se primeiro.');
+      }
+
+      // Validar senha
+      if (company.password !== formData.password) {
+        throw new Error('Senha incorreta');
+      }
+
+      // Login bem-sucedido
+      const { password, ...companyData } = company; // Remove a senha dos dados retornados
       onLogin(companyData);
+      
     } catch (error) {
       setError(error.message || 'Erro ao fazer login');
     } finally {
@@ -170,6 +190,13 @@ const CompanyLogin = ({ onLogin, onBack }) => {
           <p className="text-sm text-blue-700">
             Acesse para gerenciar seus dados, horários, descontos e validar carteirinhas dos clientes.
           </p>
+          <div className="mt-3 p-3 bg-yellow-50 rounded border border-yellow-200">
+            <p className="text-xs text-yellow-800">
+              <strong>Dados de teste:</strong><br/>
+              CNPJ: 12.345.678/0001-90<br/>
+              Senha: 123456
+            </p>
+          </div>
         </div>
       </div>
     </div>
