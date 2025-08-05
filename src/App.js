@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - MODAL FINAL LIMPO');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - FUNÇÃO GLOBAL FIX');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -453,6 +453,9 @@ const App = () => {
     // Mostra mensagem de sucesso
     alert('✅ Empresa cadastrada com sucesso!');
   };
+
+  // Função global para o botão do modal
+  window.handleCompanyRegistrationSubmit = handleCompanyRegistrationSubmit;
 
   const menuRef = useRef(null);
 
