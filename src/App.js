@@ -4213,16 +4213,16 @@ const App = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Cadastro de Empresas */}
+      {console.log('🔧 Renderizando modal, isOpen:', showCompanyRegistrationModal)}
+      <CompanyRegistrationModal
+        isOpen={showCompanyRegistrationModal}
+        onClose={() => setShowCompanyRegistrationModal(false)}
+        onRegister={handleCompanyRegistration}
+      />
     </div>
   );
-
-  {/* Modal de Cadastro de Empresas */}
-  {console.log('🔧 Renderizando modal, isOpen:', showCompanyRegistrationModal)}
-  <CompanyRegistrationModal
-    isOpen={showCompanyRegistrationModal}
-    onClose={() => setShowCompanyRegistrationModal(false)}
-    onRegister={handleCompanyRegistration}
-  />
 };
 
 export default App;
