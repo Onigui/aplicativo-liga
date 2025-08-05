@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - MODAL CADASTRO FUNCIONAL');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - MODAL FINAL LIMPO');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -241,80 +241,7 @@ const App = () => {
     console.log('🔧 Modal state mudou para:', showCompanyRegistrationModal);
   }, [showCompanyRegistrationModal]);
 
-  // Função de teste para o modal
-  const testModal = () => {
-    console.log('🔧 Teste do modal - Estado atual:', showCompanyRegistrationModal);
-    setShowCompanyRegistrationModal(true);
-    console.log('🔧 Teste do modal - setState chamado');
-  };
 
-  // Função para criar modal diretamente no DOM
-  const createDirectModal = () => {
-    console.log('🔧 Criando modal diretamente no DOM');
-    
-    // Remove modal anterior se existir
-    const existingModal = document.getElementById('direct-modal');
-    if (existingModal) {
-      existingModal.remove();
-    }
-    
-    // Cria novo modal
-    const modal = document.createElement('div');
-    modal.id = 'direct-modal';
-    modal.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 99999999;
-      pointer-events: auto;
-    `;
-    
-    const content = document.createElement('div');
-    content.style.cssText = `
-      background-color: #ff0000;
-      color: white;
-      padding: 3rem;
-      border-radius: 1rem;
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-      border: 8px solid #ffff00;
-      box-shadow: 0 0 100px rgba(255, 255, 0, 1);
-      font-family: Arial, sans-serif;
-    `;
-    
-    content.innerHTML = `
-      <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: white;">🚨 MODAL DIRETO NO DOM! 🚨</h1>
-      <p style="font-size: 1.5rem; margin-bottom: 1rem; color: white;">Se você está vendo isso, o modal está funcionando!</p>
-      <p style="font-size: 1.2rem; margin-bottom: 2rem; color: white;">Estado React: ${showCompanyRegistrationModal ? 'TRUE' : 'FALSE'}</p>
-      <button 
-        onclick="document.getElementById('direct-modal').remove()"
-        style="
-          background-color: white;
-          color: red;
-          padding: 1rem 2rem;
-          border: none;
-          border-radius: 0.5rem;
-          font-size: 1.5rem;
-          font-weight: bold;
-          cursor: pointer;
-        "
-      >
-        FECHAR MODAL DIRETO
-      </button>
-    `;
-    
-    modal.appendChild(content);
-    document.body.appendChild(modal);
-    
-    console.log('🔧 Modal direto criado no DOM');
-  };
 
   // Função para criar modal de cadastro de empresas diretamente no DOM
   const createCompanyRegistrationModal = () => {
@@ -357,14 +284,14 @@ const App = () => {
       font-family: Arial, sans-serif;
     `;
     
-    content.innerHTML = `
+            content.innerHTML = `
       <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: white; font-weight: bold;">
         🏢 Cadastro de Empresa
       </h2>
       
       <form id="company-form" style="text-align: left;">
         <div style="margin-bottom: 1rem;">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Nome da Empresa:</label>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Nome da Empresa:</label>
           <input 
             type="text" 
             id="company-name" 
@@ -376,12 +303,14 @@ const App = () => {
               border-radius: 0.5rem;
               font-size: 1rem;
               box-sizing: border-box;
+              background-color: white;
+              color: black;
             "
           />
         </div>
         
         <div style="margin-bottom: 1rem;">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">CNPJ:</label>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">CNPJ:</label>
           <input 
             type="text" 
             id="company-cnpj" 
@@ -394,12 +323,14 @@ const App = () => {
               border-radius: 0.5rem;
               font-size: 1rem;
               box-sizing: border-box;
+              background-color: white;
+              color: black;
             "
           />
         </div>
         
         <div style="margin-bottom: 1rem;">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Email:</label>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Email:</label>
           <input 
             type="email" 
             id="company-email" 
@@ -411,12 +342,14 @@ const App = () => {
               border-radius: 0.5rem;
               font-size: 1rem;
               box-sizing: border-box;
+              background-color: white;
+              color: black;
             "
           />
         </div>
         
         <div style="margin-bottom: 1rem;">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Telefone:</label>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Telefone:</label>
           <input 
             type="tel" 
             id="company-phone" 
@@ -428,12 +361,14 @@ const App = () => {
               border-radius: 0.5rem;
               font-size: 1rem;
               box-sizing: border-box;
+              background-color: white;
+              color: black;
             "
           />
         </div>
         
         <div style="margin-bottom: 1.5rem;">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Endereço:</label>
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Endereço:</label>
           <textarea 
             id="company-address" 
             required 
@@ -446,6 +381,8 @@ const App = () => {
               font-size: 1rem;
               box-sizing: border-box;
               resize: vertical;
+              background-color: white;
+              color: black;
             "
           ></textarea>
         </div>
@@ -1971,21 +1908,7 @@ const App = () => {
             <span>Cadastrar Empresa</span>
           </button>
 
-          {/* Botão de teste temporário */}
-          <button
-            onClick={testModal}
-            className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-          >
-            TESTE MODAL
-          </button>
 
-          {/* Botão de teste modal direto no DOM */}
-          <button
-            onClick={createDirectModal}
-            className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-          >
-            TESTE MODAL DIRETO NO DOM
-          </button>
 
           <div className="mt-8 p-6 bg-white/10 rounded-2xl">
             <h3 className="text-lg font-semibold text-white mb-3">Benefícios</h3>
