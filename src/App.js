@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - FORCE NEW BUILD');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - CACHE BUSTER FINAL');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -4237,15 +4237,52 @@ const App = () => {
 
       {/* Modal de Cadastro de Empresas */}
       {showCompanyRegistrationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">Teste do Modal</h2>
-            <p className="mb-4">Modal está funcionando!</p>
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" 
+          style={{
+            zIndex: 999999,
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '1rem',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              maxWidth: '28rem',
+              width: '100%',
+              padding: '1.5rem'
+            }}
+          >
+            <h2 className="text-xl font-bold mb-4" style={{fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem'}}>
+              🎉 MODAL FUNCIONANDO!
+            </h2>
+            <p className="mb-4" style={{marginBottom: '1rem'}}>
+              O modal está aparecendo! O problema era o cache do Service Worker.
+            </p>
             <button
               onClick={() => setShowCompanyRegistrationModal(false)}
               className="bg-blue-600 text-white px-4 py-2 rounded"
+              style={{
+                backgroundColor: '#2563eb',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.25rem',
+                border: 'none',
+                cursor: 'pointer'
+              }}
             >
-              Fechar
+              Fechar Modal
             </button>
           </div>
         </div>
