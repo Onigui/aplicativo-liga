@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - CACHE BUSTER FINAL');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - MODAL DIRETO NO DOM TEST');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -246,6 +246,74 @@ const App = () => {
     console.log('🔧 Teste do modal - Estado atual:', showCompanyRegistrationModal);
     setShowCompanyRegistrationModal(true);
     console.log('🔧 Teste do modal - setState chamado');
+  };
+
+  // Função para criar modal diretamente no DOM
+  const createDirectModal = () => {
+    console.log('🔧 Criando modal diretamente no DOM');
+    
+    // Remove modal anterior se existir
+    const existingModal = document.getElementById('direct-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Cria novo modal
+    const modal = document.createElement('div');
+    modal.id = 'direct-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999999;
+      pointer-events: auto;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+      background-color: #ff0000;
+      color: white;
+      padding: 3rem;
+      border-radius: 1rem;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      border: 8px solid #ffff00;
+      box-shadow: 0 0 100px rgba(255, 255, 0, 1);
+      font-family: Arial, sans-serif;
+    `;
+    
+    content.innerHTML = `
+      <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: white;">🚨 MODAL DIRETO NO DOM! 🚨</h1>
+      <p style="font-size: 1.5rem; margin-bottom: 1rem; color: white;">Se você está vendo isso, o modal está funcionando!</p>
+      <p style="font-size: 1.2rem; margin-bottom: 2rem; color: white;">Estado React: ${showCompanyRegistrationModal ? 'TRUE' : 'FALSE'}</p>
+      <button 
+        onclick="document.getElementById('direct-modal').remove()"
+        style="
+          background-color: white;
+          color: red;
+          padding: 1rem 2rem;
+          border: none;
+          border-radius: 0.5rem;
+          font-size: 1.5rem;
+          font-weight: bold;
+          cursor: pointer;
+        "
+      >
+        FECHAR MODAL DIRETO
+      </button>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    console.log('🔧 Modal direto criado no DOM');
   };
 
   const menuRef = useRef(null);
@@ -1711,6 +1779,14 @@ const App = () => {
             className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
           >
             TESTE MODAL
+          </button>
+
+          {/* Botão de teste modal direto no DOM */}
+          <button
+            onClick={createDirectModal}
+            className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+          >
+            TESTE MODAL DIRETO NO DOM
           </button>
 
           <div className="mt-8 p-6 bg-white/10 rounded-2xl">
