@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Building, Eye, EyeOff, AlertCircle, X } from 'lucide-react';
 
 const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
+  console.log('🔧 CompanyRegistrationModal renderizado, isOpen:', isOpen);
+  
   const [formData, setFormData] = useState({
     cnpj: '',
     password: '',
@@ -87,10 +89,14 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
     setFormData(prev => ({ ...prev, cnpj: formatted }));
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('🔧 Modal não está aberto, retornando null');
+    return null;
+  }
 
+  console.log('🔧 Modal está aberto, renderizando...');
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style={{zIndex: 9999}}>
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
