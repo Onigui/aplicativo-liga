@@ -1695,6 +1695,7 @@ const App = () => {
             onClick={() => {
               console.log('🔧 Botão Cadastrar Empresa clicado');
               console.log('🔧 Estado ANTES:', showCompanyRegistrationModal);
+              alert('🚨 BOTÃO CLICADO! Modal deve aparecer!');
               setShowCompanyRegistrationModal(true);
               console.log('🔧 setShowCompanyRegistrationModal(true) chamado');
             }}
@@ -4235,54 +4236,59 @@ const App = () => {
         </div>
       )}
 
-      {/* Modal de Cadastro de Empresas */}
+      {/* Modal de Cadastro de Empresas - FORÇADO */}
       {showCompanyRegistrationModal && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" 
           style={{
-            zIndex: 999999,
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
+            top: '0px',
+            left: '0px',
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '1rem'
+            zIndex: 9999999,
+            pointerEvents: 'auto'
           }}
         >
           <div 
-            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
             style={{
-              backgroundColor: 'white',
+              backgroundColor: 'red',
+              color: 'white',
+              padding: '2rem',
               borderRadius: '1rem',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              maxWidth: '28rem',
-              width: '100%',
-              padding: '1.5rem'
+              maxWidth: '400px',
+              width: '90%',
+              textAlign: 'center',
+              border: '5px solid yellow',
+              boxShadow: '0 0 50px rgba(255, 255, 0, 0.8)'
             }}
           >
-            <h2 className="text-xl font-bold mb-4" style={{fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem'}}>
-              🎉 MODAL FUNCIONANDO!
-            </h2>
-            <p className="mb-4" style={{marginBottom: '1rem'}}>
-              O modal está aparecendo! O problema era o cache do Service Worker.
+            <h1 style={{fontSize: '2rem', marginBottom: '1rem'}}>
+              🚨 MODAL FORÇADO! 🚨
+            </h1>
+            <p style={{fontSize: '1.2rem', marginBottom: '1rem'}}>
+              Se você está vendo isso, o modal está funcionando!
+            </p>
+            <p style={{fontSize: '1rem', marginBottom: '2rem'}}>
+              Estado: {showCompanyRegistrationModal ? 'TRUE' : 'FALSE'}
             </p>
             <button
               onClick={() => setShowCompanyRegistrationModal(false)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
               style={{
-                backgroundColor: '#2563eb',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.25rem',
+                backgroundColor: 'white',
+                color: 'red',
+                padding: '1rem 2rem',
                 border: 'none',
+                borderRadius: '0.5rem',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
                 cursor: 'pointer'
               }}
             >
-              Fechar Modal
+              FECHAR MODAL
             </button>
           </div>
         </div>
