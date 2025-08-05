@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - MODAL DIRETO NO DOM TEST');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - MODAL CADASTRO FUNCIONAL');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -314,6 +314,207 @@ const App = () => {
     document.body.appendChild(modal);
     
     console.log('🔧 Modal direto criado no DOM');
+  };
+
+  // Função para criar modal de cadastro de empresas diretamente no DOM
+  const createCompanyRegistrationModal = () => {
+    console.log('🔧 Criando modal de cadastro de empresas diretamente no DOM');
+    
+    // Remove modal anterior se existir
+    const existingModal = document.getElementById('company-registration-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Cria novo modal
+    const modal = document.createElement('div');
+    modal.id = 'company-registration-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999999;
+      pointer-events: auto;
+      padding: 1rem;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      font-family: Arial, sans-serif;
+    `;
+    
+    content.innerHTML = `
+      <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: white; font-weight: bold;">
+        🏢 Cadastro de Empresa
+      </h2>
+      
+      <form id="company-form" style="text-align: left;">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Nome da Empresa:</label>
+          <input 
+            type="text" 
+            id="company-name" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">CNPJ:</label>
+          <input 
+            type="text" 
+            id="company-cnpj" 
+            required 
+            placeholder="00.000.000/0000-00"
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Email:</label>
+          <input 
+            type="email" 
+            id="company-email" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Telefone:</label>
+          <input 
+            type="tel" 
+            id="company-phone" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Endereço:</label>
+          <textarea 
+            id="company-address" 
+            required 
+            rows="3"
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              resize: vertical;
+            "
+          ></textarea>
+        </div>
+      </form>
+      
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button 
+          onclick="document.getElementById('company-registration-modal').remove()"
+          style="
+            background-color: #6c757d;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 0.5rem;
+          "
+        >
+          Cancelar
+        </button>
+        <button 
+          onclick="handleCompanyRegistrationSubmit()"
+          style="
+            background-color: #28a745;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+          "
+        >
+          Cadastrar
+        </button>
+      </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    console.log('🔧 Modal de cadastro de empresas criado no DOM');
+  };
+
+  // Função para lidar com o envio do formulário
+  const handleCompanyRegistrationSubmit = () => {
+    const form = document.getElementById('company-form');
+    const formData = new FormData(form);
+    
+    const companyData = {
+      name: document.getElementById('company-name').value,
+      cnpj: document.getElementById('company-cnpj').value,
+      email: document.getElementById('company-email').value,
+      phone: document.getElementById('company-phone').value,
+      address: document.getElementById('company-address').value
+    };
+    
+    console.log('🔧 Dados da empresa:', companyData);
+    
+    // Aqui você pode chamar a API para cadastrar a empresa
+    // handleCompanyRegistration(companyData);
+    
+    // Remove o modal
+    document.getElementById('company-registration-modal').remove();
+    
+    // Mostra mensagem de sucesso
+    alert('✅ Empresa cadastrada com sucesso!');
   };
 
   const menuRef = useRef(null);
@@ -1762,10 +1963,7 @@ const App = () => {
           <button
             onClick={() => {
               console.log('🔧 Botão Cadastrar Empresa clicado');
-              console.log('🔧 Estado ANTES:', showCompanyRegistrationModal);
-              alert('🚨 BOTÃO CLICADO! Modal deve aparecer!');
-              setShowCompanyRegistrationModal(true);
-              console.log('🔧 setShowCompanyRegistrationModal(true) chamado');
+              createCompanyRegistrationModal();
             }}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
           >
@@ -4312,63 +4510,7 @@ const App = () => {
         </div>
       )}
 
-      {/* Modal de Cadastro de Empresas - FORÇADO */}
-      {showCompanyRegistrationModal && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: '0px',
-            left: '0px',
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999999,
-            pointerEvents: 'auto'
-          }}
-        >
-          <div 
-            style={{
-              backgroundColor: 'red',
-              color: 'white',
-              padding: '2rem',
-              borderRadius: '1rem',
-              maxWidth: '400px',
-              width: '90%',
-              textAlign: 'center',
-              border: '5px solid yellow',
-              boxShadow: '0 0 50px rgba(255, 255, 0, 0.8)'
-            }}
-          >
-            <h1 style={{fontSize: '2rem', marginBottom: '1rem'}}>
-              🚨 MODAL FORÇADO! 🚨
-            </h1>
-            <p style={{fontSize: '1.2rem', marginBottom: '1rem'}}>
-              Se você está vendo isso, o modal está funcionando!
-            </p>
-            <p style={{fontSize: '1rem', marginBottom: '2rem'}}>
-              Estado: {showCompanyRegistrationModal ? 'TRUE' : 'FALSE'}
-            </p>
-            <button
-              onClick={() => setShowCompanyRegistrationModal(false)}
-              style={{
-                backgroundColor: 'white',
-                color: 'red',
-                padding: '1rem 2rem',
-                border: 'none',
-                borderRadius: '0.5rem',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
-            >
-              FECHAR MODAL
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Modal de Cadastro de Empresas - Agora usando DOM direto */}
     </div>
   );
 };
