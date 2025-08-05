@@ -21,7 +21,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - LOGIN REAL IMPLEMENTADO');
+console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - BOTÕES PADRONIZADOS');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -460,22 +460,7 @@ const App = () => {
         </button>
       </div>
       
-      <div style="margin-top: 1rem; text-align: center;">
-        <button 
-          onclick="document.getElementById('company-registration-modal').remove(); window.location.reload();"
-          style="
-            background-color: #007bff;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.25rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-          "
-        >
-          ← Voltar para o Menu Principal
-        </button>
-      </div>
+
     `;
     
     modal.appendChild(content);
@@ -1968,6 +1953,17 @@ const App = () => {
   const renderCompanyRegister = () => (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-lg">
+        {/* Back Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => setCurrentPage('welcome')}
+            className="glass rounded-full p-3 hover:bg-white/20 transition-all duration-300 glow-animation flex items-center space-x-2"
+          >
+            <ArrowLeft className="h-5 w-5 text-purple-200" />
+            <span className="text-purple-200 text-sm">Voltar</span>
+          </button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="glass rounded-full p-6 mx-auto w-fit pulse-glow mb-4">
