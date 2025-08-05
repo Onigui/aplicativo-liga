@@ -241,6 +241,13 @@ const App = () => {
     console.log('🔧 Modal state mudou para:', showCompanyRegistrationModal);
   }, [showCompanyRegistrationModal]);
 
+  // Função de teste para o modal
+  const testModal = () => {
+    console.log('🔧 Teste do modal - Estado atual:', showCompanyRegistrationModal);
+    setShowCompanyRegistrationModal(true);
+    console.log('🔧 Teste do modal - setState chamado');
+  };
+
   const menuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -1687,12 +1694,22 @@ const App = () => {
           <button
             onClick={() => {
               console.log('🔧 Botão Cadastrar Empresa clicado');
+              console.log('🔧 Estado ANTES:', showCompanyRegistrationModal);
               setShowCompanyRegistrationModal(true);
+              console.log('🔧 setShowCompanyRegistrationModal(true) chamado');
             }}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
           >
             <Building className="h-6 w-6" />
             <span>Cadastrar Empresa</span>
+          </button>
+
+          {/* Botão de teste temporário */}
+          <button
+            onClick={testModal}
+            className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+          >
+            TESTE MODAL
           </button>
 
           <div className="mt-8 p-6 bg-white/10 rounded-2xl">
