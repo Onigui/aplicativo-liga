@@ -535,8 +535,7 @@ const App = () => {
     alert('✅ Empresa cadastrada com sucesso!\n\nAgora você pode fazer login na Área Empresarial com seu CNPJ e senha.');
   };
 
-  // Função global para o botão do modal
-  window.handleCompanyRegistrationSubmit = handleCompanyRegistrationSubmit;
+
 
   const menuRef = useRef(null);
 
@@ -1995,7 +1994,7 @@ const App = () => {
           <button
             onClick={() => {
               console.log('🔧 Botão Cadastrar Empresa clicado');
-              createCompanyRegistrationModal();
+              setShowCompanyRegistrationModal(true);
             }}
             className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-3"
           >
