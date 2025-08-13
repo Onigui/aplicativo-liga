@@ -235,6 +235,7 @@ const App = () => {
   const [companyUser, setCompanyUser] = useState(null);
   const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
   const [showCompanyRegistrationModal, setShowCompanyRegistrationModal] = useState(false);
+  const [registeredCompanies, setRegisteredCompanies] = useState([]);
 
   // Monitora mudanças no estado do modal
   useEffect(() => {
@@ -3950,9 +3951,19 @@ const App = () => {
   const handleCompanyRegistration = (companyData) => {
     // Simular cadastro bem-sucedido
     console.log('✅ Empresa cadastrada:', companyData);
+    
+    // Adicionar a empresa ao estado de empresas cadastradas
+    setRegisteredCompanies(prev => [...prev, companyData]);
+    
     setShowCompanyRegistrationModal(false);
     setCurrentPage('welcome');
-    // Aqui você pode adicionar uma notificação de sucesso
+    
+    // Mostrar notificação de sucesso
+    addNotification({
+      type: 'success',
+      title: 'Empresa cadastrada com sucesso!',
+      message: 'Sua empresa foi cadastrada e está pendente de aprovação.'
+    });
   };
 
   const renderCurrentPage = () => {
@@ -3972,6 +3983,7 @@ const App = () => {
         <CompanyLogin 
           onLogin={handleCompanyLogin}
           onBack={handleBackToMainLogin}
+          companies={registeredCompanies}
         />
       );
     }
@@ -4527,7 +4539,12 @@ const App = () => {
         </div>
       )}
 
-      {/* Modal de Cadastro de Empresas - Agora usando DOM direto */}
+      {/* Modal de Cadastro de Empresas */}
+      <CompanyRegistrationModal
+        isOpen={showCompanyRegistrationModal}
+        onClose={() => setShowCompanyRegistrationModal(false)}
+        onRegister={handleCompanyRegistration}
+      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Building, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 
-const CompanyLogin = ({ onLogin, onBack }) => {
+const CompanyLogin = ({ onLogin, onBack, companies = [] }) => {
   const [formData, setFormData] = useState({
     cnpj: '',
     password: ''
@@ -10,8 +10,8 @@ const CompanyLogin = ({ onLogin, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Simulação de banco de dados de empresas (em produção, isso viria do backend)
-  const mockCompanies = [
+  // Usar empresas reais se fornecidas, senão usar mock para demonstração
+  const availableCompanies = companies.length > 0 ? companies : [
     {
       id: 'company_123',
       cnpj: '12.345.678/0001-90',
@@ -55,8 +55,8 @@ const CompanyLogin = ({ onLogin, onBack }) => {
         throw new Error('CNPJ inválido');
       }
 
-      // Buscar empresa no "banco de dados"
-      const company = mockCompanies.find(comp => 
+      // Buscar empresa no banco de dados
+      const company = availableCompanies.find(comp => 
         comp.cnpj.replace(/\D/g, '') === cleanCnpj
       );
 
