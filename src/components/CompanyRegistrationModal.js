@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building, Eye, EyeOff, AlertCircle, X } from 'lucide-react';
 
 const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
   console.log('🔧 CompanyRegistrationModal renderizado, isOpen:', isOpen);
+  console.log('🔧 CompanyRegistrationModal props completas:', { isOpen, onClose: !!onClose, onRegister: !!onRegister });
+  console.log('🔧 CompanyRegistrationModal - Componente montado');
+  
+  useEffect(() => {
+    console.log('🔧 CompanyRegistrationModal useEffect - isOpen mudou para:', isOpen);
+  }, [isOpen]);
   
   const [formData, setFormData] = useState({
     cnpj: '',
