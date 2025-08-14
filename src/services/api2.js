@@ -14,6 +14,7 @@ class ApiService {
     const defaultHeaders = {
       'Content-Type': 'application/json',
     };
+    
     // Adicionar token de admin se existir
     const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
     if (token) {
@@ -21,17 +22,21 @@ class ApiService {
     } else {
       console.warn('[API DEBUG] Nenhum token encontrado para Authorization!');
     }
+    
     const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
     const opts = {
-      credentials: 'include',
+      // Remover credentials para evitar problemas de CORS
+      // credentials: 'include',
       headers: { ...defaultHeaders, ...authHeader, ...(options.headers || {}) },
       ...options,
     };
+    
     if (opts.body && typeof opts.body !== 'string') {
       console.log('[API DEBUG] Serializando body:', opts.body);
       opts.body = JSON.stringify(opts.body);
       console.log('[API DEBUG] Body serializado:', opts.body);
     }
+    
     console.log('[API DEBUG] Opções finais do fetch:', opts);
     const response = await fetch(url, opts);
     const data = await response.json();
@@ -44,7 +49,8 @@ class ApiService {
   // Buscar todas as empresas
   async getCompanies(status = null) {
     try {
-      let endpoint = '/api/companies';
+      // O endpoint /api/companies não existe no Render, usar endpoint de admin
+      let endpoint = '/api/admin/companies';
       if (status) endpoint += `?status=${status}`;
       
       const response = await this.request(endpoint);
@@ -65,7 +71,7 @@ class ApiService {
   // Buscar empresa por ID
   async getCompany(id) {
     try {
-      const response = await this.request(`/api/companies/${id}`);
+      const response = await this.request(`/api/admin/companies/${id}`);
       return { success: true, company: response.company };
     } catch (error) {
       return { success: false, message: error.message };
@@ -75,7 +81,8 @@ class ApiService {
   // Criar nova empresa
   async createCompany(companyData) {
     try {
-      const response = await this.request('/api/companies', {
+      // Usar endpoint de admin que existe no Render
+      const response = await this.request('/api/admin/companies', {
         method: 'POST',
         body: companyData,
       });
@@ -93,9 +100,10 @@ class ApiService {
   // Login de empresa
   async loginCompany(cnpj, password) {
     try {
-      const response = await this.request('/api/companies/login', {
+      // Como não há endpoint específico para empresas, usar o de usuários
+      const response = await this.request('/api/auth/login', {
         method: 'POST',
-        body: { cnpj, password },
+        body: { username: cnpj, password },
       });
       if (response.token) {
         localStorage.setItem('company_token', response.token);

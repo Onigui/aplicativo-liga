@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Building, Eye, EyeOff, AlertCircle, X } from 'lucide-react';
 
 const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
-  console.log('🔧 CompanyRegistrationModal renderizado, isOpen:', isOpen);
-  console.log('🔧 CompanyRegistrationModal props completas:', { isOpen, onClose: !!onClose, onRegister: !!onRegister });
-  console.log('🔧 CompanyRegistrationModal - Componente montado');
-  
-  useEffect(() => {
-    console.log('🔧 CompanyRegistrationModal useEffect - isOpen mudou para:', isOpen);
-  }, [isOpen]);
-  
   const [formData, setFormData] = useState({
     cnpj: '',
     password: '',
@@ -97,13 +89,9 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
   };
 
   if (!isOpen) {
-    console.log('🔧 Modal não está aberto, retornando null');
     return null;
   }
 
-  console.log('🔧 Modal está aberto, renderizando...');
-  console.log('🔧 Modal props:', { isOpen, onClose: !!onClose, onRegister: !!onRegister });
-  
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" 

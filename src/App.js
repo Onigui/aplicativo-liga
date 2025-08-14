@@ -2602,7 +2602,7 @@ const App = () => {
       // Removemos a geolocalização automática para evitar notificações duplicadas
       // O usuário pode clicar no botão "Usar minha localização" quando quiser
     }
-  }, [currentPage, userLocation, addNotification]);
+  }, [currentPage]); // Remover userLocation e addNotification das dependências
 
   const renderPartners = () => (
       <div className="p-6 space-y-6">
@@ -4092,7 +4092,7 @@ const App = () => {
       setRegisteredCompanies(prev => [...prev, finalCompanyData]);
       
       // Fechar modal
-      setShowCompanyRegistrationModal(false);
+    setShowCompanyRegistrationModal(false);
       
       // Fazer login automático na empresa recém-criada
       setCompanyUser(finalCompanyData);
@@ -4100,11 +4100,11 @@ const App = () => {
       setShowCompanyLogin(false);
       
       // Navegar para o dashboard da empresa
-      setCurrentPage('welcome');
-      
-      // Mostrar notificação de sucesso
-      addNotification({
-        type: 'success',
+    setCurrentPage('welcome');
+    
+    // Mostrar notificação de sucesso
+    addNotification({
+      type: 'success',
         title: 'Empresa cadastrada com sucesso! 🎉',
         message: `Bem-vindo(a), ${finalCompanyData.name}! Sua empresa foi salva no banco online.`
       });
