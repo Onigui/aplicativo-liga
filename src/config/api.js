@@ -30,8 +30,7 @@ const API_URLS = {
 // Determinar qual URL usar baseado no ambiente
 let baseURL;
 
-// Para empresas, sempre usar backend local (que tem os endpoints necessários)
-// Para usuários, usar Render (que tem autenticação)
+// Usar o banco online do Render para TUDO (usuários E empresas)
 if (process.env.REACT_APP_API_URL) {
   baseURL = process.env.REACT_APP_API_URL;
   console.log('🔧 Override: Usando variável de ambiente');
@@ -39,16 +38,15 @@ if (process.env.REACT_APP_API_URL) {
   baseURL = API_URLS.app;
   console.log('🔧 Detectado: App móvel');
 } else if (process.env.NODE_ENV === 'production') {
-  // Em produção, usar backend local para empresas e Render para usuários
-  baseURL = API_URLS.development; // Forçar uso do local para empresas
-  console.log('🔧 Detectado: Produção - usando backend local para empresas');
+  baseURL = API_URLS.production;
+  console.log('🔧 Detectado: Produção - usando banco online do Render');
 } else if (process.env.REACT_APP_USE_NETWORK) {
   baseURL = API_URLS.local_network;
   console.log('🔧 Detectado: Rede local');
 } else {
-  // Sempre usar local para garantir que empresas funcionem
-  baseURL = API_URLS.development;
-  console.log('🔧 Forçado: Usando backend local para empresas');
+  // Usar o banco online do Render para garantir que tudo funcione
+  baseURL = API_URLS.production;
+  console.log('🔧 Forçado: Usando banco online do Render para empresas e usuários');
 } 
  
 // Permitir override via variável de ambiente 

@@ -4064,13 +4064,13 @@ const App = () => {
         message: 'Aguarde enquanto processamos seu cadastro.'
       });
 
-      // Tentar cadastrar na API real primeiro
+      // Tentar cadastrar no banco online do Render primeiro
       let apiResult = null;
       try {
         apiResult = await apiService.registerCompany(companyData);
-        console.log('✅ Resultado da API:', apiResult);
+        console.log('✅ Resultado da API Render:', apiResult);
       } catch (apiError) {
-        console.warn('⚠️ Erro na API, usando fallback local:', apiError);
+        console.warn('⚠️ Erro na API Render, usando fallback local:', apiError);
         apiResult = null;
       }
 
@@ -4080,7 +4080,7 @@ const App = () => {
         finalCompanyData = {
           ...companyData,
           id: apiResult.company.id || companyData.id,
-          name: apiResult.company.companyName || companyData.name, // Usar companyName do backend
+          name: apiResult.company.companyName || companyData.name,
           status: apiResult.company.status || 'pending',
           // Mapear outros campos do backend
           address: apiResult.company.address || companyData.address,
@@ -4090,7 +4090,7 @@ const App = () => {
           discount: apiResult.company.discount || companyData.discount,
           workingHours: apiResult.company.workingHours || companyData.workingHours
         };
-        console.log('✅ Empresa cadastrada via API:', finalCompanyData);
+        console.log('✅ Empresa cadastrada via banco online Render:', finalCompanyData);
       } else {
         // Fallback para dados locais se a API falhar
         finalCompanyData = {
@@ -4098,7 +4098,7 @@ const App = () => {
           id: `company_${Date.now()}`,
           status: 'pending'
         };
-        console.log('⚠️ Usando fallback local:', finalCompanyData);
+        console.log('⚠️ Usando fallback local (Render não disponível):', finalCompanyData);
       }
 
       // Adicionar a empresa ao estado local

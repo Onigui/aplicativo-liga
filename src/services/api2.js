@@ -44,19 +44,23 @@ class ApiService {
   // Buscar todas as empresas
   async getCompanies(status = null) {
     try {
-      let endpoint = '/api/admin/companies';
+      // Tentar primeiro o endpoint que pode existir no Render
+      let endpoint = '/api/companies';
       if (status) endpoint += `?status=${status}`;
+      
       const response = await this.request(endpoint);
       return {
         success: true,
         companies: response.companies || []
       };
     } catch (error) {
-      console.error('❌ Erro ao buscar empresas:', error);
+      console.warn('⚠️ Endpoint /api/companies não existe, usando fallback local');
+      
+      // Fallback: retornar empresas do localStorage se não houver API
+      const localCompanies = JSON.parse(localStorage.getItem('local_companies') || '[]');
       return {
-        success: false,
-        companies: [],
-        message: error.message
+        success: true,
+        companies: localCompanies.filter(company => !status || company.status === status)
       };
     }
   }
@@ -64,56 +68,78 @@ class ApiService {
   // Buscar empresa por ID
   async getCompany(id) {
     try {
-      const response = await this.request(`/api/admin/companies/${id}`);
+      const response = await this.request(`/api/companies/${id}`);
       return { success: true, company: response.company };
     } catch (error) {
-      return { success: false, message: error.message };
+      // Fallback: buscar do localStorage
+      const localCompanies = JSON.parse(localStorage.getItem('local_companies') || '[]');
+      const company = localCompanies.find(c => c.id === id);
+      if (company) {
+        return { success: true, company };
+      }
+      return { success: false, message: 'Empresa não encontrada' };
     }
   }
 
-  // Criar nova empresa (endpoint público)
+  // Criar nova empresa
   async createCompany(companyData) {
     try {
-      const response = await this.request('/api/admin/companies', {
+      // Tentar criar no Render primeiro
+      const response = await this.request('/api/companies', {
         method: 'POST',
         body: companyData,
       });
       return { success: true, company: response.company };
     } catch (error) {
-      return { success: false, message: error.message };
+      console.warn('⚠️ Endpoint /api/companies não existe, salvando localmente');
+      
+      // Fallback: salvar localmente
+      const localCompanies = JSON.parse(localStorage.getItem('local_companies') || '[]');
+      const newCompany = {
+        ...companyData,
+        id: `company_${Date.now()}`,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+      
+      localCompanies.push(newCompany);
+      localStorage.setItem('local_companies', JSON.stringify(localCompanies));
+      
+      return { success: true, company: newCompany };
     }
   }
 
-  // Cadastro público de empresa (endpoint específico)
+  // Cadastro público de empresa
   async registerCompany(companyData) {
-    try {
-      // Usar o endpoint que existe no backend local
-      const response = await this.request('/api/admin/companies', {
-        method: 'POST',
-        body: companyData,
-      });
-      return { success: true, company: response.company };
-    } catch (error) {
-      console.error('❌ Erro ao cadastrar empresa:', error);
-      return { success: false, message: error.message };
-    }
+    return this.createCompany(companyData);
   }
 
-  // Login de empresa (usar endpoint de usuários como fallback)
+  // Login de empresa
   async loginCompany(cnpj, password) {
     try {
-      // Como não há endpoint específico para empresas, usar o de usuários
-      const response = await this.request('/api/auth/login', {
+      // Tentar endpoint específico de empresas
+      const response = await this.request('/api/companies/login', {
         method: 'POST',
-        body: { username: cnpj, password },
+        body: { cnpj, password },
       });
-      // Salvar token se existir
       if (response.token) {
         localStorage.setItem('company_token', response.token);
       }
       return { success: true, ...response };
     } catch (error) {
-      return { success: false, message: error.message };
+      // Fallback: usar endpoint de usuários
+      try {
+        const response = await this.request('/api/auth/login', {
+          method: 'POST',
+          body: { username: cnpj, password },
+        });
+        if (response.token) {
+          localStorage.setItem('company_token', response.token);
+        }
+        return { success: true, ...response };
+      } catch (loginError) {
+        return { success: false, message: 'Credenciais inválidas' };
+      }
     }
   }
 

@@ -50,10 +50,10 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
 
       // Preparar dados para envio
       const companyData = {
-        companyName: formData.name, // O backend espera 'companyName'
+        companyName: formData.name, // Campo que o backend pode esperar
+        name: formData.name, // Campo alternativo
         cnpj: cleanCnpj,
         password: formData.password,
-        name: formData.name,
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
