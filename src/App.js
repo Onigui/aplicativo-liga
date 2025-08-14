@@ -4080,7 +4080,15 @@ const App = () => {
         finalCompanyData = {
           ...companyData,
           id: apiResult.company.id || companyData.id,
-          status: apiResult.company.status || 'pending'
+          name: apiResult.company.companyName || companyData.name, // Usar companyName do backend
+          status: apiResult.company.status || 'pending',
+          // Mapear outros campos do backend
+          address: apiResult.company.address || companyData.address,
+          phone: apiResult.company.phone || companyData.phone,
+          email: apiResult.company.email || companyData.email,
+          category: apiResult.company.category || companyData.category,
+          discount: apiResult.company.discount || companyData.discount,
+          workingHours: apiResult.company.workingHours || companyData.workingHours
         };
         console.log('✅ Empresa cadastrada via API:', finalCompanyData);
       } else {

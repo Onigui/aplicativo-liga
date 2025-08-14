@@ -74,7 +74,7 @@ class ApiService {
   // Criar nova empresa (endpoint público)
   async createCompany(companyData) {
     try {
-      const response = await this.request('/api/companies', {
+      const response = await this.request('/api/admin/companies', {
         method: 'POST',
         body: companyData,
       });
@@ -87,34 +87,25 @@ class ApiService {
   // Cadastro público de empresa (endpoint específico)
   async registerCompany(companyData) {
     try {
-      // Tentar primeiro o endpoint público
-      const response = await this.request('/api/companies', {
+      // Usar o endpoint que existe no backend local
+      const response = await this.request('/api/admin/companies', {
         method: 'POST',
         body: companyData,
       });
       return { success: true, company: response.company };
     } catch (error) {
-      console.warn('⚠️ Endpoint público falhou, tentando admin:', error);
-      
-      // Fallback para endpoint admin se o público falhar
-      try {
-        const adminResponse = await this.request('/api/admin/companies', {
-          method: 'POST',
-          body: companyData,
-        });
-        return { success: true, company: adminResponse.company };
-      } catch (adminError) {
-        return { success: false, message: adminError.message };
-      }
+      console.error('❌ Erro ao cadastrar empresa:', error);
+      return { success: false, message: error.message };
     }
   }
 
-  // Login de empresa
+  // Login de empresa (usar endpoint de usuários como fallback)
   async loginCompany(cnpj, password) {
     try {
-      const response = await this.request('/api/companies/login', {
+      // Como não há endpoint específico para empresas, usar o de usuários
+      const response = await this.request('/api/auth/login', {
         method: 'POST',
-        body: { cnpj, password },
+        body: { username: cnpj, password },
       });
       // Salvar token se existir
       if (response.token) {
