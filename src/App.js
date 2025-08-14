@@ -368,12 +368,11 @@ const App = () => {
           />
         </div>
         
-        <div style="margin-bottom: 1.5rem;">
-          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Endereço:</label>
-          <textarea 
-            id="company-address" 
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Categoria:</label>
+          <select 
+            id="company-category" 
             required 
-            rows="3"
             style="
               width: 100%;
               padding: 0.75rem;
@@ -381,11 +380,40 @@ const App = () => {
               border-radius: 0.5rem;
               font-size: 1rem;
               box-sizing: border-box;
-              resize: vertical;
               background-color: white;
               color: black;
             "
-          ></textarea>
+          >
+            <option value="">Selecione uma categoria</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="varejo">Varejo</option>
+            <option value="servicos">Serviços</option>
+            <option value="saude">Saúde</option>
+            <option value="educacao">Educação</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Desconto (%):</label>
+          <input 
+            type="number" 
+            id="company-discount" 
+            min="1" 
+            max="50" 
+            value="10" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              background-color: white;
+              color: black;
+            "
+          />
         </div>
         
         <div style="margin-bottom: 1rem;">
@@ -411,7 +439,7 @@ const App = () => {
           <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Confirmar Senha:</label>
           <input 
             type="password" 
-            id="company-password-confirm" 
+            id="company-confirm-password" 
             required 
             style="
               width: 100%;
@@ -425,117 +453,195 @@ const App = () => {
             "
           />
         </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Endereço:</label>
+          <input 
+            type="text" 
+            id="company-address" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              background-color: white;
+              color: black;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Cidade:</label>
+          <input 
+            type="text" 
+            id="company-city" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              background-color: white;
+              color: black;
+            "
+          />
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: white;">Estado:</label>
+          <select 
+            id="company-state" 
+            required 
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              border: 2px solid #ddd;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              box-sizing: border-box;
+              background-color: white;
+              color: black;
+            "
+          >
+            <option value="">Selecione um estado</option>
+            <option value="AC">Acre</option>
+            <option value="AL">Alagoas</option>
+            <option value="AP">Amapá</option>
+            <option value="AM">Amazonas</option>
+            <option value="BA">Bahia</option>
+            <option value="CE">Ceará</option>
+            <option value="DF">Distrito Federal</option>
+            <option value="ES">Espírito Santo</option>
+            <option value="GO">Goiás</option>
+            <option value="MA">Maranhão</option>
+            <option value="MT">Mato Grosso</option>
+            <option value="MS">Mato Grosso do Sul</option>
+            <option value="MG">Minas Gerais</option>
+            <option value="PA">Pará</option>
+            <option value="PB">Paraíba</option>
+            <option value="PR">Paraná</option>
+            <option value="PE">Pernambuco</option>
+            <option value="PI">Piauí</option>
+            <option value="RJ">Rio de Janeiro</option>
+            <option value="RN">Rio Grande do Norte</option>
+            <option value="RS">Rio Grande do Sul</option>
+            <option value="RO">Rondônia</option>
+            <option value="RR">Roraima</option>
+            <option value="SC">Santa Catarina</option>
+            <option value="SP">São Paulo</option>
+            <option value="SE">Sergipe</option>
+            <option value="TO">Tocantins</option>
+          </select>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+          <button 
+            type="submit" 
+            style="
+              flex: 1;
+              padding: 1rem;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+              border: none;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            "
+            onmouseover="this.style.transform='scale(1.05)'"
+            onmouseout="this.style.transform='scale(1)'"
+          >
+            🚀 Cadastrar Empresa
+          </button>
+          
+          <button 
+            type="button" 
+            onclick="document.getElementById('company-registration-modal').remove()"
+            style="
+              flex: 1;
+              padding: 1rem;
+              background: #6b7280;
+              color: white;
+              border: none;
+              border-radius: 0.5rem;
+              font-size: 1rem;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            "
+            onmouseover="this.style.transform='scale(1.05)'"
+            onmouseout="this.style.transform='scale(1)'"
+          >
+            ❌ Cancelar
+          </button>
+        </div>
       </form>
-      
-      <div style="display: flex; gap: 1rem; justify-content: center;">
-        <button 
-          onclick="document.getElementById('company-registration-modal').remove()"
-          style="
-            background-color: #6c757d;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-right: 0.5rem;
-          "
-        >
-          Cancelar
-        </button>
-        <button 
-          onclick="handleCompanyRegistrationSubmit()"
-          style="
-            background-color: #28a745;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-          "
-        >
-          Cadastrar
-        </button>
-      </div>
-      
-
     `;
     
     modal.appendChild(content);
     document.body.appendChild(modal);
     
-    console.log('🔧 Modal de cadastro de empresas criado no DOM');
+    // Adiciona evento de submit
+    const form = modal.querySelector('#company-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('company-name').value,
+        cnpj: document.getElementById('company-cnpj').value,
+        email: document.getElementById('company-email').value,
+        phone: document.getElementById('company-phone').value,
+        category: document.getElementById('company-category').value,
+        discount: parseInt(document.getElementById('company-discount').value),
+        password: document.getElementById('company-password').value,
+        confirmPassword: document.getElementById('company-confirm-password').value,
+        address: document.getElementById('company-address').value,
+        city: document.getElementById('company-city').value,
+        state: document.getElementById('company-state').value
+      };
+      
+      // Validações básicas
+      if (formData.password !== formData.confirmPassword) {
+        alert('❌ As senhas não coincidem!');
+        return;
+      }
+      
+      if (formData.password.length < 6) {
+        alert('❌ A senha deve ter pelo menos 6 caracteres!');
+        return;
+      }
+      
+      try {
+        // Simula cadastro
+        console.log('🔧 Tentando cadastrar empresa:', formData);
+        
+        // Remove modal
+        modal.remove();
+        
+        // Mostra sucesso
+        alert('✅ Empresa cadastrada com sucesso! Você pode fazer login agora.');
+        
+        // Adiciona à lista de empresas
+        const newCompany = {
+          id: `company_${Date.now()}`,
+          ...formData,
+          role: 'company'
+        };
+        
+        setRegisteredCompanies(prev => [...prev, newCompany]);
+        
+      } catch (error) {
+        console.error('❌ Erro ao cadastrar empresa:', error);
+        alert('❌ Erro ao cadastrar empresa. Tente novamente.');
+      }
+    });
   };
-
-  // Função para lidar com o envio do formulário
-  const handleCompanyRegistrationSubmit = () => {
-    const form = document.getElementById('company-form');
-    const formData = new FormData(form);
-    
-    // Validar campos obrigatórios
-    const name = document.getElementById('company-name').value.trim();
-    const cnpj = document.getElementById('company-cnpj').value.trim();
-    const email = document.getElementById('company-email').value.trim();
-    const phone = document.getElementById('company-phone').value.trim();
-    const address = document.getElementById('company-address').value.trim();
-    const password = document.getElementById('company-password').value;
-    const passwordConfirm = document.getElementById('company-password-confirm').value;
-    
-    // Validações
-    if (!name || !cnpj || !email || !phone || !address || !password || !passwordConfirm) {
-      alert('❌ Todos os campos são obrigatórios!');
-      return;
-    }
-    
-    if (password !== passwordConfirm) {
-      alert('❌ As senhas não coincidem!');
-      return;
-    }
-    
-    if (password.length < 6) {
-      alert('❌ A senha deve ter pelo menos 6 caracteres!');
-      return;
-    }
-    
-    // Validar CNPJ básico
-    const cleanCnpj = cnpj.replace(/\D/g, '');
-    if (cleanCnpj.length !== 14) {
-      alert('❌ CNPJ inválido!');
-      return;
-    }
-    
-    // Validar email básico
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert('❌ Email inválido!');
-      return;
-    }
-    
-    const companyData = {
-      name: name,
-      cnpj: cnpj,
-      email: email,
-      phone: phone,
-      address: address,
-      password: password // Em produção, isso deve ser criptografado
-    };
-    
-    console.log('🔧 Dados da empresa:', companyData);
-    
-    // Aqui você pode chamar a API para cadastrar a empresa
-    // handleCompanyRegistration(companyData);
-    
-    // Remove o modal
-    document.getElementById('company-registration-modal').remove();
-    
-    // Mostra mensagem de sucesso
-    alert('✅ Empresa cadastrada com sucesso!\n\nAgora você pode fazer login na Área Empresarial com seu CNPJ e senha.');
-  };
-
-
 
   const menuRef = useRef(null);
 
