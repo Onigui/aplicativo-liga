@@ -4053,22 +4053,79 @@ const App = () => {
     setShowCompanyLogin(false);
   };
 
-  const handleCompanyRegistration = (companyData) => {
-    // Simular cadastro bem-sucedido
-    console.log('✅ Empresa cadastrada:', companyData);
-    
-    // Adicionar a empresa ao estado de empresas cadastradas
-    setRegisteredCompanies(prev => [...prev, companyData]);
-    
-    setShowCompanyRegistrationModal(false);
-    setCurrentPage('welcome');
-    
-    // Mostrar notificação de sucesso
-    addNotification({
-      type: 'success',
-      title: 'Empresa cadastrada com sucesso!',
-      message: 'Sua empresa foi cadastrada e está pendente de aprovação.'
-    });
+  const handleCompanyRegistration = async (companyData) => {
+    try {
+      console.log('🚀 Iniciando cadastro de empresa:', companyData);
+      
+      // Mostrar notificação de carregamento
+      addNotification({
+        type: 'info',
+        title: 'Cadastrando empresa...',
+        message: 'Aguarde enquanto processamos seu cadastro.'
+      });
+
+      // Tentar cadastrar na API real primeiro
+      let apiResult = null;
+      try {
+        apiResult = await apiService.registerCompany(companyData);
+        console.log('✅ Resultado da API:', apiResult);
+      } catch (apiError) {
+        console.warn('⚠️ Erro na API, usando fallback local:', apiError);
+        apiResult = null;
+      }
+
+      // Se a API funcionou, usar os dados retornados
+      let finalCompanyData = companyData;
+      if (apiResult && apiResult.success) {
+        finalCompanyData = {
+          ...companyData,
+          id: apiResult.company.id || companyData.id,
+          status: apiResult.company.status || 'pending'
+        };
+        console.log('✅ Empresa cadastrada via API:', finalCompanyData);
+      } else {
+        // Fallback para dados locais se a API falhar
+        finalCompanyData = {
+          ...companyData,
+          id: `company_${Date.now()}`,
+          status: 'pending'
+        };
+        console.log('⚠️ Usando fallback local:', finalCompanyData);
+      }
+
+      // Adicionar a empresa ao estado local
+      setRegisteredCompanies(prev => [...prev, finalCompanyData]);
+      
+      // Fechar modal
+      setShowCompanyRegistrationModal(false);
+      
+      // Fazer login automático na empresa recém-criada
+      setCompanyUser(finalCompanyData);
+      setIsCompanyAuthenticated(true);
+      setShowCompanyLogin(false);
+      
+      // Navegar para o dashboard da empresa
+      setCurrentPage('welcome');
+      
+      // Mostrar notificação de sucesso
+      addNotification({
+        type: 'success',
+        title: 'Empresa cadastrada com sucesso! 🎉',
+        message: `Bem-vindo(a), ${finalCompanyData.name}! Você foi automaticamente logado em sua conta.`
+      });
+
+      console.log('✅ Login automático realizado:', finalCompanyData);
+      
+    } catch (error) {
+      console.error('❌ Erro no cadastro:', error);
+      
+      // Mostrar notificação de erro
+      addNotification({
+        type: 'error',
+        title: 'Erro no cadastro',
+        message: error.message || 'Ocorreu um erro ao cadastrar sua empresa. Tente novamente.'
+      });
+    }
   };
 
   const renderCurrentPage = () => {

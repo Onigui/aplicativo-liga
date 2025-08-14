@@ -48,12 +48,10 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
         throw new Error('CNPJ inválido');
       }
 
-      // Simular cadastro
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      // Preparar dados para envio
       const companyData = {
-        id: `company_${Date.now()}`,
         cnpj: cleanCnpj,
+        password: formData.password,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -77,7 +75,9 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
         role: 'company'
       };
 
-      onRegister(companyData);
+      // Chamar função de cadastro (que agora integra com a API)
+      await onRegister(companyData);
+      
     } catch (error) {
       setError(error.message || 'Erro ao cadastrar empresa');
     } finally {

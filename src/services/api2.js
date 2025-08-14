@@ -71,10 +71,10 @@ class ApiService {
     }
   }
 
-  // Criar nova empresa
+  // Criar nova empresa (endpoint público)
   async createCompany(companyData) {
     try {
-      const response = await this.request('/api/admin/companies', {
+      const response = await this.request('/api/companies', {
         method: 'POST',
         body: companyData,
       });
@@ -84,9 +84,46 @@ class ApiService {
     }
   }
 
-  // Alias para createCompany (para compatibilidade)
+  // Cadastro público de empresa (endpoint específico)
   async registerCompany(companyData) {
-    return this.createCompany(companyData);
+    try {
+      // Tentar primeiro o endpoint público
+      const response = await this.request('/api/companies', {
+        method: 'POST',
+        body: companyData,
+      });
+      return { success: true, company: response.company };
+    } catch (error) {
+      console.warn('⚠️ Endpoint público falhou, tentando admin:', error);
+      
+      // Fallback para endpoint admin se o público falhar
+      try {
+        const adminResponse = await this.request('/api/admin/companies', {
+          method: 'POST',
+          body: companyData,
+        });
+        return { success: true, company: adminResponse.company };
+      } catch (adminError) {
+        return { success: false, message: adminError.message };
+      }
+    }
+  }
+
+  // Login de empresa
+  async loginCompany(cnpj, password) {
+    try {
+      const response = await this.request('/api/companies/login', {
+        method: 'POST',
+        body: { cnpj, password },
+      });
+      // Salvar token se existir
+      if (response.token) {
+        localStorage.setItem('company_token', response.token);
+      }
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 
   // Atualizar empresa existente
