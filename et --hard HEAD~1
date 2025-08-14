@@ -1,0 +1,5 @@
+[33ma868dca[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: adiciona botão cadastrar empresa diretamente na página inicial e login empresarial - Corrige problema de UX onde usuário não conseguia encontrar botão para cadastro - Adiciona botão verde 'Cadastrar Empresa' na página welcome - Adiciona botão 'Cadastrar Nova Empresa' na página CompanyLogin - Simplifica fluxo de cadastro de empresas
+[33m88a679a[m Debug: Adicionar log adicional para verificar execução do JSX
+[33mca75c45[m Debug: Adicionar log mais específico para verificar renderização do modal
+[33m47915a1[m Debug: Adicionar log no JSX para verificar renderização do modal
+[33m581bb53[m Debug: Adicionar logs detalhados para CompanyRegistrationModal

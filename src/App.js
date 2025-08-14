@@ -4131,6 +4131,13 @@ const App = () => {
         <div className="relative z-10">
           {renderCurrentPage()}
         </div>
+
+        {/* Modal de Cadastro de Empresas - SEMPRE VISÍVEL */}
+        <CompanyRegistrationModal
+          isOpen={showCompanyRegistrationModal}
+          onClose={() => setShowCompanyRegistrationModal(false)}
+          onRegister={handleCompanyRegistration}
+        />
       </div>
     );
   }
