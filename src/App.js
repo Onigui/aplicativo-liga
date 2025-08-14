@@ -4647,6 +4647,7 @@ const App = () => {
       {/* Modal de Cadastro de Empresas */}
       {console.log('🔧 JSX: Renderizando modal, showCompanyRegistrationModal:', showCompanyRegistrationModal)}
       {console.log('🔧 JSX: Modal será renderizado?', showCompanyRegistrationModal ? 'SIM' : 'NÃO')}
+      {console.log('🔧 JSX: Executando renderização do modal...')}
       <CompanyRegistrationModal
         isOpen={showCompanyRegistrationModal}
         onClose={() => setShowCompanyRegistrationModal(false)}
