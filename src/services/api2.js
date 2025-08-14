@@ -44,7 +44,6 @@ class ApiService {
   // Buscar todas as empresas
   async getCompanies(status = null) {
     try {
-      // Tentar primeiro o endpoint que pode existir no Render
       let endpoint = '/api/companies';
       if (status) endpoint += `?status=${status}`;
       
@@ -54,13 +53,11 @@ class ApiService {
         companies: response.companies || []
       };
     } catch (error) {
-      console.warn('⚠️ Endpoint /api/companies não existe, usando fallback local');
-      
-      // Fallback: retornar empresas do localStorage se não houver API
-      const localCompanies = JSON.parse(localStorage.getItem('local_companies') || '[]');
+      console.error('❌ Erro ao buscar empresas do banco online:', error);
       return {
-        success: true,
-        companies: localCompanies.filter(company => !status || company.status === status)
+        success: false,
+        companies: [],
+        message: error.message
       };
     }
   }
@@ -71,41 +68,20 @@ class ApiService {
       const response = await this.request(`/api/companies/${id}`);
       return { success: true, company: response.company };
     } catch (error) {
-      // Fallback: buscar do localStorage
-      const localCompanies = JSON.parse(localStorage.getItem('local_companies') || '[]');
-      const company = localCompanies.find(c => c.id === id);
-      if (company) {
-        return { success: true, company };
-      }
-      return { success: false, message: 'Empresa não encontrada' };
+      return { success: false, message: error.message };
     }
   }
 
   // Criar nova empresa
   async createCompany(companyData) {
     try {
-      // Tentar criar no Render primeiro
       const response = await this.request('/api/companies', {
         method: 'POST',
         body: companyData,
       });
       return { success: true, company: response.company };
     } catch (error) {
-      console.warn('⚠️ Endpoint /api/companies não existe, salvando localmente');
-      
-      // Fallback: salvar localmente
-      const localCompanies = JSON.parse(localStorage.getItem('local_companies') || '[]');
-      const newCompany = {
-        ...companyData,
-        id: `company_${Date.now()}`,
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      };
-      
-      localCompanies.push(newCompany);
-      localStorage.setItem('local_companies', JSON.stringify(localCompanies));
-      
-      return { success: true, company: newCompany };
+      return { success: false, message: error.message };
     }
   }
 
@@ -117,7 +93,6 @@ class ApiService {
   // Login de empresa
   async loginCompany(cnpj, password) {
     try {
-      // Tentar endpoint específico de empresas
       const response = await this.request('/api/companies/login', {
         method: 'POST',
         body: { cnpj, password },
@@ -127,19 +102,7 @@ class ApiService {
       }
       return { success: true, ...response };
     } catch (error) {
-      // Fallback: usar endpoint de usuários
-      try {
-        const response = await this.request('/api/auth/login', {
-          method: 'POST',
-          body: { username: cnpj, password },
-        });
-        if (response.token) {
-          localStorage.setItem('company_token', response.token);
-        }
-        return { success: true, ...response };
-      } catch (loginError) {
-        return { success: false, message: 'Credenciais inválidas' };
-      }
+      return { success: false, message: error.message };
     }
   }
 

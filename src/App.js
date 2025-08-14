@@ -4055,51 +4055,38 @@ const App = () => {
 
   const handleCompanyRegistration = async (companyData) => {
     try {
-      console.log('🚀 Iniciando cadastro de empresa:', companyData);
+      console.log('🚀 Iniciando cadastro de empresa no banco online:', companyData);
       
       // Mostrar notificação de carregamento
       addNotification({
         type: 'info',
         title: 'Cadastrando empresa...',
-        message: 'Aguarde enquanto processamos seu cadastro.'
+        message: 'Aguarde enquanto processamos seu cadastro no banco online.'
       });
 
-      // Tentar cadastrar no banco online do Render primeiro
-      let apiResult = null;
-      try {
-        apiResult = await apiService.registerCompany(companyData);
-        console.log('✅ Resultado da API Render:', apiResult);
-      } catch (apiError) {
-        console.warn('⚠️ Erro na API Render, usando fallback local:', apiError);
-        apiResult = null;
+      // Cadastrar no banco online do Render
+      const apiResult = await apiService.registerCompany(companyData);
+      
+      if (!apiResult.success) {
+        throw new Error(apiResult.message || 'Erro ao cadastrar empresa no banco online');
       }
 
-      // Se a API funcionou, usar os dados retornados
-      let finalCompanyData = companyData;
-      if (apiResult && apiResult.success) {
-        finalCompanyData = {
-          ...companyData,
-          id: apiResult.company.id || companyData.id,
-          name: apiResult.company.companyName || companyData.name,
-          status: apiResult.company.status || 'pending',
-          // Mapear outros campos do backend
-          address: apiResult.company.address || companyData.address,
-          phone: apiResult.company.phone || companyData.phone,
-          email: apiResult.company.email || companyData.email,
-          category: apiResult.company.category || companyData.category,
-          discount: apiResult.company.discount || companyData.discount,
-          workingHours: apiResult.company.workingHours || companyData.workingHours
-        };
-        console.log('✅ Empresa cadastrada via banco online Render:', finalCompanyData);
-      } else {
-        // Fallback para dados locais se a API falhar
-        finalCompanyData = {
-          ...companyData,
-          id: `company_${Date.now()}`,
-          status: 'pending'
-        };
-        console.log('⚠️ Usando fallback local (Render não disponível):', finalCompanyData);
-      }
+      console.log('✅ Empresa cadastrada no banco online:', apiResult.company);
+
+      // Usar os dados retornados pelo banco online
+      const finalCompanyData = {
+        ...companyData,
+        id: apiResult.company.id,
+        name: apiResult.company.companyName || apiResult.company.name,
+        status: apiResult.company.status || 'pending',
+        // Mapear outros campos do banco online
+        address: apiResult.company.address || companyData.address,
+        phone: apiResult.company.phone || companyData.phone,
+        email: apiResult.company.email || companyData.email,
+        category: apiResult.company.category || companyData.category,
+        discount: apiResult.company.discount || companyData.discount,
+        workingHours: apiResult.company.workingHours || companyData.workingHours
+      };
 
       // Adicionar a empresa ao estado local
       setRegisteredCompanies(prev => [...prev, finalCompanyData]);
@@ -4119,7 +4106,7 @@ const App = () => {
       addNotification({
         type: 'success',
         title: 'Empresa cadastrada com sucesso! 🎉',
-        message: `Bem-vindo(a), ${finalCompanyData.name}! Você foi automaticamente logado em sua conta.`
+        message: `Bem-vindo(a), ${finalCompanyData.name}! Sua empresa foi salva no banco online.`
       });
 
       console.log('✅ Login automático realizado:', finalCompanyData);
@@ -4131,7 +4118,7 @@ const App = () => {
       addNotification({
         type: 'error',
         title: 'Erro no cadastro',
-        message: error.message || 'Ocorreu um erro ao cadastrar sua empresa. Tente novamente.'
+        message: `Erro ao conectar com o banco online: ${error.message}. Verifique sua conexão e tente novamente.`
       });
     }
   };
