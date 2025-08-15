@@ -4247,7 +4247,13 @@ const App = () => {
       case 'legislation': return renderLegislation();
       case 'phones': return renderPhones();
       case 'events': return renderEvents();
-      case 'admin': return <AdminApp />;
+      case 'admin': return (
+        <AdminApp 
+          companyRequests={companyRequests}
+          onApproveCompanyRequest={handleApproveCompanyRequest}
+          onRejectCompanyRequest={handleRejectCompanyRequest}
+        />
+      );
       default: return renderWelcome();
     }
   };

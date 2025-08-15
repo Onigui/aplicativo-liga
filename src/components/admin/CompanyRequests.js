@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 
 const CompanyRequests = ({ companyRequests, onApprove, onReject, onUpdateRequests }) => {
+  console.log('🔍 [CompanyRequests] Props recebidas:', { companyRequests, onApprove, onReject });
+  console.log('🔍 [CompanyRequests] companyRequests:', companyRequests);
+  
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 

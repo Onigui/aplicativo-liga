@@ -19,8 +19,14 @@ import { API_BASE_URL } from './config/api';
 axios.defaults.baseURL = API_BASE_URL;
 axios.defaults.timeout = 10000;
 
-function AdminApp() {
+function AdminApp({ 
+  companyRequests = [], 
+  onApproveCompanyRequest, 
+  onRejectCompanyRequest 
+}) {
   console.log('🚀 [ADMIN] AdminApp.js carregado!');
+  console.log('📝 [ADMIN] CompanyRequests recebidas:', companyRequests);
+  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -116,7 +122,13 @@ function AdminApp() {
               <Route path="/users" element={<Users />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="/companies" element={<Companies />} />
-              <Route path="/company-requests" element={<CompanyRequests />} />
+              <Route path="/company-requests" element={
+                <CompanyRequests 
+                  companyRequests={companyRequests}
+                  onApprove={onApproveCompanyRequest}
+                  onReject={onRejectCompanyRequest}
+                />
+              } />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
