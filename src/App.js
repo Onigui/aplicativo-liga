@@ -82,7 +82,7 @@ const PromotionsSection = ({ promotions }) => {
   );
 };
 
-const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompanies = [], setSharedRegisteredCompanies }) => {
+const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompanies = [], setSharedRegisteredCompanies, isLoadingCompanies = false }) => {
   console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - BOTÕES PADRONIZADOS');
   console.log('📝 [DEBUG] CompanyRequests recebidas do router:', companyRequests);
   console.log('📝 [DEBUG] setCompanyRequests recebida:', !!setCompanyRequests);
@@ -2693,13 +2693,21 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
             
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center">
               <p className="text-sm text-blue-100">
-                {approvedCompanies.length} empresa{approvedCompanies.length !== 1 ? 's' : ''} oferecendo benefícios exclusivos
+                {isLoadingCompanies ? (
+                  <span className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    <span>Carregando empresas...</span>
+                  </span>
+                ) : (
+                  `${approvedCompanies.length} empresa${approvedCompanies.length !== 1 ? 's' : ''} oferecendo benefícios exclusivos`
+                )}
               </p>
               <button
                 onClick={loadApprovedCompanies}
-                className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200"
+                disabled={isLoadingCompanies}
+                className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                🔄 Atualizar
+                {isLoadingCompanies ? '⏳' : '🔄 Atualizar'}
               </button>
             </div>
           </div>
@@ -2807,7 +2815,17 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
           </div>
         )}
         
-        {approvedCompanies.length === 0 ? (
+        {isLoadingCompanies ? (
+          <div className="text-center py-12">
+            <div className="bg-blue-500/20 p-6 rounded-full mx-auto w-fit mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-300 border-t-white"></div>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Carregando empresas...</h3>
+            <p className="text-purple-200">
+              Aguarde enquanto buscamos as empresas parceiras disponíveis.
+            </p>
+          </div>
+        ) : approvedCompanies.length === 0 ? (
           <div className="text-center py-12">
             <div className="bg-blue-500/20 p-6 rounded-full mx-auto w-fit mb-4">
               <Store className="h-12 w-12 text-blue-300" />

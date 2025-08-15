@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App';
 import AdminApp from './AdminApp';
@@ -8,6 +8,33 @@ const AppRouter = () => {
   // Estados compartilhados entre App e AdminApp
   const [companyRequests, setCompanyRequests] = useState([]);
   const [sharedRegisteredCompanies, setSharedRegisteredCompanies] = useState([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+
+  // Carregar empresas aprovadas quando o aplicativo inicia
+  useEffect(() => {
+    const loadApprovedCompanies = async () => {
+      try {
+        console.log('🔄 [ROUTER] Carregando empresas aprovadas...');
+        setIsLoadingCompanies(true);
+        
+        const result = await apiService.getCompanies('approved');
+        if (result.success && result.companies) {
+          console.log('✅ [ROUTER] Empresas aprovadas carregadas:', result.companies.length);
+          setSharedRegisteredCompanies(result.companies);
+        } else {
+          console.log('⚠️ [ROUTER] Nenhuma empresa aprovada encontrada ou erro na API');
+          setSharedRegisteredCompanies([]);
+        }
+      } catch (error) {
+        console.error('❌ [ROUTER] Erro ao carregar empresas aprovadas:', error);
+        setSharedRegisteredCompanies([]);
+      } finally {
+        setIsLoadingCompanies(false);
+      }
+    };
+
+    loadApprovedCompanies();
+  }, []);
 
   // Funções para gerenciar solicitações
   const handleApproveCompanyRequest = async (request) => {
@@ -93,6 +120,7 @@ const AppRouter = () => {
             setCompanyRequests={setCompanyRequests}
             sharedRegisteredCompanies={sharedRegisteredCompanies}
             setSharedRegisteredCompanies={setSharedRegisteredCompanies}
+            isLoadingCompanies={isLoadingCompanies}
           />
         } />
         {/* Redirect para home se rota não encontrada */}
