@@ -10,6 +10,7 @@ import Header from './components/admin/Header';
 import Users from './components/admin/Users';
 import Payments from './components/admin/Payments';
 import Companies from './components/admin/Companies';
+import CompanyRequests from './components/admin/CompanyRequests';
 import Reports from './components/admin/Reports';
 import Settings from './components/admin/Settings';
 
@@ -115,6 +116,7 @@ function AdminApp() {
               <Route path="/users" element={<Users />} />
               <Route path="/payments" element={<Payments />} />
               <Route path="/companies" element={<Companies />} />
+              <Route path="/company-requests" element={<CompanyRequests />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />

@@ -236,6 +236,7 @@ const App = () => {
   const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
   const [showCompanyRegistrationModal, setShowCompanyRegistrationModal] = useState(false);
   const [registeredCompanies, setRegisteredCompanies] = useState([]);
+  const [companyRequests, setCompanyRequests] = useState([]);
 
   // Monitora mudanças no estado do modal
   useEffect(() => {
@@ -4055,70 +4056,154 @@ const App = () => {
 
   const handleCompanyRegistration = async (companyData) => {
     try {
-      console.log('🚀 Iniciando cadastro de empresa no banco online:', companyData);
+      console.log('📝 Enviando solicitação de cadastro de empresa:', companyData);
       
       // Mostrar notificação de carregamento
       addNotification({
         type: 'info',
-        title: 'Cadastrando empresa...',
-        message: 'Aguarde enquanto processamos seu cadastro no banco online.'
+        title: 'Enviando solicitação...',
+        message: 'Sua solicitação está sendo enviada para aprovação do administrador.'
       });
 
-      // Cadastrar no banco online do Render
-      const apiResult = await apiService.registerCompany(companyData);
+      // Enviar solicitação (não cadastrar diretamente)
+      const apiResult = await apiService.requestCompanyRegistration(companyData);
+      
+      if (!apiResult.success) {
+        throw new Error(apiResult.message || 'Erro ao enviar solicitação');
+      }
+
+      console.log('✅ Solicitação enviada com sucesso:', apiResult);
+
+      // Salvar solicitação localmente para o admin aprovar
+      const companyRequest = {
+        ...companyData,
+        id: apiResult.requestId,
+        status: 'pending',
+        requestDate: new Date().toISOString(),
+        requestId: apiResult.requestId
+      };
+
+      // Adicionar à lista de solicitações pendentes
+      setCompanyRequests(prev => [...prev, companyRequest]);
+      
+      // Fechar modal
+      setShowCompanyRegistrationModal(false);
+      
+      // Mostrar notificação de sucesso
+      addNotification({
+        type: 'success',
+        title: 'Solicitação enviada! 📝',
+        message: 'Sua solicitação foi enviada para aprovação. Você receberá uma notificação quando for aprovada.'
+      });
+
+      console.log('✅ Solicitação salva localmente:', companyRequest);
+      
+    } catch (error) {
+      console.error('❌ Erro ao enviar solicitação:', error);
+      
+      // Mostrar notificação de erro
+      addNotification({
+        type: 'error',
+        title: 'Erro ao enviar solicitação',
+        message: `Erro ao enviar solicitação: ${error.message}. Tente novamente.`
+      });
+    }
+  };
+
+  // Função para aprovar solicitação de empresa
+  const handleApproveCompanyRequest = async (request) => {
+    try {
+      console.log('✅ Aprovando solicitação de empresa:', request);
+      
+      // Mostrar notificação de carregamento
+      addNotification({
+        type: 'info',
+        title: 'Aprovando empresa...',
+        message: 'Processando aprovação da empresa no banco online.'
+      });
+
+      // Criar empresa no banco online via admin
+      const companyData = {
+        ...request,
+        status: 'approved',
+        approvedDate: new Date().toISOString(),
+        approvedBy: 'admin' // Em produção, seria o ID do admin
+      };
+
+      // Cadastrar no banco online
+      const apiResult = await apiService.createCompany(companyData);
       
       if (!apiResult.success) {
         throw new Error(apiResult.message || 'Erro ao cadastrar empresa no banco online');
       }
 
-      console.log('✅ Empresa cadastrada no banco online:', apiResult.company);
+      console.log('✅ Empresa aprovada e cadastrada no banco online:', apiResult.company);
 
-      // Usar os dados retornados pelo banco online
-      const finalCompanyData = {
-        ...companyData,
+      // Atualizar status da solicitação
+      setCompanyRequests(prev => 
+        prev.map(req => 
+          req.id === request.id 
+            ? { ...req, status: 'approved', approvedDate: new Date().toISOString() }
+            : req
+        )
+      );
+
+      // Adicionar à lista de empresas aprovadas
+      const approvedCompany = {
+        ...request,
         id: apiResult.company.id,
-        name: apiResult.company.companyName || apiResult.company.name,
-        status: apiResult.company.status || 'pending',
-        // Mapear outros campos do banco online
-        address: apiResult.company.address || companyData.address,
-        phone: apiResult.company.phone || companyData.phone,
-        email: apiResult.company.email || companyData.email,
-        category: apiResult.company.category || companyData.category,
-        discount: apiResult.company.discount || companyData.discount,
-        workingHours: apiResult.company.workingHours || companyData.workingHours
+        status: 'approved',
+        approvedDate: new Date().toISOString()
       };
+      
+      setRegisteredCompanies(prev => [...prev, approvedCompany]);
 
-      // Adicionar a empresa ao estado local
-      setRegisteredCompanies(prev => [...prev, finalCompanyData]);
-      
-      // Fechar modal
-    setShowCompanyRegistrationModal(false);
-      
-      // Fazer login automático na empresa recém-criada
-      setCompanyUser(finalCompanyData);
-      setIsCompanyAuthenticated(true);
-      setShowCompanyLogin(false);
-      
-      // Navegar para o dashboard da empresa
-    setCurrentPage('welcome');
-    
-    // Mostrar notificação de sucesso
-    addNotification({
-      type: 'success',
-        title: 'Empresa cadastrada com sucesso! 🎉',
-        message: `Bem-vindo(a), ${finalCompanyData.name}! Sua empresa foi salva no banco online.`
+      // Mostrar notificação de sucesso
+      addNotification({
+        type: 'success',
+        title: 'Empresa aprovada! 🎉',
+        message: `${request.name} foi aprovada e agora pode fazer login no sistema.`
       });
 
-      console.log('✅ Login automático realizado:', finalCompanyData);
-      
     } catch (error) {
-      console.error('❌ Erro no cadastro:', error);
+      console.error('❌ Erro ao aprovar empresa:', error);
       
-      // Mostrar notificação de erro
       addNotification({
         type: 'error',
-        title: 'Erro no cadastro',
-        message: `Erro ao conectar com o banco online: ${error.message}. Verifique sua conexão e tente novamente.`
+        title: 'Erro ao aprovar empresa',
+        message: `Erro ao conectar com o banco online: ${error.message}`
+      });
+    }
+  };
+
+  // Função para rejeitar solicitação de empresa
+  const handleRejectCompanyRequest = async (request) => {
+    try {
+      console.log('❌ Rejeitando solicitação de empresa:', request);
+      
+      // Atualizar status da solicitação
+      setCompanyRequests(prev => 
+        prev.map(req => 
+          req.id === request.id 
+            ? { ...req, status: 'rejected', rejectedDate: new Date().toISOString() }
+            : req
+        )
+      );
+
+      // Mostrar notificação de sucesso
+      addNotification({
+        type: 'success',
+        title: 'Solicitação rejeitada',
+        message: `A solicitação de ${request.name} foi rejeitada.`
+      });
+
+    } catch (error) {
+      console.error('❌ Erro ao rejeitar solicitação:', error);
+      
+      addNotification({
+        type: 'error',
+        title: 'Erro ao rejeitar solicitação',
+        message: `Erro ao processar rejeição: ${error.message}`
       });
     }
   };

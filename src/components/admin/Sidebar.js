@@ -7,7 +7,8 @@ import {
   BarChart3, 
   Settings, 
   Heart,
-  Building
+  Building,
+  Clock
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onToggle }) => {
@@ -35,6 +36,12 @@ const Sidebar = ({ isOpen, onToggle }) => {
       icon: Building,
       label: 'Empresas',
       description: 'Gerenciar Parceiras'
+    },
+    {
+      path: '/admin/company-requests', // rota do frontend, não precisa mudar
+      icon: Clock,
+      label: 'Solicitações',
+      description: 'Aprovar Empresas'
     },
     {
       path: '/admin/reports', // rota do frontend, não precisa mudar

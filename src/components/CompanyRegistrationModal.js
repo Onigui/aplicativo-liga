@@ -166,8 +166,8 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
               <Building className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Cadastro de Empresa</h2>
-              <p className="text-sm text-gray-600">Preencha os dados da sua empresa</p>
+              <h2 className="text-xl font-bold text-gray-900">Solicitação de Cadastro</h2>
+              <p className="text-sm text-gray-600">Preencha os dados da sua empresa para solicitar aprovação</p>
             </div>
           </div>
           <button
@@ -397,12 +397,12 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>Cadastrando...</span>
+                  <span>Enviando solicitação...</span>
                 </>
               ) : (
                 <>
                   <Building className="h-4 w-4" />
-                  <span>Cadastrar Empresa</span>
+                  <span>Enviar Solicitação</span>
                 </>
               )}
             </button>

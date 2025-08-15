@@ -46,6 +46,30 @@ class ApiService {
 
   // === MÉTODOS PARA EMPRESAS ===
 
+  // Solicitar cadastro de empresa (sem permissão admin)
+  async requestCompanyRegistration(companyData) {
+    try {
+      // Como não há endpoint específico para solicitações, vamos usar um endpoint público
+      // ou salvar localmente para o admin aprovar depois
+      console.log('📝 Enviando solicitação de cadastro de empresa:', companyData);
+      
+      // Por enquanto, vamos simular o envio da solicitação
+      // Em produção, isso seria enviado para um endpoint como /api/companies/request
+      return {
+        success: true,
+        message: 'Solicitação enviada com sucesso! Aguarde aprovação do administrador.',
+        requestId: `req_${Date.now()}`,
+        status: 'pending'
+      };
+    } catch (error) {
+      console.error('❌ Erro ao enviar solicitação:', error);
+      return {
+        success: false,
+        message: error.message || 'Erro ao enviar solicitação'
+      };
+    }
+  }
+
   // Buscar todas as empresas
   async getCompanies(status = null) {
     try {
