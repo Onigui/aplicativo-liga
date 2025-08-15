@@ -22,28 +22,67 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
+
+    // Validação dos campos obrigatórios
+    if (!formData.name.trim()) {
+      setError('Nome da empresa é obrigatório');
+      setLoading(false);
+      return;
+    }
+    if (!formData.cnpj.trim()) {
+      setError('CNPJ é obrigatório');
+      setLoading(false);
+      return;
+    }
+    if (!formData.password.trim()) {
+      setError('Senha é obrigatória');
+      setLoading(false);
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres');
+      setLoading(false);
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('As senhas não coincidem');
+      setLoading(false);
+      return;
+    }
+    if (!formData.address.trim()) {
+      setError('Endereço é obrigatório');
+      setLoading(false);
+      return;
+    }
+    if (!formData.city.trim()) {
+      setError('Cidade é obrigatória');
+      setLoading(false);
+      return;
+    }
+    if (!formData.state.trim()) {
+      setError('Estado é obrigatório');
+      setLoading(false);
+      return;
+    }
+    if (!formData.category.trim()) {
+      setError('Categoria é obrigatória');
+      setLoading(false);
+      return;
+    }
+    if (formData.discount <= 0) {
+      setError('Desconto deve ser maior que 0%');
+      setLoading(false);
+      return;
+    }
 
     try {
-      // Validações
-      if (formData.password !== formData.confirmPassword) {
-        throw new Error('As senhas não coincidem');
-      }
-
-      if (formData.password.length < 6) {
-        throw new Error('A senha deve ter pelo menos 6 caracteres');
-      }
-
       const cleanCnpj = formData.cnpj.replace(/\D/g, '');
-      if (cleanCnpj.length !== 14) {
-        throw new Error('CNPJ inválido');
-      }
-
-      // Preparar dados para envio
+      
       const companyData = {
-        companyName: formData.name, // Campo que o backend pode esperar
-        name: formData.name, // Campo alternativo
+        companyName: formData.name,
+        name: formData.name,
         cnpj: cleanCnpj,
         password: formData.password,
         email: formData.email,
@@ -68,11 +107,22 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
         role: 'company'
       };
 
-      // Chamar função de cadastro (que agora integra com a API)
       await onRegister(companyData);
-      
+      setFormData({
+        cnpj: '',
+        password: '',
+        confirmPassword: '',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        category: '',
+        discount: 10
+      });
     } catch (error) {
-      setError(error.message || 'Erro ao cadastrar empresa');
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -190,15 +240,61 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
             />
           </div>
 
+          {/* Endereço */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Endereço *
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+              placeholder="Rua, Avenida, etc."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          {/* Cidade */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Cidade *
+            </label>
+            <input
+              type="text"
+              value={formData.city}
+              onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+              placeholder="Sua cidade"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          {/* Estado */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Estado *
+            </label>
+            <input
+              type="text"
+              value={formData.state}
+              onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+              placeholder="SP, RJ, MG, etc."
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
           {/* Categoria */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Categoria
+              Categoria *
             </label>
             <select
               value={formData.category}
               onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
             >
               <option value="">Selecione uma categoria</option>
               <option value="Alimentação">Alimentação</option>
@@ -213,7 +309,7 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
           {/* Desconto */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Desconto oferecido (%)
+              Desconto oferecido (%) *
             </label>
             <input
               type="number"
@@ -222,6 +318,7 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
               value={formData.discount}
               onChange={(e) => setFormData(prev => ({ ...prev, discount: parseInt(e.target.value) }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
             />
           </div>
 
