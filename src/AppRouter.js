@@ -66,6 +66,17 @@ const AppRouter = () => {
       
       console.log('✅ [ROUTER] Empresa criada no banco online:', apiResult.company);
       
+      // Atualizar a senha da empresa no banco (importante para login)
+      if (request.password) {
+        console.log('🔐 [ROUTER] Atualizando senha da empresa no banco...');
+        const passwordUpdateResult = await apiService.updateCompanyPassword(apiResult.company.id, request.password);
+        if (!passwordUpdateResult.success) {
+          console.warn('⚠️ [ROUTER] Aviso: Não foi possível atualizar a senha da empresa:', passwordUpdateResult.message);
+        } else {
+          console.log('✅ [ROUTER] Senha da empresa atualizada com sucesso');
+        }
+      }
+      
       // Adicionar à lista de empresas aprovadas
       const approvedCompany = {
         ...request,

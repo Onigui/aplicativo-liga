@@ -261,3 +261,79 @@ export const requireAdmin = (req, res, next) => {
   }
   next();
 };
+
+// Função para login de empresa
+export async function companyLogin(req, res) {
+  try {
+    console.log('[COMPANY LOGIN DEBUG] Dados recebidos:', req.body);
+    
+    const { cnpj, password } = req.body;
+    
+    if (!cnpj || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'CNPJ e senha são obrigatórios'
+      });
+    }
+
+    // Limpar CNPJ (remover pontos e traços)
+    const cleanCNPJ = cnpj.replace(/\D/g, '');
+    
+    // Buscar empresa no banco
+    const result = await query(
+      'SELECT * FROM companies WHERE cnpj = $1 AND status = $2',
+      [cleanCNPJ, 'approved']
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'CNPJ não encontrado ou empresa não aprovada'
+      });
+    }
+
+    const company = result.rows[0];
+    
+    // Verificar senha
+    const isValidPassword = await bcrypt.compare(password, company.password_hash);
+    
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        message: 'Senha incorreta'
+      });
+    }
+
+    // Verificar se a empresa está ativa
+    if (!company.is_active) {
+      return res.status(401).json({
+        success: false,
+        message: 'Empresa inativa. Entre em contato com o administrador.'
+      });
+    }
+
+    // Log da atividade
+    await query(
+      'INSERT INTO activity_logs (user_id, action, description, ip_address) VALUES ($1, $2, $3, $4)',
+      [company.id, 'company_login', 'Login de empresa realizado com sucesso', req.ip]
+    );
+
+    console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.name);
+    
+    // Remover senha do objeto de resposta
+    const { password_hash, ...companyWithoutPassword } = company;
+    
+    res.status(200).json({
+      success: true,
+      message: 'Login realizado com sucesso',
+      company: companyWithoutPassword
+    });
+
+  } catch (error) {
+    console.error('[COMPANY LOGIN ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}

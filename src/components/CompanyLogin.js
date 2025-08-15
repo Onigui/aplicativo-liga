@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Building, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
+import apiService from '../services/api2';
 
 const CompanyLogin = ({ onLogin, onBack, companies = [] }) => {
   const [formData, setFormData] = useState({
@@ -10,70 +11,34 @@ const CompanyLogin = ({ onLogin, onBack, companies = [] }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Usar empresas reais se fornecidas, senão usar mock para demonstração
-  const availableCompanies = companies.length > 0 ? companies : [
-    {
-      id: 'company_123',
-      cnpj: '12.345.678/0001-90',
-      name: 'Empresa Exemplo LTDA',
-      email: 'contato@empresa.com',
-      phone: '(11) 99999-9999',
-      address: 'Rua das Empresas, 123',
-      city: 'São Paulo',
-      state: 'SP',
-      category: 'Alimentação',
-      discount: 15,
-      password: '123456', // Em produção, seria hash
-      workingHours: {
-        monday: { open: '08:00', close: '18:00', isOpen: true },
-        tuesday: { open: '08:00', close: '18:00', isOpen: true },
-        wednesday: { open: '08:00', close: '18:00', isOpen: true },
-        thursday: { open: '08:00', close: '18:00', isOpen: true },
-        friday: { open: '08:00', close: '18:00', isOpen: true },
-        saturday: { open: '09:00', close: '17:00', isOpen: true },
-        sunday: { open: '10:00', close: '16:00', isOpen: false }
-      },
-      description: 'Empresa parceira da Liga do Bem',
-      logo: null,
-      status: 'approved',
-      role: 'company'
-    }
-  ];
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      // Simular delay de rede
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Validar CNPJ
       const cleanCnpj = formData.cnpj.replace(/\D/g, '');
       if (cleanCnpj.length !== 14) {
         throw new Error('CNPJ inválido');
       }
 
-      // Buscar empresa no banco de dados
-      const company = availableCompanies.find(comp => 
-        comp.cnpj.replace(/\D/g, '') === cleanCnpj
-      );
+      console.log('🔍 [LOGIN] Tentando login para empresa com CNPJ:', cleanCnpj);
 
-      if (!company) {
-        throw new Error('Empresa não encontrada. Verifique o CNPJ ou cadastre-se primeiro.');
+      // Tentar fazer login via API
+      const loginResult = await apiService.companyLogin(cleanCnpj, formData.password);
+      
+      if (!loginResult.success) {
+        throw new Error(loginResult.message || 'Credenciais inválidas');
       }
 
-      // Validar senha
-      if (company.password !== formData.password) {
-        throw new Error('Senha incorreta');
-      }
-
+      console.log('✅ [LOGIN] Login bem-sucedido:', loginResult.company);
+      
       // Login bem-sucedido
-      const { password, ...companyData } = company; // Remove a senha dos dados retornados
-      onLogin(companyData);
+      onLogin(loginResult.company);
       
     } catch (error) {
+      console.error('❌ [LOGIN] Erro no login:', error);
       setError(error.message || 'Erro ao fazer login');
     } finally {
       setLoading(false);

@@ -422,3 +422,61 @@ export async function rejectCompany(req, res) {
     });
   }
 }
+
+// Atualizar senha da empresa
+export async function updateCompanyPassword(req, res) {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+    
+    console.log('[COMPANIES DEBUG] Atualizando senha da empresa ID:', id);
+    
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Senha é obrigatória'
+      });
+    }
+
+    // Verificar se empresa existe
+    const existingCompany = await query(
+      'SELECT id, company_name FROM companies WHERE id = $1',
+      [id]
+    );
+    
+    if (existingCompany.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Empresa não encontrada'
+      });
+    }
+
+    // Hash da senha
+    const bcrypt = await import('bcryptjs');
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    // Atualizar senha
+    const result = await query(
+      `UPDATE companies SET 
+        password_hash = $1,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $2
+      RETURNING id, company_name`,
+      [passwordHash, id]
+    );
+    
+    console.log('[COMPANIES DEBUG] Senha da empresa atualizada:', result.rows[0].company_name);
+    
+    res.json({
+      success: true,
+      message: 'Senha da empresa atualizada com sucesso'
+    });
+
+  } catch (error) {
+    console.error('[COMPANIES ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}

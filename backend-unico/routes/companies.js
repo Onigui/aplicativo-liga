@@ -6,7 +6,8 @@ import {
   updateCompany, 
   deleteCompany,
   approveCompany,
-  rejectCompany
+  rejectCompany,
+  updateCompanyPassword
 } from '../controllers/companies.js';
 import { validateToken, requireAdmin } from '../controllers/auth.js';
 
@@ -27,5 +28,8 @@ router.delete('/:id', requireAdmin, deleteCompany);       // DELETE /api/admin/c
 // Rotas de aprovação/rejeição (apenas admin)
 router.put('/:id/approve', requireAdmin, approveCompany); // PUT /api/admin/companies/:id/approve
 router.put('/:id/reject', requireAdmin, rejectCompany);   // PUT /api/admin/companies/:id/reject
+
+// Rota para atualizar senha da empresa (apenas admin)
+router.put('/:id/password', requireAdmin, updateCompanyPassword); // PUT /api/admin/companies/:id/password
 
 export default router;

@@ -188,7 +188,43 @@ class ApiService {
     }
   }
 
+  // Atualizar senha da empresa
+  async updateCompanyPassword(companyId, password) {
+    try {
+      console.log('🔐 [API] Atualizando senha da empresa ID:', companyId);
+      
+      const response = await this.request(`/api/admin/companies/${companyId}/password`, {
+        method: 'PUT',
+        body: { password },
+      });
+      
+      return { success: true, message: response.message };
+    } catch (error) {
+      console.error('❌ [API] Erro ao atualizar senha da empresa:', error);
+      return { success: false, message: error.message };
+    }
+  }
+
   // === MÉTODOS PARA USUÁRIOS E AUTENTICAÇÃO ===
+  
+  // Login de empresa
+  async companyLogin(cnpj, password) {
+    try {
+      console.log('🔍 [API] Tentando login de empresa com CNPJ:', cnpj);
+      
+      const response = await this.request('/api/auth/company-login', {
+        method: 'POST',
+        body: { cnpj, password },
+      });
+      
+      console.log('✅ [API] Login de empresa bem-sucedido:', response);
+      return { success: true, company: response.company };
+    } catch (error) {
+      console.error('❌ [API] Erro no login de empresa:', error);
+      return { success: false, message: error.message || 'Credenciais inválidas' };
+    }
+  }
+  
   async login(username, password) {
     try {
       const response = await this.request('/api/auth/login', {
