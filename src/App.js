@@ -85,7 +85,7 @@ const PromotionsSection = ({ promotions }) => {
   );
 };
 
-const App = ({ companyRequests = [], setCompanyRequests }) => {
+const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompanies = [], setSharedRegisteredCompanies }) => {
   console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - BOTÕES PADRONIZADOS');
   console.log('📝 [DEBUG] CompanyRequests recebidas do router:', companyRequests);
   console.log('📝 [DEBUG] setCompanyRequests recebida:', !!setCompanyRequests);
@@ -238,7 +238,14 @@ const App = ({ companyRequests = [], setCompanyRequests }) => {
   const [companyUser, setCompanyUser] = useState(null);
   const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
   const [showCompanyRegistrationModal, setShowCompanyRegistrationModal] = useState(false);
-  const [registeredCompanies, setRegisteredCompanies] = useState([]);
+  // Usar o estado compartilhado do router para empresas aprovadas
+  const [registeredCompanies, setRegisteredCompanies] = useState(sharedRegisteredCompanies);
+
+  // Sincronizar estado local com estado compartilhado
+  useEffect(() => {
+    console.log('🔄 [SYNC] Sincronizando empresas aprovadas:', sharedRegisteredCompanies);
+    setRegisteredCompanies(sharedRegisteredCompanies);
+  }, [sharedRegisteredCompanies]);
 
   // Monitora mudanças no estado do modal
   useEffect(() => {
@@ -2577,25 +2584,20 @@ const App = ({ companyRequests = [], setCompanyRequests }) => {
     </div>
   );
 
-  // Carregar empresas aprovadas da API real
-  const loadApprovedCompanies = async () => {
-    console.log('📱 Carregando empresas aprovadas do servidor...');
+  // Carregar empresas aprovadas do estado compartilhado
+  const loadApprovedCompanies = () => {
+    console.log('📱 Carregando empresas aprovadas do estado compartilhado...');
+    console.log('📊 Empresas disponíveis:', sharedRegisteredCompanies.length);
     
-    try {
-      const response = await apiService.getCompanies('approved');
-      
-      if (response.success) {
-        console.log('📊 Empresas aprovadas carregadas:', response.companies.length);
-        setApprovedCompanies(response.companies);
-      } else {
-        console.error('❌ Erro ao carregar empresas aprovadas:', response.message);
-        setApprovedCompanies([]);
-      }
-    } catch (error) {
-      console.error('❌ Erro de conexão ao carregar empresas aprovadas:', error);
-      setApprovedCompanies([]);
-    }
+    // Usar o estado compartilhado em vez de fazer chamada à API
+    setApprovedCompanies(sharedRegisteredCompanies);
   };
+
+  // Sincronizar empresas aprovadas quando o estado compartilhado mudar
+  useEffect(() => {
+    console.log('🔄 [SYNC] Sincronizando empresas aprovadas com estado compartilhado');
+    setApprovedCompanies(sharedRegisteredCompanies);
+  }, [sharedRegisteredCompanies]);
 
   // Carregar empresas aprovadas quando a página partners for aberta
   useEffect(() => {
@@ -4094,11 +4096,11 @@ const App = ({ companyRequests = [], setCompanyRequests }) => {
       });
       
       // Fechar modal
-      setShowCompanyRegistrationModal(false);
-      
-      // Mostrar notificação de sucesso
-      addNotification({
-        type: 'success',
+    setShowCompanyRegistrationModal(false);
+    
+    // Mostrar notificação de sucesso
+    addNotification({
+      type: 'success',
         title: 'Solicitação enviada! ��',
         message: `Sua solicitação para "${companyData.name}" foi enviada para aprovação. Nossa equipe irá analisar e você receberá uma notificação em breve. O processo de aprovação pode levar até 24 horas.`
       });
@@ -4117,103 +4119,7 @@ const App = ({ companyRequests = [], setCompanyRequests }) => {
     }
   };
 
-  // Função para aprovar solicitação de empresa
-  const handleApproveCompanyRequest = async (request) => {
-    try {
-      console.log('✅ Aprovando solicitação de empresa:', request);
-      
-      // Mostrar notificação de carregamento
-      addNotification({
-        type: 'info',
-        title: 'Aprovando empresa...',
-        message: 'Processando aprovação da empresa no banco online.'
-      });
 
-      // Criar empresa no banco online via admin
-      const companyData = {
-        ...request,
-        status: 'approved',
-        approvedDate: new Date().toISOString(),
-        approvedBy: 'admin' // Em produção, seria o ID do admin
-      };
-
-      // Cadastrar no banco online
-      const apiResult = await apiService.createCompany(companyData);
-      
-      if (!apiResult.success) {
-        throw new Error(apiResult.message || 'Erro ao cadastrar empresa no banco online');
-      }
-
-      console.log('✅ Empresa aprovada e cadastrada no banco online:', apiResult.company);
-
-      // Atualizar status da solicitação
-      setCompanyRequests(prev => 
-        prev.map(req => 
-          req.id === request.id 
-            ? { ...req, status: 'approved', approvedDate: new Date().toISOString() }
-            : req
-        )
-      );
-
-      // Adicionar à lista de empresas aprovadas
-      const approvedCompany = {
-        ...request,
-        id: apiResult.company.id,
-        status: 'approved',
-        approvedDate: new Date().toISOString()
-      };
-      
-      setRegisteredCompanies(prev => [...prev, approvedCompany]);
-
-      // Mostrar notificação de sucesso
-      addNotification({
-        type: 'success',
-        title: 'Empresa aprovada! 🎉',
-        message: `${request.name} foi aprovada e agora pode fazer login no sistema.`
-      });
-
-    } catch (error) {
-      console.error('❌ Erro ao aprovar empresa:', error);
-      
-      addNotification({
-        type: 'error',
-        title: 'Erro ao aprovar empresa',
-        message: `Erro ao conectar com o banco online: ${error.message}`
-      });
-    }
-  };
-
-  // Função para rejeitar solicitação de empresa
-  const handleRejectCompanyRequest = async (request) => {
-    try {
-      console.log('❌ Rejeitando solicitação de empresa:', request);
-      
-      // Atualizar status da solicitação
-      setCompanyRequests(prev => 
-        prev.map(req => 
-          req.id === request.id 
-            ? { ...req, status: 'rejected', rejectedDate: new Date().toISOString() }
-            : req
-        )
-      );
-
-      // Mostrar notificação de sucesso
-      addNotification({
-        type: 'success',
-        title: 'Solicitação rejeitada',
-        message: `A solicitação de ${request.name} foi rejeitada.`
-      });
-
-    } catch (error) {
-      console.error('❌ Erro ao rejeitar solicitação:', error);
-      
-      addNotification({
-        type: 'error',
-        title: 'Erro ao rejeitar solicitação',
-        message: `Erro ao processar rejeição: ${error.message}`
-      });
-    }
-  };
 
   const renderCurrentPage = () => {
     // Se empresa estiver autenticada, mostrar dashboard empresarial
@@ -4254,13 +4160,7 @@ const App = ({ companyRequests = [], setCompanyRequests }) => {
       case 'legislation': return renderLegislation();
       case 'phones': return renderPhones();
       case 'events': return renderEvents();
-      case 'admin': return (
-        <AdminApp 
-          companyRequests={companyRequests}
-          onApproveCompanyRequest={handleApproveCompanyRequest}
-          onRejectCompanyRequest={handleRejectCompanyRequest}
-        />
-      );
+
       default: return renderWelcome();
     }
   };

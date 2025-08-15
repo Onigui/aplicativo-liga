@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App';
 import AdminApp from './AdminApp';
+import apiService from './services/api2';
 
 const AppRouter = () => {
   // Estados compartilhados entre App e AdminApp
   const [companyRequests, setCompanyRequests] = useState([]);
+  const [sharedRegisteredCompanies, setSharedRegisteredCompanies] = useState([]);
 
   // Funções para gerenciar solicitações
   const handleApproveCompanyRequest = async (request) => {
@@ -21,8 +23,32 @@ const AppRouter = () => {
         )
       );
       
-      // Aqui você pode adicionar a lógica para salvar no banco online
-      console.log('✅ [ROUTER] Solicitação aprovada com sucesso');
+      // Criar empresa no banco online
+      console.log('🌐 [ROUTER] Criando empresa no banco online...');
+      const companyData = {
+        ...request,
+        status: 'approved',
+        approvedDate: new Date().toISOString(),
+        approvedBy: 'admin'
+      };
+      
+      const apiResult = await apiService.createCompany(companyData);
+      if (!apiResult.success) {
+        throw new Error(apiResult.message || 'Erro ao cadastrar empresa no banco online');
+      }
+      
+      console.log('✅ [ROUTER] Empresa criada no banco online:', apiResult.company);
+      
+      // Adicionar à lista de empresas aprovadas
+      const approvedCompany = {
+        ...request,
+        id: apiResult.company.id,
+        status: 'approved',
+        approvedDate: new Date().toISOString()
+      };
+      
+      setSharedRegisteredCompanies(prev => [...prev, approvedCompany]);
+      console.log('✅ [ROUTER] Empresa adicionada ao estado compartilhado');
       
     } catch (error) {
       console.error('❌ [ROUTER] Erro ao aprovar solicitação:', error);
@@ -65,6 +91,8 @@ const AppRouter = () => {
           <App 
             companyRequests={companyRequests}
             setCompanyRequests={setCompanyRequests}
+            sharedRegisteredCompanies={sharedRegisteredCompanies}
+            setSharedRegisteredCompanies={setSharedRegisteredCompanies}
           />
         } />
         {/* Redirect para home se rota não encontrada */}
