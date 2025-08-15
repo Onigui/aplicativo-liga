@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Building, Eye, EyeOff, AlertCircle, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Building, Eye, EyeOff, AlertCircle, X, Search, Loader2 } from 'lucide-react';
 
 const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
   const [formData, setFormData] = useState({
@@ -19,6 +19,110 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchingCNPJ, setSearchingCNPJ] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Função para buscar dados da empresa pelo CNPJ
+  const searchCompanyByCNPJ = async (cnpj) => {
+    if (!cnpj || cnpj.replace(/\D/g, '').length !== 14) {
+      setError('CNPJ inválido. Digite um CNPJ válido com 14 dígitos.');
+      return;
+    }
+
+    setSearchingCNPJ(true);
+    setError('');
+
+    try {
+      // Limpar CNPJ para busca (apenas números)
+      const cleanCNPJ = cnpj.replace(/\D/g, '');
+      
+      console.log('🔍 [CNPJ] Buscando empresa com CNPJ:', cleanCNPJ);
+      
+      // Usar API pública da Receita Federal (via proxy para evitar CORS)
+      const response = await fetch(`https://api-publica.herokuapp.com/api/cnpj/${cleanCNPJ}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar dados da empresa');
+      }
+
+      const data = await response.json();
+      console.log('✅ [CNPJ] Dados encontrados:', data);
+
+      if (data.status === 'ERROR') {
+        throw new Error(data.message || 'Empresa não encontrada');
+      }
+
+      // Preencher automaticamente os campos com os dados encontrados
+      setFormData(prev => ({
+        ...prev,
+        name: data.nome || data.razao_social || '',
+        address: data.logradouro ? `${data.logradouro}, ${data.numero || ''}`.trim() : '',
+        city: data.municipio || '',
+        state: data.uf || '',
+        // Manter campos que não são fornecidos pela API
+        cnpj: prev.cnpj,
+        password: prev.password,
+        confirmPassword: prev.confirmPassword,
+        email: prev.email,
+        phone: prev.phone,
+        category: prev.category,
+        discount: prev.discount
+      }));
+
+      // Mostrar mensagem de sucesso
+      setSuccessMessage('✅ Dados da empresa encontrados e preenchidos automaticamente!');
+      setError('');
+      // Limpar mensagem de sucesso após 5 segundos
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 5000);
+
+    } catch (error) {
+      console.error('❌ [CNPJ] Erro ao buscar empresa:', error);
+      
+      // Tentar API alternativa se a primeira falhar
+      try {
+        console.log('🔄 [CNPJ] Tentando API alternativa...');
+        const cleanCNPJ = cnpj.replace(/\D/g, '');
+        const altResponse = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCNPJ}`);
+        
+        if (altResponse.ok) {
+          const altData = await altResponse.json();
+          console.log('✅ [CNPJ] Dados encontrados na API alternativa:', altData);
+
+          // Preencher com dados da API alternativa
+                     setFormData(prev => ({
+             ...prev,
+             name: altData.razao_social || '',
+             address: altData.logradouro ? `${altData.logradouro}, ${altData.numero || ''}`.trim() : '',
+             city: altData.municipio || '',
+             state: altData.uf || '',
+             cnpj: prev.cnpj,
+             password: prev.password,
+             confirmPassword: prev.confirmPassword,
+             email: prev.email,
+             phone: prev.phone,
+             category: prev.category,
+             discount: prev.discount
+           }));
+
+           setSuccessMessage('✅ Dados da empresa encontrados e preenchidos automaticamente!');
+           setError('');
+           // Limpar mensagem de sucesso após 5 segundos
+           setTimeout(() => {
+             setSuccessMessage('');
+           }, 5000);
+        } else {
+          throw new Error('Empresa não encontrada em nenhuma das APIs');
+        }
+      } catch (altError) {
+        console.error('❌ [CNPJ] Erro na API alternativa:', altError);
+        setError('Empresa não encontrada. Verifique o CNPJ ou preencha os dados manualmente.');
+      }
+    } finally {
+      setSearchingCNPJ(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -183,17 +287,39 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
           {/* CNPJ */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              CNPJ *
+              CNPJ * 
+              <span className="text-xs text-gray-500 ml-2">💡 Digite o CNPJ e clique em "Buscar CNPJ" para preenchimento automático</span>
             </label>
-            <input
-              type="text"
-              value={formData.cnpj}
-              onChange={handleCNPJChange}
-              placeholder="00.000.000/0000-00"
-              maxLength={18}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={formData.cnpj}
+                onChange={handleCNPJChange}
+                placeholder="00.000.000/0000-00"
+                maxLength={18}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+                             <button
+                 type="button"
+                 onClick={() => searchCompanyByCNPJ(formData.cnpj)}
+                 className="bg-blue-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                 disabled={searchingCNPJ || formData.cnpj.replace(/\D/g, '').length !== 14}
+               >
+                {searchingCNPJ ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Search className="h-5 w-5" />
+                )}
+                <span>{searchingCNPJ ? 'Buscando...' : 'Buscar CNPJ'}</span>
+              </button>
+            </div>
+                         {error && (
+               <p className="text-red-500 text-xs mt-1">{error}</p>
+             )}
+             {successMessage && (
+               <p className="text-green-600 text-xs mt-1">{successMessage}</p>
+             )}
           </div>
 
           {/* Nome da Empresa */}
