@@ -26,6 +26,10 @@ function AdminApp({
 }) {
   console.log('🚀 [ADMIN] AdminApp.js carregado!');
   console.log('📝 [ADMIN] CompanyRequests recebidas:', companyRequests);
+  console.log('📝 [ADMIN] Tipo de companyRequests:', typeof companyRequests);
+  console.log('📝 [ADMIN] É array?', Array.isArray(companyRequests));
+  console.log('📝 [ADMIN] Length:', companyRequests?.length);
+  console.log('📝 [ADMIN] Funções recebidas:', { onApproveCompanyRequest, onRejectCompanyRequest });
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -87,6 +91,12 @@ function AdminApp({
       setLoading(false);
     }
   }, [verifyAdminToken]);
+
+  // Monitorar mudanças no companyRequests
+  useEffect(() => {
+    console.log('📝 [ADMIN] CompanyRequests mudou:', companyRequests);
+    console.log('📝 [ADMIN] Total de solicitações:', companyRequests?.length || 0);
+  }, [companyRequests]);
 
   if (loading) {
     return (

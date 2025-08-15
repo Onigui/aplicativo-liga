@@ -85,7 +85,10 @@ const PromotionsSection = ({ promotions }) => {
   );
 };
 
-const App = () => {
+const App = ({ companyRequests = [], setCompanyRequests }) => {
+  console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - BOTÕES PADRONIZADOS');
+  console.log('📝 [DEBUG] CompanyRequests recebidas do router:', companyRequests);
+  console.log('📝 [DEBUG] setCompanyRequests recebida:', !!setCompanyRequests);
 
   const [currentPage, setCurrentPage] = useState('welcome');
   const [loadingButton, setLoadingButton] = useState(null);
@@ -236,7 +239,6 @@ const App = () => {
   const [isCompanyAuthenticated, setIsCompanyAuthenticated] = useState(false);
   const [showCompanyRegistrationModal, setShowCompanyRegistrationModal] = useState(false);
   const [registeredCompanies, setRegisteredCompanies] = useState([]);
-  const [companyRequests, setCompanyRequests] = useState([]);
 
   // Monitora mudanças no estado do modal
   useEffect(() => {
@@ -4084,7 +4086,12 @@ const App = () => {
       };
 
       // Adicionar à lista de solicitações pendentes
-      setCompanyRequests(prev => [...prev, companyRequest]);
+      setCompanyRequests(prev => {
+        const newRequests = [...prev, companyRequest];
+        console.log('📝 [DEBUG] CompanyRequests atualizado:', newRequests);
+        console.log('📝 [DEBUG] Total de solicitações:', newRequests.length);
+        return newRequests;
+      });
       
       // Fechar modal
       setShowCompanyRegistrationModal(false);
@@ -4092,8 +4099,8 @@ const App = () => {
       // Mostrar notificação de sucesso
       addNotification({
         type: 'success',
-        title: 'Solicitação enviada! 📝',
-        message: 'Sua solicitação foi enviada para aprovação. Você receberá uma notificação quando for aprovada.'
+        title: 'Solicitação enviada! ��',
+        message: `Sua solicitação para "${companyData.name}" foi enviada para aprovação. Nossa equipe irá analisar e você receberá uma notificação em breve. O processo de aprovação pode levar até 24 horas.`
       });
 
       console.log('✅ Solicitação salva localmente:', companyRequest);
