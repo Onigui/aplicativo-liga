@@ -51,6 +51,7 @@ function AdminApp({
       
       const admin = JSON.parse(adminDataString);
       console.log('👤 [ADMIN] Dados do admin:', admin);
+      console.log('🔍 [ADMIN] Estrutura completa do admin:', JSON.stringify(admin, null, 2));
       
       // Verificar se é admin por role ou por tipo de usuário
       if (admin && (admin.role === 'admin' || admin.isAdmin === true || admin.userType === 'admin')) {
@@ -59,6 +60,7 @@ function AdminApp({
         setIsAuthenticated(true);
       } else {
         console.log('❌ [ADMIN] Role inválida:', admin?.role, 'isAdmin:', admin?.isAdmin, 'userType:', admin?.userType);
+        console.log('❌ [ADMIN] Admin não tem permissões de administrador');
         logout();
       }
     } catch (error) {
