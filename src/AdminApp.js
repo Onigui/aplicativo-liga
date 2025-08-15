@@ -52,12 +52,13 @@ function AdminApp({
       const admin = JSON.parse(adminDataString);
       console.log('👤 [ADMIN] Dados do admin:', admin);
       
-      if (admin && admin.role === 'admin') {
+      // Verificar se é admin por role ou por tipo de usuário
+      if (admin && (admin.role === 'admin' || admin.isAdmin === true || admin.userType === 'admin')) {
         console.log('✅ [ADMIN] Autenticação válida');
         setUser(admin);
         setIsAuthenticated(true);
       } else {
-        console.log('❌ [ADMIN] Role inválida:', admin?.role);
+        console.log('❌ [ADMIN] Role inválida:', admin?.role, 'isAdmin:', admin?.isAdmin, 'userType:', admin?.userType);
         logout();
       }
     } catch (error) {
