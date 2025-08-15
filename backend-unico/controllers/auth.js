@@ -278,12 +278,39 @@ export async function companyLogin(req, res) {
 
     // Limpar CNPJ (remover pontos e traços)
     const cleanCNPJ = cnpj.replace(/\D/g, '');
+    console.log('[COMPANY LOGIN DEBUG] CNPJ limpo:', cleanCNPJ);
+    
+    // Verificar se a tabela companies tem os campos necessários
+    try {
+      const tableInfo = await query(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'companies' 
+        AND column_name IN ('password_hash', 'is_active', 'name')
+        ORDER BY column_name
+      `);
+      console.log('[COMPANY LOGIN DEBUG] Estrutura da tabela companies:', tableInfo.rows);
+    } catch (tableError) {
+      console.error('[COMPANY LOGIN DEBUG] Erro ao verificar estrutura da tabela:', tableError);
+    }
     
     // Buscar empresa no banco
+    console.log('[COMPANY LOGIN DEBUG] Buscando empresa com CNPJ:', cleanCNPJ);
     const result = await query(
       'SELECT * FROM companies WHERE cnpj = $1 AND status = $2',
       [cleanCNPJ, 'approved']
     );
+
+    console.log('[COMPANY LOGIN DEBUG] Resultado da busca:', result.rows.length, 'empresas encontradas');
+    if (result.rows.length > 0) {
+      console.log('[COMPANY LOGIN DEBUG] Primeira empresa encontrada:', {
+        id: result.rows[0].id,
+        cnpj: result.rows[0].cnpj,
+        name: result.rows[0].name || result.rows[0].company_name,
+        hasPassword: !!result.rows[0].password_hash,
+        isActive: result.rows[0].is_active
+      });
+    }
 
     if (result.rows.length === 0) {
       return res.status(401).json({
@@ -294,8 +321,19 @@ export async function companyLogin(req, res) {
 
     const company = result.rows[0];
     
+    // Verificar se a empresa tem senha
+    if (!company.password_hash) {
+      console.log('[COMPANY LOGIN DEBUG] Empresa sem senha cadastrada');
+      return res.status(401).json({
+        success: false,
+        message: 'Empresa sem senha cadastrada. Entre em contato com o administrador.'
+      });
+    }
+    
     // Verificar senha
+    console.log('[COMPANY LOGIN DEBUG] Verificando senha...');
     const isValidPassword = await bcrypt.compare(password, company.password_hash);
+    console.log('[COMPANY LOGIN DEBUG] Senha válida:', isValidPassword);
     
     if (!isValidPassword) {
       return res.status(401).json({
@@ -305,20 +343,24 @@ export async function companyLogin(req, res) {
     }
 
     // Verificar se a empresa está ativa
-    if (!company.is_active) {
+    if (company.is_active === false) {
       return res.status(401).json({
         success: false,
         message: 'Empresa inativa. Entre em contato com o administrador.'
       });
     }
 
-    // Log da atividade
-    await query(
-      'INSERT INTO activity_logs (user_id, action, description, ip_address) VALUES ($1, $2, $3, $4)',
-      [company.id, 'company_login', 'Login de empresa realizado com sucesso', req.ip]
-    );
+    // Log da atividade (opcional, pode falhar se a tabela não existir)
+    try {
+      await query(
+        'INSERT INTO activity_logs (user_id, action, description, ip_address) VALUES ($1, $2, $3, $4)',
+        [company.id, 'company_login', 'Login de empresa realizado com sucesso', req.ip]
+      );
+    } catch (logError) {
+      console.warn('[COMPANY LOGIN DEBUG] Não foi possível registrar log de atividade:', logError.message);
+    }
 
-    console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.name);
+    console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.name || company.company_name);
     
     // Remover senha do objeto de resposta
     const { password_hash, ...companyWithoutPassword } = company;
@@ -331,9 +373,11 @@ export async function companyLogin(req, res) {
 
   } catch (error) {
     console.error('[COMPANY LOGIN ERROR]:', error);
+    console.error('[COMPANY LOGIN ERROR] Stack:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
