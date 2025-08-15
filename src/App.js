@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Navigate } from 'react-router-dom';
-import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Mail, MapPin as Location, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp, Trophy, QrCode, Shield, RefreshCw } from 'lucide-react';
-import AdminApp from './AdminApp';
+import { useNavigate } from 'react-router-dom';
+import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp, Trophy, QrCode, Shield, RefreshCw } from 'lucide-react';
 import apiService from './services/api2';
-import cacheService from './services/cacheService';
 import analyticsService from './services/analyticsService';
 import syncService from './services/syncService';
 import paymentService from './services/paymentService';
-import transparencyService from './services/transparencyService';
 import notificationService from './services/notificationService';
 import gamificationService from './services/gamificationService';
 import PaymentModal from './components/PaymentModal';
@@ -90,6 +87,7 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
   console.log('📝 [DEBUG] CompanyRequests recebidas do router:', companyRequests);
   console.log('📝 [DEBUG] setCompanyRequests recebida:', !!setCompanyRequests);
 
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState('welcome');
   const [loadingButton, setLoadingButton] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
@@ -214,10 +212,7 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
   
   // Estados para administração
   const [isAdmin, setIsAdmin] = useState(false);
-  const [adminCompanies, setAdminCompanies] = useState([]);
-  const [adminLoading, setAdminLoading] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [showAdminModal, setShowAdminModal] = useState(false);
+
   
   // Estados para pagamentos
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -1217,7 +1212,7 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
           localStorage.setItem('admin_user', JSON.stringify(data.user));
           
           // Redirecionar para área administrativa completa
-          setCurrentPage('admin');
+          navigate('/admin/dashboard');
           return;
         } else {
           console.log('❌ [ADMIN] Erro no login admin:', data.message);
@@ -2232,7 +2227,7 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
                 <button 
                   className="w-full text-left px-6 py-4 text-white hover:bg-white/10 flex items-center space-x-4 transition-all duration-300"
                   onClick={() => {
-                    setCurrentPage('admin');
+                    navigate('/admin/dashboard');
                     setShowMenu(false);
                   }}
                 >
@@ -3825,219 +3820,9 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
     </div>
   );
 
-  // Funções de administração
-  const loadAdminCompanies = async () => {
-    setAdminLoading(true);
-    try {
-      const response = await apiService.getCompanies(); // Buscar todas as empresas
-      if (response.success) {
-        setAdminCompanies(response.companies);
-        console.log('📊 Empresas carregadas para admin:', response.companies.length);
-      } else {
-        addNotification('Erro ao carregar empresas', 'error');
-      }
-    } catch (error) {
-      console.error('Erro ao carregar empresas:', error);
-      addNotification('Erro de conexão', 'error');
-    } finally {
-      setAdminLoading(false);
-    }
-  };
+  
 
-  const handleApproveCompany = async (companyId) => {
-    try {
-      const response = await apiService.approveCompany(companyId);
-      if (response.success) {
-        addNotification('Empresa aprovada com sucesso!', 'success');
-        loadAdminCompanies(); // Recarregar lista
-      } else {
-        addNotification('Erro ao aprovar empresa', 'error');
-      }
-    } catch (error) {
-      console.error('Erro ao aprovar empresa:', error);
-      addNotification('Erro de conexão', 'error');
-    }
-  };
 
-  const handleRejectCompany = async (companyId) => {
-    try {
-      const response = await apiService.rejectCompany(companyId);
-      if (response.success) {
-        addNotification('Empresa rejeitada', 'info');
-        loadAdminCompanies(); // Recarregar lista
-      } else {
-        addNotification('Erro ao rejeitar empresa', 'error');
-      }
-    } catch (error) {
-      console.error('Erro ao rejeitar empresa:', error);
-      addNotification('Erro de conexão', 'error');
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'pending':
-      default:
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'Aprovada';
-      case 'rejected':
-        return 'Rejeitada';
-      case 'pending':
-      default:
-        return 'Pendente';
-    }
-  };
-
-  // Renderizar painel de administração
-  const renderAdmin = () => (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <div className="bg-gradient-to-r from-orange-400 to-red-500 p-4 rounded-2xl mx-auto w-fit mb-4 shadow-lg">
-          <Building className="h-8 w-8 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Administração</h2>
-        <p className="text-purple-200">Gerencie empresas parceiras e suas informações</p>
-      </div>
-
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <button
-          onClick={loadAdminCompanies}
-          disabled={adminLoading}
-          className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-        >
-          {adminLoading ? (
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              <span>Carregando...</span>
-            </div>
-          ) : (
-            'Atualizar Lista'
-          )}
-        </button>
-      </div>
-
-      {/* Lista de Empresas */}
-      {adminCompanies.length > 0 ? (
-        <div className="space-y-4">
-          <h3 className="text-xl font-bold text-white mb-4">
-            Empresas Cadastradas ({adminCompanies.length})
-          </h3>
-          
-          {adminCompanies.map((company) => (
-            <div key={company.id} className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl">
-              {/* Header da Empresa */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-                <div className="flex items-center space-x-4 mb-4 sm:mb-0">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-xl flex items-center justify-center">
-                    <Building className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white">{company.companyName}</h4>
-                    <p className="text-purple-200 text-sm">CNPJ: {company.cnpj}</p>
-                  </div>
-                </div>
-                
-                {/* Status Badge */}
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusBadge(company.status)}`}>
-                  {getStatusText(company.status)}
-                </span>
-              </div>
-
-              {/* Informações da Empresa */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-purple-200 text-sm mb-1">📍 Endereço</p>
-                  <p className="text-white text-sm">
-                    {typeof company.address === 'string' 
-                      ? company.address 
-                      : `${company.address?.street || ''}, ${company.address?.city || 'Botucatu'}, ${company.address?.state || 'SP'}`
-                    }
-                  </p>
-                </div>
-                <div>
-                  <p className="text-purple-200 text-sm mb-1">📞 Telefone</p>
-                  <p className="text-white text-sm">{company.phone}</p>
-                </div>
-                <div>
-                  <p className="text-purple-200 text-sm mb-1">📧 Email</p>
-                  <p className="text-white text-sm">{company.email}</p>
-                </div>
-                <div>
-                  <p className="text-purple-200 text-sm mb-1">🏷️ Categoria</p>
-                  <p className="text-white text-sm">{company.category}</p>
-                </div>
-                <div>
-                  <p className="text-purple-200 text-sm mb-1">💰 Desconto</p>
-                  <p className="text-white text-sm">{company.discount}%</p>
-                </div>
-              </div>
-
-              {/* Ações */}
-              {company.status === 'pending' && (
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/10">
-                  <button
-                    onClick={() => handleApproveCompany(company.id)}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
-                  >
-                    ✅ Aprovar
-                  </button>
-                  <button
-                    onClick={() => handleRejectCompany(company.id)}
-                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
-                  >
-                    ❌ Rejeitar
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedCompany(company);
-                      setShowAdminModal(true);
-                    }}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
-                  >
-                    ✏️ Editar
-                  </button>
-                </div>
-              )}
-
-              {company.status === 'approved' && (
-                <div className="flex justify-end pt-4 border-t border-white/10">
-                  <button
-                    onClick={() => {
-                      setSelectedCompany(company);
-                      setShowAdminModal(true);
-                    }}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
-                  >
-                    ✏️ Editar Informações
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        !adminLoading && (
-          <div className="text-center py-12">
-            <Building className="h-16 w-16 text-purple-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Nenhuma empresa encontrada</h3>
-            <p className="text-purple-200 mb-4">Clique em "Atualizar Lista" para carregar as empresas cadastradas.</p>
-          </div>
-        )
-      )}
-    </div>
-  );
 
   // Funções para área empresarial
   const handleCompanyLogin = (companyData) => {
@@ -4469,237 +4254,13 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
         </div>
       )}
 
-      {/* Modal de Edição de Empresa - Admin */}
-      {showAdminModal && selectedCompany && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          {/* BANNER DE TESTE */}
-          <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center py-2 z-50">
-            <strong>🆕 MODAL DE EDIÇÃO EMPRESAS - VERSÃO INTEGRADA v2.0</strong>
-          </div>
-          
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-900 opacity-80" onClick={() => setShowAdminModal(false)}></div>
-            </div>
 
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border-2 border-blue-200"
-                 onClick={(e) => e.stopPropagation()}>
+
+
+
+
+
               
-              <div className="bg-gradient-to-br from-white to-blue-50 px-6 pt-6 pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center">
-                    <div className="bg-blue-100 rounded-lg p-3">
-                      <Building className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg leading-6 font-medium text-gray-900">
-                        🆕 NOVO Modal de Edição Empresas v2.0
-                      </h3>
-                      <p className="text-sm text-red-600 font-bold">
-                        ✅ Modal integrado com upload de logo e horários!
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowAdminModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nome da Empresa
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={selectedCompany.companyName}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      CNPJ
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={selectedCompany.cnpj}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Endereço
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={selectedCompany.address}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Telefone
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={selectedCompany.phone}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      defaultValue={selectedCompany.email}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Desconto Oferecido
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={selectedCompany.discount}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Ex: 10% em rações premium"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Descrição
-                    </label>
-                    <textarea
-                      defaultValue={selectedCompany.description}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Descreva os produtos e serviços oferecidos..."
-                    />
-                  </div>
-
-                  {/* NOVA SEÇÃO: UPLOAD DE LOGO */}
-                  <div className="md:col-span-2 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Building className="inline h-4 w-4 mr-2" />
-                      🆕 Logo da Empresa (NOVO!)
-                    </label>
-                    <div className="mt-2 flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="h-20 w-20 border-2 border-gray-300 border-dashed rounded-lg flex items-center justify-center bg-gray-50">
-                          <Building className="h-8 w-8 text-gray-400" />
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          type="file"
-                          accept="image/jpeg,image/jpg,image/png,image/svg+xml"
-                          className="hidden"
-                          id="logo-upload"
-                        />
-                        <label
-                          htmlFor="logo-upload"
-                          className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                        >
-                          <Building className="h-4 w-4 mr-2" />
-                          Escolher Logo
-                        </label>
-                        <p className="mt-2 text-xs text-gray-500">
-                          JPG, PNG ou SVG. Máximo 5MB.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* NOVA SEÇÃO: HORÁRIOS DE FUNCIONAMENTO */}
-                  <div className="md:col-span-2 bg-green-50 border border-green-200 p-4 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      <Clock className="inline h-4 w-4 mr-2" />
-                      🆕 Horários de Funcionamento (NOVO!)
-                    </label>
-                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
-                      {[
-                        { day: 'Segunda-feira', key: 'monday' },
-                        { day: 'Terça-feira', key: 'tuesday' },
-                        { day: 'Quarta-feira', key: 'wednesday' },
-                        { day: 'Quinta-feira', key: 'thursday' },
-                        { day: 'Sexta-feira', key: 'friday' },
-                        { day: 'Sábado', key: 'saturday' },
-                        { day: 'Domingo', key: 'sunday' }
-                      ].map(({ day, key }) => (
-                        <div key={key} className="flex items-center space-x-4">
-                          <div className="w-24 text-sm font-medium text-gray-700">
-                            {day}
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              defaultChecked={key !== 'sunday'}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <span className="text-sm text-gray-600">Aberto</span>
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">De:</span>
-                            <input
-                              type="time"
-                              defaultValue="08:00"
-                              className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-600">Até:</span>
-                            <input
-                              type="time"
-                              defaultValue={key === 'saturday' || key === 'sunday' ? '12:00' : '18:00'}
-                              className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-gray-50 to-blue-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    alert('💾 Funcionalidade de salvar será implementada aqui!');
-                    setShowAdminModal(false);
-                  }}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  <Check className="h-4 w-4 mr-2" />
-                  Salvar Alterações
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => setShowAdminModal(false)}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal de Cadastro de Empresas */}
       <CompanyRegistrationModal
