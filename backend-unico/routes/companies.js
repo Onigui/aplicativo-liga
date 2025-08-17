@@ -5,31 +5,26 @@ import {
   createCompany, 
   updateCompany, 
   deleteCompany,
-  approveCompany,
-  rejectCompany,
-  updateCompanyPassword
+  updateCompanyPassword,
+  requestCompanyRegistration,
+  getCompanyRequests
 } from '../controllers/companies.js';
-import { validateToken, requireAdmin } from '../controllers/auth.js';
+import { requireAdmin } from '../controllers/auth.js';
 
 const router = express.Router();
 
-// Rotas públicas (para cadastro de empresas)
-router.post('/', createCompany);            // POST /api/admin/companies
+// Rota pública para solicitações de cadastro (sem autenticação)
+router.post('/request', requestCompanyRegistration);
 
-// Rotas protegidas (requerem autenticação)
-router.use(validateToken);                  // Middleware de autenticação
-
-// Rotas para administradores
-router.get('/', getCompanies);              // GET /api/admin/companies
-router.get('/:id', getCompanyById);         // GET /api/admin/companies/:id
-router.put('/:id', requireAdmin, updateCompany);          // PUT /api/admin/companies/:id
-router.delete('/:id', requireAdmin, deleteCompany);       // DELETE /api/admin/companies/:id
-
-// Rotas de aprovação/rejeição (apenas admin)
-router.put('/:id/approve', requireAdmin, approveCompany); // PUT /api/admin/companies/:id/approve
-router.put('/:id/reject', requireAdmin, rejectCompany);   // PUT /api/admin/companies/:id/reject
-
-// Rota para atualizar senha da empresa (apenas admin)
+// Rotas protegidas (apenas admin)
+router.get('/', requireAdmin, getCompanies);                    // GET /api/admin/companies
+router.get('/:id', requireAdmin, getCompanyById);              // GET /api/admin/companies/:id
+router.post('/', requireAdmin, createCompany);                 // POST /api/admin/companies
+router.put('/:id', requireAdmin, updateCompany);               // PUT /api/admin/companies/:id
+router.delete('/:id', requireAdmin, deleteCompany);            // DELETE /api/admin/companies/:id
 router.put('/:id/password', requireAdmin, updateCompanyPassword); // PUT /api/admin/companies/:id/password
+
+// Rota para buscar solicitações (apenas admin)
+router.get('/requests', requireAdmin, getCompanyRequests);      // GET /api/admin/company-requests
 
 export default router;

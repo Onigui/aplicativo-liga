@@ -381,3 +381,163 @@ export async function companyLogin(req, res) {
     });
   }
 }
+
+// Função para solicitar recuperação de senha de empresa
+export async function requestCompanyPasswordReset(req, res) {
+  try {
+    console.log('[PASSWORD RESET DEBUG] Solicitação de recuperação de senha...');
+    
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'E-mail é obrigatório'
+      });
+    }
+    
+    // Buscar empresa pelo e-mail
+    const result = await query(
+      'SELECT id, name, cnpj FROM companies WHERE email = $1 AND is_active = true',
+      [email]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'E-mail não encontrado ou empresa inativa'
+      });
+    }
+    
+    const company = result.rows[0];
+    
+    // Gerar token de recuperação (expira em 1 hora)
+    const resetToken = jwt.sign(
+      { 
+        companyId: company.id, 
+        type: 'password_reset',
+        email: email
+      },
+      process.env.JWT_SECRET || 'fallback_secret_key',
+      { expiresIn: '1h' }
+    );
+    
+    // Salvar token no banco
+    await query(
+      'UPDATE companies SET password_reset_token = $1, password_reset_expires = $2 WHERE id = $3',
+      [resetToken, new Date(Date.now() + 3600000), company.id]
+    );
+    
+    // TODO: Enviar e-mail com link de recuperação
+    // Por enquanto, retornar o token (em produção, enviar por e-mail)
+    console.log('[PASSWORD RESET DEBUG] Token gerado para empresa:', company.name);
+    
+    res.json({
+      success: true,
+      message: 'E-mail de recuperação enviado. Verifique sua caixa de entrada.',
+      debug: process.env.NODE_ENV === 'development' ? { resetToken } : undefined
+    });
+
+  } catch (error) {
+    console.error('[PASSWORD RESET ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}
+
+// Função para redefinir senha de empresa
+export async function resetCompanyPassword(req, res) {
+  try {
+    console.log('[PASSWORD RESET DEBUG] Redefinindo senha...');
+    
+    const { token, newPassword } = req.body;
+    
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token e nova senha são obrigatórios'
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'A senha deve ter pelo menos 6 caracteres'
+      });
+    }
+    
+    // Verificar token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_key');
+    } catch (jwtError) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token inválido ou expirado'
+      });
+    }
+    
+    if (decoded.type !== 'password_reset') {
+      return res.status(400).json({
+        success: false,
+        message: 'Token inválido'
+      });
+    }
+    
+    // Buscar empresa
+    const result = await query(
+      'SELECT id, name, password_reset_token, password_reset_expires FROM companies WHERE id = $1',
+      [decoded.companyId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Empresa não encontrada'
+      });
+    }
+    
+    const company = result.rows[0];
+    
+    // Verificar se o token é válido e não expirou
+    if (company.password_reset_token !== token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token inválido'
+      });
+    }
+    
+    if (new Date() > new Date(company.password_reset_expires)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token expirado'
+      });
+    }
+    
+    // Hash da nova senha
+    const saltRounds = 10;
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+    
+    // Atualizar senha e limpar token
+    await query(
+      'UPDATE companies SET password_hash = $1, password_reset_token = NULL, password_reset_expires = NULL WHERE id = $2',
+      [newPasswordHash, company.id]
+    );
+    
+    console.log('[PASSWORD RESET DEBUG] Senha redefinida para empresa:', company.name);
+    
+    res.json({
+      success: true,
+      message: 'Senha redefinida com sucesso!'
+    });
+
+  } catch (error) {
+    console.error('[PASSWORD RESET ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}

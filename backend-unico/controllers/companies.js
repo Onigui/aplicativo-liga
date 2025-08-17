@@ -1,4 +1,5 @@
 import { query } from '../config/database.js';
+import bcrypt from 'bcryptjs';
 
 // Função para mapear campos do banco para o formato do frontend
 const mapCompanyFields = (company) => {
@@ -452,7 +453,6 @@ export async function updateCompanyPassword(req, res) {
     }
 
     // Hash da senha
-    const bcrypt = await import('bcryptjs');
     const passwordHash = await bcrypt.hash(password, 10);
     
     // Atualizar senha
@@ -470,6 +470,132 @@ export async function updateCompanyPassword(req, res) {
     res.json({
       success: true,
       message: 'Senha da empresa atualizada com sucesso'
+    });
+
+  } catch (error) {
+    console.error('[COMPANIES ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}
+
+// Processar solicitação de cadastro de empresa
+export async function requestCompanyRegistration(req, res) {
+  try {
+    console.log('[COMPANIES DEBUG] Processando solicitação de cadastro...');
+    console.log('[COMPANIES DEBUG] Dados recebidos:', req.body);
+    
+    const {
+      companyName,
+      name,
+      cnpj,
+      password,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      category,
+      discount,
+      workingHours,
+      description
+    } = req.body;
+    
+    // Validações básicas
+    if (!companyName || !cnpj || !password || !address || !category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nome da empresa, CNPJ, senha, endereço e categoria são obrigatórios'
+      });
+    }
+    
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'A senha deve ter pelo menos 6 caracteres'
+      });
+    }
+    
+    // Verificar se CNPJ já existe
+    const existingCompany = await query(
+      'SELECT id FROM companies WHERE cnpj = $1',
+      [cnpj]
+    );
+    
+    if (existingCompany.rows.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'CNPJ já cadastrado'
+      });
+    }
+    
+    // Hash da senha
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+    
+    // Inserir solicitação na tabela company_requests
+    const result = await query(
+      `INSERT INTO company_requests (
+        company_name, name, cnpj, password_hash, email, phone, address, city, state,
+        category, discount, working_hours, description, status, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      RETURNING *`,
+      [
+        companyName,
+        name || companyName,
+        cnpj,
+        passwordHash,
+        email || null,
+        phone || null,
+        address,
+        city || null,
+        state || null,
+        category,
+        discount || 10,
+        workingHours ? JSON.stringify(workingHours) : null,
+        description || null,
+        'pending',
+        new Date()
+      ]
+    );
+    
+    const newRequest = result.rows[0];
+    
+    console.log('[COMPANIES DEBUG] Solicitação criada com sucesso:', newRequest.company_name);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Solicitação enviada com sucesso! Aguarde aprovação do administrador.',
+      requestId: newRequest.id,
+      status: 'pending'
+    });
+
+  } catch (error) {
+    console.error('[COMPANIES ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}
+
+// Buscar solicitações de empresas
+export async function getCompanyRequests(req, res) {
+  try {
+    console.log('[COMPANIES DEBUG] Buscando solicitações de empresas...');
+    
+    const result = await query(
+      'SELECT * FROM company_requests ORDER BY created_at DESC'
+    );
+    
+    console.log('[COMPANIES DEBUG] Retornando', result.rows.length, 'solicitações');
+    
+    res.json({
+      success: true,
+      requests: result.rows,
+      total: result.rows.length
     });
 
   } catch (error) {

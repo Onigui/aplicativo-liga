@@ -88,13 +88,13 @@ const CompanyLogin = ({ onLogin, onBack, companies = [] }) => {
           {/* Senha */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Senha
+              Senha *
             </label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="Digite sua senha"
                 className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -102,11 +102,26 @@ const CompanyLogin = ({ onLogin, onBack, companies = [] }) => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" />
+                )}
               </button>
             </div>
+          </div>
+
+          {/* Link para recuperação de senha */}
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={() => {/* TODO: Implementar modal de recuperação */}}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Esqueceu sua senha?
+            </button>
           </div>
 
           {/* Erro */}

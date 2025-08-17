@@ -49,23 +49,42 @@ class ApiService {
   // Solicitar cadastro de empresa (sem permissão admin)
   async requestCompanyRegistration(companyData) {
     try {
-      // Como não há endpoint específico para solicitações, vamos usar um endpoint público
-      // ou salvar localmente para o admin aprovar depois
       console.log('📝 Enviando solicitação de cadastro de empresa:', companyData);
       
-      // Por enquanto, vamos simular o envio da solicitação
-      // Em produção, isso seria enviado para um endpoint como /api/companies/request
+      const response = await this.request('/api/companies/request', {
+        method: 'POST',
+        body: companyData,
+      });
+      
       return {
         success: true,
-        message: 'Solicitação enviada com sucesso! Aguarde aprovação do administrador.',
-        requestId: `req_${Date.now()}`,
-        status: 'pending'
+        message: response.message || 'Solicitação enviada com sucesso! Aguarde aprovação do administrador.',
+        requestId: response.requestId,
+        status: response.status
       };
     } catch (error) {
       console.error('❌ Erro ao enviar solicitação:', error);
       return {
         success: false,
         message: error.message || 'Erro ao enviar solicitação'
+      };
+    }
+  }
+
+  // Buscar solicitações de empresas (para admin)
+  async getCompanyRequests() {
+    try {
+      const response = await this.request('/api/admin/company-requests');
+      return {
+        success: true,
+        requests: response.requests || []
+      };
+    } catch (error) {
+      console.error('❌ Erro ao buscar solicitações:', error);
+      return {
+        success: false,
+        requests: [],
+        message: error.message
       };
     }
   }
@@ -217,11 +236,59 @@ class ApiService {
         body: { cnpj, password },
       });
       
-      console.log('✅ [API] Login de empresa bem-sucedido:', response);
-      return { success: true, company: response.company };
+      if (response.success) {
+        // Salvar token da empresa
+        localStorage.setItem('company_token', response.token);
+        localStorage.setItem('company_user', JSON.stringify(response.company));
+      }
+      
+      return response;
     } catch (error) {
       console.error('❌ [API] Erro no login de empresa:', error);
-      return { success: false, message: error.message || 'Credenciais inválidas' };
+      return {
+        success: false,
+        message: error.message || 'Erro no login'
+      };
+    }
+  }
+
+  // Solicitar recuperação de senha de empresa
+  async requestCompanyPasswordReset(email) {
+    try {
+      console.log('🔐 [API] Solicitando recuperação de senha para:', email);
+      
+      const response = await this.request('/api/auth/company-password-reset', {
+        method: 'POST',
+        body: { email },
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('❌ [API] Erro ao solicitar recuperação de senha:', error);
+      return {
+        success: false,
+        message: error.message || 'Erro ao solicitar recuperação'
+      };
+    }
+  }
+
+  // Redefinir senha de empresa
+  async resetCompanyPassword(token, newPassword) {
+    try {
+      console.log('🔐 [API] Redefinindo senha de empresa...');
+      
+      const response = await this.request('/api/auth/company-password-reset/confirm', {
+        method: 'POST',
+        body: { token, newPassword },
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('❌ [API] Erro ao redefinir senha:', error);
+      return {
+        success: false,
+        message: error.message || 'Erro ao redefinir senha'
+      };
     }
   }
   

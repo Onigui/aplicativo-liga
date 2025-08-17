@@ -36,6 +36,29 @@ const AppRouter = () => {
     loadApprovedCompanies();
   }, []);
 
+  // Carregar solicitações pendentes quando o aplicativo inicia
+  useEffect(() => {
+    const loadCompanyRequests = async () => {
+      try {
+        console.log('🔄 [ROUTER] Carregando solicitações de empresas...');
+        
+        const result = await apiService.getCompanyRequests();
+        if (result.success && result.requests) {
+          console.log('✅ [ROUTER] Solicitações carregadas:', result.requests.length);
+          setCompanyRequests(result.requests);
+        } else {
+          console.log('⚠️ [ROUTER] Nenhuma solicitação encontrada ou erro na API');
+          setCompanyRequests([]);
+        }
+      } catch (error) {
+        console.error('❌ [ROUTER] Erro ao carregar solicitações:', error);
+        setCompanyRequests([]);
+      }
+    };
+
+    loadCompanyRequests();
+  }, []);
+
   // Funções para gerenciar solicitações
   const handleApproveCompanyRequest = async (request) => {
     try {
@@ -53,7 +76,18 @@ const AppRouter = () => {
       // Criar empresa no banco online
       console.log('🌐 [ROUTER] Criando empresa no banco online...');
       const companyData = {
-        ...request,
+        companyName: request.company_name,
+        name: request.name,
+        cnpj: request.cnpj,
+        email: request.email,
+        phone: request.phone,
+        address: request.address,
+        city: request.city,
+        state: request.state,
+        category: request.category,
+        discount: request.discount,
+        workingHours: request.working_hours,
+        description: request.description,
         status: 'approved',
         approvedDate: new Date().toISOString(),
         approvedBy: 'admin'
@@ -67,9 +101,9 @@ const AppRouter = () => {
       console.log('✅ [ROUTER] Empresa criada no banco online:', apiResult.company);
       
       // Atualizar a senha da empresa no banco (importante para login)
-      if (request.password) {
+      if (request.password_hash) {
         console.log('🔐 [ROUTER] Atualizando senha da empresa no banco...');
-        const passwordUpdateResult = await apiService.updateCompanyPassword(apiResult.company.id, request.password);
+        const passwordUpdateResult = await apiService.updateCompanyPassword(apiResult.company.id, request.password_hash);
         if (!passwordUpdateResult.success) {
           console.warn('⚠️ [ROUTER] Aviso: Não foi possível atualizar a senha da empresa:', passwordUpdateResult.message);
         } else {
