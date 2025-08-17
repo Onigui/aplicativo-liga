@@ -280,21 +280,7 @@ export async function companyLogin(req, res) {
     const cleanCNPJ = cnpj.replace(/\D/g, '');
     console.log('[COMPANY LOGIN DEBUG] CNPJ limpo:', cleanCNPJ);
     
-    // Verificar se a tabela companies tem os campos necessários
-    try {
-      const tableInfo = await query(`
-        SELECT column_name, data_type 
-        FROM information_schema.columns 
-        WHERE table_name = 'companies' 
-        AND column_name IN ('password_hash', 'is_active', 'name')
-        ORDER BY column_name
-      `);
-      console.log('[COMPANY LOGIN DEBUG] Estrutura da tabela companies:', tableInfo.rows);
-    } catch (tableError) {
-      console.error('[COMPANY LOGIN DEBUG] Erro ao verificar estrutura da tabela:', tableError);
-    }
-    
-    // Buscar empresa no banco
+    // Buscar empresa no banco (sem verificar campos específicos)
     console.log('[COMPANY LOGIN DEBUG] Buscando empresa com CNPJ:', cleanCNPJ);
     const result = await query(
       'SELECT * FROM companies WHERE cnpj = $1 AND status = $2',
@@ -303,12 +289,13 @@ export async function companyLogin(req, res) {
 
     console.log('[COMPANY LOGIN DEBUG] Resultado da busca:', result.rows.length, 'empresas encontradas');
     if (result.rows.length > 0) {
-      console.log('[COMPANY LOGIN DEBUG] Primeira empresa encontrada:', {
-        id: result.rows[0].id,
-        cnpj: result.rows[0].cnpj,
-        name: result.rows[0].name || result.rows[0].company_name,
-        hasPassword: !!result.rows[0].password_hash,
-        isActive: result.rows[0].is_active
+      const company = result.rows[0];
+      console.log('[COMPANY LOGIN DEBUG] Empresa encontrada:', {
+        id: company.id,
+        cnpj: company.cnpj,
+        name: company.company_name || company.name,
+        hasPassword: !!company.password_hash,
+        hasPasswordField: 'password_hash' in company
       });
     }
 
@@ -321,17 +308,36 @@ export async function companyLogin(req, res) {
 
     const company = result.rows[0];
     
-    // Verificar se a empresa tem senha
+    // Verificar se a empresa tem senha (compatibilidade com estrutura atual)
     if (!company.password_hash) {
       console.log('[COMPANY LOGIN DEBUG] Empresa sem senha cadastrada');
+      
+      // Se não tem password_hash, verificar se tem password (campo antigo)
+      if (company.password) {
+        // Comparar com senha em texto plano (temporário)
+        if (company.password === password) {
+          console.log('[COMPANY LOGIN DEBUG] Login com senha antiga bem-sucedido');
+          
+          // Remover senha do objeto de resposta
+          const { password, ...companyWithoutPassword } = company;
+          
+          res.status(200).json({
+            success: true,
+            message: 'Login realizado com sucesso',
+            company: companyWithoutPassword
+          });
+          return;
+        }
+      }
+      
       return res.status(401).json({
         success: false,
         message: 'Empresa sem senha cadastrada. Entre em contato com o administrador.'
       });
     }
     
-    // Verificar senha
-    console.log('[COMPANY LOGIN DEBUG] Verificando senha...');
+    // Verificar senha com bcrypt
+    console.log('[COMPANY LOGIN DEBUG] Verificando senha com bcrypt...');
     const isValidPassword = await bcrypt.compare(password, company.password_hash);
     console.log('[COMPANY LOGIN DEBUG] Senha válida:', isValidPassword);
     
@@ -342,25 +348,7 @@ export async function companyLogin(req, res) {
       });
     }
 
-    // Verificar se a empresa está ativa
-    if (company.is_active === false) {
-      return res.status(401).json({
-        success: false,
-        message: 'Empresa inativa. Entre em contato com o administrador.'
-      });
-    }
-
-    // Log da atividade (opcional, pode falhar se a tabela não existir)
-    try {
-      await query(
-        'INSERT INTO activity_logs (user_id, action, description, ip_address) VALUES ($1, $2, $3, $4)',
-        [company.id, 'company_login', 'Login de empresa realizado com sucesso', req.ip]
-      );
-    } catch (logError) {
-      console.warn('[COMPANY LOGIN DEBUG] Não foi possível registrar log de atividade:', logError.message);
-    }
-
-    console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.name || company.company_name);
+    console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.company_name || company.name);
     
     // Remover senha do objeto de resposta
     const { password_hash, ...companyWithoutPassword } = company;

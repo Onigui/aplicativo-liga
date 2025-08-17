@@ -224,6 +224,26 @@ class ApiService {
     }
   }
 
+  // Atualizar status de uma empresa
+  async updateCompanyStatus(companyId, status) {
+    try {
+      console.log('🔄 [API] Atualizando status da empresa:', companyId, 'para:', status);
+      
+      const response = await this.request(`/api/admin/companies/${companyId}/status`, {
+        method: 'PUT',
+        body: { status },
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('❌ [API] Erro ao atualizar status da empresa:', error);
+      return {
+        success: false,
+        message: error.message || 'Erro ao atualizar status'
+      };
+    }
+  }
+
   // === MÉTODOS PARA USUÁRIOS E AUTENTICAÇÃO ===
   
   // Login de empresa

@@ -79,6 +79,7 @@ const AppRouter = () => {
         companyName: request.company_name,
         name: request.name,
         cnpj: request.cnpj,
+        password: request.password, // Senha original escolhida pela empresa
         email: request.email,
         phone: request.phone,
         address: request.address,
@@ -87,10 +88,7 @@ const AppRouter = () => {
         category: request.category,
         discount: request.discount,
         workingHours: request.working_hours,
-        description: request.description,
-        status: 'approved',
-        approvedDate: new Date().toISOString(),
-        approvedBy: 'admin'
+        description: request.description
       };
       
       const apiResult = await apiService.createCompany(companyData);
@@ -100,16 +98,8 @@ const AppRouter = () => {
       
       console.log('✅ [ROUTER] Empresa criada no banco online:', apiResult.company);
       
-      // Atualizar a senha da empresa no banco (importante para login)
-      if (request.password_hash) {
-        console.log('🔐 [ROUTER] Atualizando senha da empresa no banco...');
-        const passwordUpdateResult = await apiService.updateCompanyPassword(apiResult.company.id, request.password_hash);
-        if (!passwordUpdateResult.success) {
-          console.warn('⚠️ [ROUTER] Aviso: Não foi possível atualizar a senha da empresa:', passwordUpdateResult.message);
-        } else {
-          console.log('✅ [ROUTER] Senha da empresa atualizada com sucesso');
-        }
-      }
+      // Atualizar status da solicitação para 'approved'
+      await apiService.updateCompanyStatus(request.id, 'approved');
       
       // Adicionar à lista de empresas aprovadas
       const approvedCompany = {

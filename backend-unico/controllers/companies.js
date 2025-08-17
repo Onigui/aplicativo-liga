@@ -111,21 +111,25 @@ export async function createCompany(req, res) {
     
     const {
       companyName,
+      name,
       cnpj,
-      address,
-      phone,
+      password,
       email,
-      discount,
-      description,
+      phone,
+      address,
+      city,
+      state,
       category,
-      workingHours
+      discount,
+      workingHours,
+      description
     } = req.body;
     
     // Validações básicas
-    if (!companyName || !cnpj || !address || !discount || !category) {
+    if (!companyName || !cnpj || !address || !category) {
       return res.status(400).json({
         success: false,
-        message: 'Nome da empresa, CNPJ, endereço, desconto e categoria são obrigatórios'
+        message: 'Nome da empresa, CNPJ, endereço e categoria são obrigatórios'
       });
     }
     
@@ -142,24 +146,35 @@ export async function createCompany(req, res) {
       });
     }
     
+    // Hash da senha se fornecida
+    let passwordHash = null;
+    if (password) {
+      const saltRounds = 10;
+      passwordHash = await bcrypt.hash(password, saltRounds);
+    }
+    
     // Inserir empresa
     const result = await query(
       `INSERT INTO companies (
-        company_name, cnpj, address, phone, email, discount, 
-        description, category, working_hours, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        company_name, name, cnpj, password_hash, email, phone, address, city, state,
+        discount, category, working_hours, description, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
       [
         companyName,
+        name || companyName,
         cnpj,
-        address,
-        phone || null,
+        passwordHash,
         email || null,
-        discount,
-        description || null,
+        phone || null,
+        address,
+        city || null,
+        state || null,
+        discount || 10,
         category,
         workingHours ? JSON.stringify(workingHours) : null,
-        'pending'
+        description || null,
+        'approved'
       ]
     );
     
@@ -535,9 +550,9 @@ export async function requestCompanyRegistration(req, res) {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
     
-    // Inserir solicitação na tabela company_requests
+    // Inserir empresa diretamente na tabela companies com status 'pending'
     const result = await query(
-      `INSERT INTO company_requests (
+      `INSERT INTO companies (
         company_name, name, cnpj, password_hash, email, phone, address, city, state,
         category, discount, working_hours, description, status, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
@@ -587,7 +602,8 @@ export async function getCompanyRequests(req, res) {
     console.log('[COMPANIES DEBUG] Buscando solicitações de empresas...');
     
     const result = await query(
-      'SELECT * FROM company_requests ORDER BY created_at DESC'
+      'SELECT * FROM companies WHERE status = $1 ORDER BY created_at DESC',
+      ['pending']
     );
     
     console.log('[COMPANIES DEBUG] Retornando', result.rows.length, 'solicitações');
@@ -596,6 +612,54 @@ export async function getCompanyRequests(req, res) {
       success: true,
       requests: result.rows,
       total: result.rows.length
+    });
+
+  } catch (error) {
+    console.error('[COMPANIES ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
+}
+
+// Atualizar status de uma empresa
+export async function updateCompanyStatus(req, res) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    console.log('[COMPANIES DEBUG] Atualizando status da empresa ID:', id, 'para:', status);
+    
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status inválido. Use: pending, approved ou rejected'
+      });
+    }
+    
+    const result = await query(
+      'UPDATE companies SET status = $1, updated_at = $2 WHERE id = $3 RETURNING *',
+      [status, new Date(), id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Empresa não encontrada'
+      });
+    }
+    
+    const updatedCompany = result.rows[0];
+    console.log('[COMPANIES DEBUG] Status atualizado com sucesso:', updatedCompany.company_name);
+    
+    // Mapear campos para o formato do frontend
+    const mappedCompany = mapCompanyFields(updatedCompany);
+    
+    res.json({
+      success: true,
+      company: mappedCompany,
+      message: 'Status atualizado com sucesso'
     });
 
   } catch (error) {

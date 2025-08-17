@@ -7,7 +7,8 @@ import {
   deleteCompany,
   updateCompanyPassword,
   requestCompanyRegistration,
-  getCompanyRequests
+  getCompanyRequests,
+  updateCompanyStatus
 } from '../controllers/companies.js';
 import { requireAdmin } from '../controllers/auth.js';
 
@@ -23,6 +24,7 @@ router.post('/', requireAdmin, createCompany);                 // POST /api/admi
 router.put('/:id', requireAdmin, updateCompany);               // PUT /api/admin/companies/:id
 router.delete('/:id', requireAdmin, deleteCompany);            // DELETE /api/admin/companies/:id
 router.put('/:id/password', requireAdmin, updateCompanyPassword); // PUT /api/admin/companies/:id/password
+router.put('/:id/status', requireAdmin, updateCompanyStatus);  // PUT /api/admin/companies/:id/status
 
 // Rota para buscar solicitações (apenas admin)
 router.get('/requests', requireAdmin, getCompanyRequests);      // GET /api/admin/company-requests
