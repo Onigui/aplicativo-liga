@@ -4,24 +4,28 @@ import bcrypt from 'bcryptjs';
 // Função para mapear campos do banco para o formato do frontend
 const mapCompanyFields = (company) => {
   return {
-    id: company.id,
-    companyName: company.company_name,
-    cnpj: company.cnpj,
-    address: company.address,
-    phone: company.phone,
-    email: company.email,
-    discount: company.discount,
-    description: company.description,
-    category: company.category,
-    status: company.status,
-    workingHours: company.working_hours,
-    coordinates: company.coordinates,
-    logo: company.logo_url, // Corrigido para 'logo' em vez de 'logoUrl'
-    website: company.website,
-    approvedAt: company.approved_at,
-    approvedBy: company.approved_by,
-    createdAt: company.created_at,
-    updatedAt: company.updated_at
+    id: company.id || null,
+    companyName: company.company_name || company.name || '',
+    cnpj: company.cnpj || '',
+    address: company.address || '',
+    phone: company.phone || null,
+    email: company.email || null,
+    discount: company.discount || company.discount_percent || 10,
+    description: company.description || null,
+    category: company.category || '',
+    status: company.status || 'pending',
+    workingHours: company.working_hours || null,
+    coordinates: company.coordinates || null,
+    logo: company.logo_url || company.logo || null,
+    website: company.website || null,
+    approvedAt: company.approved_at || null,
+    approvedBy: company.approved_by || null,
+    createdAt: company.created_at || null,
+    updatedAt: company.updated_at || null,
+    // Campos adicionais para compatibilidade
+    name: company.name || company.company_name || '',
+    city: company.city || null,
+    state: company.state || null
   };
 };
 
@@ -43,12 +47,27 @@ export async function getCompanies(req, res) {
     
     sql += ' ORDER BY created_at DESC';
     
+    console.log('[COMPANIES DEBUG] SQL:', sql, 'Params:', params);
+    
     const result = await query(sql, params);
     
     console.log('[COMPANIES DEBUG] Retornando', result.rows.length, 'empresas');
     
-    // Mapear campos para o formato do frontend
-    const mappedCompanies = result.rows.map(mapCompanyFields);
+    // Mapear campos para o formato do frontend (com tratamento de erro)
+    const mappedCompanies = result.rows.map(company => {
+      try {
+        return mapCompanyFields(company);
+      } catch (mapError) {
+        console.error('[COMPANIES ERROR] Erro ao mapear empresa:', company.id, mapError);
+        // Retornar objeto básico se falhar o mapeamento
+        return {
+          id: company.id,
+          companyName: company.company_name || company.name || 'Empresa',
+          cnpj: company.cnpj || '',
+          status: company.status || 'unknown'
+        };
+      }
+    });
     
     res.json({
       success: true,
@@ -60,7 +79,8 @@ export async function getCompanies(req, res) {
     console.error('[COMPANIES ERROR]:', error);
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }

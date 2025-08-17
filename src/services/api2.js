@@ -74,7 +74,7 @@ class ApiService {
   // Buscar solicitações de empresas (para admin)
   async getCompanyRequests() {
     try {
-      const response = await this.request('/api/admin/company-requests');
+      const response = await this.request('/api/companies/requests');
       return {
         success: true,
         requests: response.requests || []

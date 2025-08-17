@@ -294,8 +294,8 @@ export async function companyLogin(req, res) {
         id: company.id,
         cnpj: company.cnpj,
         name: company.company_name || company.name,
-        hasPassword: !!company.password_hash,
-        hasPasswordField: 'password_hash' in company
+        hasPassword: !!company.password,
+        hasPasswordField: 'password' in company
       });
     }
 
@@ -308,12 +308,26 @@ export async function companyLogin(req, res) {
 
     const company = result.rows[0];
     
+    // Log detalhado da empresa encontrada
+    console.log('[COMPANY LOGIN DEBUG] Empresa encontrada:', {
+      id: company.id,
+      cnpj: company.cnpj,
+      name: company.company_name || company.name,
+      hasPasswordHash: !!company.password_hash,
+      hasPassword: !!company.password,
+      passwordHashLength: company.password_hash ? company.password_hash.length : 0,
+      passwordLength: company.password ? company.password.length : 0,
+      status: company.status,
+      allFields: Object.keys(company)
+    });
+    
     // Verificar se a empresa tem senha (compatibilidade com estrutura atual)
     if (!company.password_hash) {
-      console.log('[COMPANY LOGIN DEBUG] Empresa sem senha cadastrada');
+      console.log('[COMPANY LOGIN DEBUG] Empresa sem password_hash');
       
       // Se não tem password_hash, verificar se tem password (campo antigo)
       if (company.password) {
+        console.log('[COMPANY LOGIN DEBUG] Empresa tem password antigo, comparando...');
         // Comparar com senha em texto plano (temporário)
         if (company.password === password) {
           console.log('[COMPANY LOGIN DEBUG] Login com senha antiga bem-sucedido');
@@ -327,7 +341,11 @@ export async function companyLogin(req, res) {
             company: companyWithoutPassword
           });
           return;
+        } else {
+          console.log('[COMPANY LOGIN DEBUG] Senha antiga não confere');
         }
+      } else {
+        console.log('[COMPANY LOGIN DEBUG] Empresa não tem nem password_hash nem password');
       }
       
       return res.status(401).json({
