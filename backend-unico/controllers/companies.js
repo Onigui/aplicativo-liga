@@ -690,3 +690,70 @@ export async function updateCompanyStatus(req, res) {
     });
   }
 }
+
+// Função de teste para verificar banco de dados
+export async function testDatabase(req, res) {
+  try {
+    console.log('[TEST DEBUG] Testando conexão com banco...');
+    
+    // Testar conexão básica
+    const connectionTest = await query('SELECT NOW() as current_time');
+    console.log('[TEST DEBUG] Conexão OK:', connectionTest.rows[0]);
+    
+    // Verificar se a tabela companies existe
+    const tableExists = await query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'companies'
+      );
+    `);
+    
+    console.log('[TEST DEBUG] Tabela companies existe?', tableExists.rows[0].exists);
+    
+    if (tableExists.rows[0].exists) {
+      // Verificar estrutura da tabela
+      const columns = await query(`
+        SELECT column_name, data_type, is_nullable
+        FROM information_schema.columns 
+        WHERE table_name = 'companies'
+        ORDER BY ordinal_position;
+      `);
+      
+      console.log('[TEST DEBUG] Colunas da tabela:', columns.rows);
+      
+      // Verificar se há dados na tabela
+      const countResult = await query('SELECT COUNT(*) as total FROM companies');
+      console.log('[TEST DEBUG] Total de empresas:', countResult.rows[0].total);
+      
+      // Verificar algumas empresas de exemplo
+      const sampleCompanies = await query('SELECT * FROM companies LIMIT 3');
+      console.log('[TEST DEBUG] Empresas de exemplo:', sampleCompanies.rows);
+      
+      res.json({
+        success: true,
+        message: 'Teste de banco concluído',
+        connection: 'OK',
+        tableExists: true,
+        columns: columns.rows,
+        totalCompanies: countResult.rows[0].total,
+        sampleCompanies: sampleCompanies.rows
+      });
+    } else {
+      res.json({
+        success: false,
+        message: 'Tabela companies não existe',
+        connection: 'OK',
+        tableExists: false
+      });
+    }
+    
+  } catch (error) {
+    console.error('[TEST ERROR]:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro no teste de banco',
+      error: error.message
+    });
+  }
+}
