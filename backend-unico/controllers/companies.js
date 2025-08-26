@@ -32,10 +32,80 @@ const mapCompanyFields = (company) => {
 // Buscar todas as empresas
 export async function getCompanies(req, res) {
   try {
-    console.log('[COMPANIES DEBUG] Buscando empresas...');
+    console.log('[COMPANIES DEBUG] === INICIANDO BUSCA DE EMPRESAS ===');
     console.log('[COMPANIES DEBUG] Query params:', req.query);
     
     const { status } = req.query;
+    
+    // Testar conexão básica primeiro
+    try {
+      console.log('[COMPANIES DEBUG] Testando conexão com banco...');
+      const testQuery = await query('SELECT NOW() as current_time');
+      console.log('[COMPANIES DEBUG] Conexão OK:', testQuery.rows[0]);
+    } catch (connError) {
+      console.error('[COMPANIES ERROR] Falha na conexão:', connError);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro de conexão com banco de dados',
+        debug: connError.message
+      });
+    }
+    
+    // Verificar se a tabela existe
+    try {
+      console.log('[COMPANIES DEBUG] Verificando se tabela companies existe...');
+      const tableCheck = await query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'companies'
+        );
+      `);
+      
+      console.log('[COMPANIES DEBUG] Tabela companies existe?', tableCheck.rows[0].exists);
+      
+      if (!tableCheck.rows[0].exists) {
+        console.log('[COMPANIES DEBUG] Tabela não existe, criando...');
+        // Criar tabela se não existir
+        await query(`
+          CREATE TABLE IF NOT EXISTS companies (
+            id SERIAL PRIMARY KEY,
+            company_name VARCHAR(255) NOT NULL,
+            cnpj VARCHAR(18) UNIQUE NOT NULL,
+            address TEXT,
+            phone VARCHAR(20),
+            email VARCHAR(255),
+            description TEXT,
+            category VARCHAR(100),
+            status VARCHAR(20) DEFAULT 'pending',
+            working_hours TEXT,
+            coordinates TEXT,
+            logo_url TEXT,
+            website VARCHAR(255),
+            approved_at TIMESTAMP,
+            approved_by INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            password_hash VARCHAR(255),
+            name VARCHAR(255),
+            city VARCHAR(100),
+            state VARCHAR(2),
+            discount_percent INTEGER DEFAULT 10,
+            email_reset VARCHAR(255),
+            password_reset_token VARCHAR(255),
+            password_reset_expires TIMESTAMP
+          );
+        `);
+        console.log('[COMPANIES DEBUG] Tabela criada com sucesso');
+      }
+    } catch (tableError) {
+      console.error('[COMPANIES ERROR] Erro ao verificar/criar tabela:', tableError);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao verificar estrutura do banco',
+        debug: tableError.message
+      });
+    }
     
     let sql = 'SELECT * FROM companies';
     let params = [];
@@ -47,27 +117,16 @@ export async function getCompanies(req, res) {
     
     sql += ' ORDER BY created_at DESC';
     
-    console.log('[COMPANIES DEBUG] SQL:', sql, 'Params:', params);
+    console.log('[COMPANIES DEBUG] Executando SQL:', sql, 'Params:', params);
     
     const result = await query(sql, params);
     
-    console.log('[COMPANIES DEBUG] Retornando', result.rows.length, 'empresas');
+    console.log('[COMPANIES DEBUG] Query executada, retornando', result.rows.length, 'empresas');
     
-    // Mapear campos para o formato do frontend (com tratamento de erro)
-    const mappedCompanies = result.rows.map(company => {
-      try {
-        return mapCompanyFields(company);
-      } catch (mapError) {
-        console.error('[COMPANIES ERROR] Erro ao mapear empresa:', company.id, mapError);
-        // Retornar objeto básico se falhar o mapeamento
-        return {
-          id: company.id,
-          companyName: company.company_name || company.name || 'Empresa',
-          cnpj: company.cnpj || '',
-          status: company.status || 'unknown'
-        };
-      }
-    });
+    // Mapear campos para o formato do frontend
+    const mappedCompanies = result.rows.map(company => mapCompanyFields(company));
+    
+    console.log('[COMPANIES DEBUG] Empresas mapeadas com sucesso');
     
     res.json({
       success: true,
@@ -76,7 +135,7 @@ export async function getCompanies(req, res) {
     });
 
   } catch (error) {
-    console.error('[COMPANIES ERROR]:', error);
+    console.error('[COMPANIES ERROR] Erro geral:', error);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor',
