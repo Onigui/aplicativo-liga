@@ -702,50 +702,75 @@ export async function getCompanyRequests(req, res) {
   }
 }
 
-// Atualizar status de uma empresa
+// Atualizar status da empresa
 export async function updateCompanyStatus(req, res) {
   try {
     const { id } = req.params;
     const { status } = req.body;
     
-    console.log('[COMPANIES DEBUG] Atualizando status da empresa ID:', id, 'para:', status);
+    console.log('[COMPANIES DEBUG] Atualizando status da empresa:', id, 'para:', status);
     
-    if (!['pending', 'approved', 'rejected'].includes(status)) {
+    if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Status inválido. Use: pending, approved ou rejected'
+        message: 'Status deve ser: pending, approved ou rejected'
       });
     }
-    
-    const result = await query(
-      'UPDATE companies SET status = $1, updated_at = $2 WHERE id = $3 RETURNING *',
-      [status, new Date(), id]
+
+    // Buscar empresa atual para verificar se tem senha
+    const currentCompany = await query(
+      'SELECT * FROM companies WHERE id = $1',
+      [id]
     );
-    
-    if (result.rows.length === 0) {
+
+    if (currentCompany.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Empresa não encontrada'
       });
     }
+
+    const company = currentCompany.rows[0];
     
+    // Se está aprovando e não tem senha, retornar erro
+    if (status === 'approved' && !company.password_hash) {
+      return res.status(400).json({
+        success: false,
+        message: 'Empresa deve ter uma senha cadastrada para ser aprovada'
+      });
+    }
+
+    // Atualizar status
+    const result = await query(
+      `UPDATE companies 
+       SET status = $1, 
+           updated_at = CURRENT_TIMESTAMP,
+           approved_at = CASE WHEN $1 = 'approved' THEN CURRENT_TIMESTAMP ELSE approved_at END,
+           approved_by = CASE WHEN $1 = 'approved' THEN $2 ELSE approved_by END
+       WHERE id = $3
+       RETURNING *`,
+      [status, req.user.id, id]
+    );
+
     const updatedCompany = result.rows[0];
-    console.log('[COMPANIES DEBUG] Status atualizado com sucesso:', updatedCompany.company_name);
     
+    console.log('[COMPANIES DEBUG] Status atualizado com sucesso:', updatedCompany.status);
+
     // Mapear campos para o formato do frontend
     const mappedCompany = mapCompanyFields(updatedCompany);
-    
+
     res.json({
       success: true,
-      company: mappedCompany,
-      message: 'Status atualizado com sucesso'
+      message: `Status da empresa atualizado para: ${status}`,
+      company: mappedCompany
     });
 
   } catch (error) {
-    console.error('[COMPANIES ERROR]:', error);
+    console.error('[COMPANIES ERROR] Erro ao atualizar status:', error);
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
