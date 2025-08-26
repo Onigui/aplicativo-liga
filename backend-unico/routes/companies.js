@@ -7,15 +7,11 @@ import {
   deleteCompany,
   requestCompanyRegistration,
   getCompanyRequests,
-  updateCompanyStatus,
-  testDatabase
+  updateCompanyStatus
 } from '../controllers/companies.js';
 import { requireAdmin } from '../controllers/auth.js';
 
 const router = express.Router();
-
-// Rota de teste (pública)
-router.get('/test-database', testDatabase);
 
 // Rotas públicas
 router.post('/request', requestCompanyRegistration);
