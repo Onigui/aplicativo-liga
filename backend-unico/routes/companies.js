@@ -9,7 +9,7 @@ import {
   getCompanyRequests,
   updateCompanyStatus
 } from '../controllers/companies.js';
-import { requireAdmin } from '../controllers/auth.js';
+import { requireAdmin, validateToken } from '../controllers/auth.js';
 
 const router = express.Router();
 
@@ -17,12 +17,12 @@ const router = express.Router();
 router.post('/request', requestCompanyRegistration);
 router.get('/requests', getCompanyRequests);
 
-// Rotas protegidas por admin
-router.get('/', requireAdmin, getCompanies);
-router.get('/:id', requireAdmin, getCompanyById);
-router.post('/', requireAdmin, createCompany);
-router.put('/:id', requireAdmin, updateCompany);
-router.delete('/:id', requireAdmin, deleteCompany);
-router.put('/:id/status', requireAdmin, updateCompanyStatus);
+// Rotas protegidas por admin (primeiro valida token, depois verifica se é admin)
+router.get('/', validateToken, requireAdmin, getCompanies);
+router.get('/:id', validateToken, requireAdmin, getCompanyById);
+router.post('/', validateToken, requireAdmin, createCompany);
+router.put('/:id', validateToken, requireAdmin, updateCompany);
+router.delete('/:id', validateToken, requireAdmin, deleteCompany);
+router.put('/:id/status', validateToken, requireAdmin, updateCompanyStatus);
 
 export default router;
