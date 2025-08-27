@@ -272,9 +272,19 @@ export async function createCompany(req, res) {
 
   } catch (error) {
     console.error('[COMPANIES ERROR]:', error);
+    console.error('[COMPANIES ERROR] Stack:', error.stack);
+    console.error('[COMPANIES ERROR] Message:', error.message);
+    console.error('[COMPANIES ERROR] Code:', error.code);
+    console.error('[COMPANIES ERROR] Detail:', error.detail);
+    
     res.status(500).json({
       success: false,
-      message: 'Erro interno do servidor'
+      message: 'Erro interno do servidor',
+      debug: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        code: error.code,
+        detail: error.detail
+      } : undefined
     });
   }
 }
