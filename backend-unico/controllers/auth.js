@@ -321,32 +321,9 @@ export async function companyLogin(req, res) {
       allFields: Object.keys(company)
     });
     
-    // Verificar se a empresa tem senha (compatibilidade com estrutura atual)
-    if (!company.password_hash) {
-      console.log('[COMPANY LOGIN DEBUG] Empresa sem password_hash');
-      
-      // Se não tem password_hash, verificar se tem password (campo antigo)
-      if (company.password) {
-        console.log('[COMPANY LOGIN DEBUG] Empresa tem password antigo, comparando...');
-        // Comparar com senha em texto plano (temporário)
-        if (company.password === password) {
-          console.log('[COMPANY LOGIN DEBUG] Login com senha antiga bem-sucedido');
-          
-          // Remover senha do objeto de resposta
-          const { password, ...companyWithoutPassword } = company;
-          
-          res.status(200).json({
-            success: true,
-            message: 'Login realizado com sucesso',
-            company: companyWithoutPassword
-          });
-          return;
-        } else {
-          console.log('[COMPANY LOGIN DEBUG] Senha antiga não confere');
-        }
-      } else {
-        console.log('[COMPANY LOGIN DEBUG] Empresa não tem nem password_hash nem password');
-      }
+    // Verificar se a empresa tem senha
+    if (!company.password) {
+      console.log('[COMPANY LOGIN DEBUG] Empresa sem password');
       
       return res.status(401).json({
         success: false,
@@ -356,7 +333,7 @@ export async function companyLogin(req, res) {
     
     // Verificar senha com bcrypt
     console.log('[COMPANY LOGIN DEBUG] Verificando senha com bcrypt...');
-    const isValidPassword = await bcrypt.compare(password, company.password_hash);
+    const isValidPassword = await bcrypt.compare(password, company.password);
     console.log('[COMPANY LOGIN DEBUG] Senha válida:', isValidPassword);
     
     if (!isValidPassword) {
@@ -369,7 +346,7 @@ export async function companyLogin(req, res) {
     console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.company_name || company.name);
     
     // Remover senha do objeto de resposta
-    const { password_hash, ...companyWithoutPassword } = company;
+    const { password, ...companyWithoutPassword } = company;
     
     res.status(200).json({
       success: true,

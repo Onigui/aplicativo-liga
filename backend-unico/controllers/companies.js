@@ -642,7 +642,7 @@ export async function requestCompanyRegistration(req, res) {
     // Inserir empresa diretamente na tabela companies com status 'pending'
     const result = await query(
       `INSERT INTO companies (
-        company_name, cnpj, password_hash, email, phone, address, city, state,
+        company_name, cnpj, password, email, phone, address, city, state,
         category, discount, working_hours, description, status, created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
       RETURNING *`,
