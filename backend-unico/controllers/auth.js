@@ -346,7 +346,7 @@ export async function companyLogin(req, res) {
     console.log('[COMPANY LOGIN DEBUG] Empresa logada com sucesso:', company.company_name || company.name);
     
     // Remover senha do objeto de resposta
-    const { password, ...companyWithoutPassword } = company;
+    const { password: companyPassword, ...companyWithoutPassword } = company;
     
     res.status(200).json({
       success: true,
