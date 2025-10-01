@@ -44,6 +44,21 @@ class ApiService {
     return data;
   }
 
+  // === MÉTODOS DE AUTENTICAÇÃO ===
+  
+  // Validar token
+  async validateToken(token) {
+    try {
+      // Por enquanto, sempre retornar true para não bloquear o sistema
+      // TODO: Implementar validação real com o backend
+      console.log('[API DEBUG] Validando token (sempre retorna true por enquanto)');
+      return true;
+    } catch (error) {
+      console.error('[API DEBUG] Erro ao validar token:', error);
+      return false;
+    }
+  }
+
   // === MÉTODOS PARA EMPRESAS ===
 
   // Solicitar cadastro de empresa (sem permissão admin)
