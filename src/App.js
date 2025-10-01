@@ -3898,12 +3898,13 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
         return newRequests;
       });
       
-      // Fechar modal
-    setShowCompanyRegistrationModal(false);
+      // Fechar modal primeiro
+      setShowCompanyRegistrationModal(false);
     
-    // Mostrar notificação de sucesso
-    addNotification({
-      type: 'success',
+      // Aguardar um pouco para o modal fechar e depois mostrar a notificação
+      setTimeout(() => {
+        addNotification({
+          type: 'success',
         title: 'Solicitação enviada! ��',
       message: `Sua solicitação para "${companyData.companyName}" foi enviada para aprovação. Nossa equipe irá analisar e você receberá uma notificação em breve. O processo de aprovação pode levar até 24 horas.`
       });
