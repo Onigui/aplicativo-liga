@@ -212,6 +212,8 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
       };
 
       await onRegister(companyData);
+      
+      // Limpar formulário
       setFormData({
         cnpj: '',
         password: '',
@@ -225,6 +227,9 @@ const CompanyRegistrationModal = ({ isOpen, onClose, onRegister }) => {
         category: '',
         discount: 10
       });
+      
+      // Fechar modal após sucesso
+      onClose();
     } catch (error) {
       setError(error.message);
     } finally {

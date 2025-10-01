@@ -688,16 +688,20 @@ export async function requestCompanyRegistration(req, res) {
 export async function getCompanyRequests(req, res) {
   try {
     console.log('[COMPANIES DEBUG] Buscando solicitações de empresas...');
+    console.log('[COMPANIES DEBUG] Status buscado: pending');
     
     const result = await query(
       'SELECT * FROM companies WHERE status = $1 ORDER BY created_at DESC',
       ['pending']
     );
     
-    console.log('[COMPANIES DEBUG] Retornando', result.rows.length, 'solicitações');
+    console.log('[COMPANIES DEBUG] Total de solicitações encontradas:', result.rows.length);
+    console.log('[COMPANIES DEBUG] Solicitações:', result.rows);
     
     // Mapear campos para o formato do frontend
     const mappedRequests = result.rows.map(company => mapCompanyFields(company));
+    
+    console.log('[COMPANIES DEBUG] Solicitações mapeadas:', mappedRequests);
     
     res.json({
       success: true,
@@ -707,6 +711,7 @@ export async function getCompanyRequests(req, res) {
 
   } catch (error) {
     console.error('[COMPANIES ERROR]:', error);
+    console.error('[COMPANIES ERROR] Stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor'
