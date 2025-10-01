@@ -3905,9 +3905,10 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
       setTimeout(() => {
         addNotification({
           type: 'success',
-        title: 'Solicitação enviada! ��',
-      message: `Sua solicitação para "${companyData.companyName}" foi enviada para aprovação. Nossa equipe irá analisar e você receberá uma notificação em breve. O processo de aprovação pode levar até 24 horas.`
-      });
+          title: 'Solicitação enviada com sucesso! 🎉 ��',
+          message: `Sua solicitação para "${companyData.companyName}" foi enviada para aprovação. Nossa equipe irá analisar e você receberá uma notificação em breve. O processo de aprovação pode levar até 24 horas.`
+        });
+      }, 300);
 
       console.log('✅ Solicitação salva localmente:', companyRequest);
       
