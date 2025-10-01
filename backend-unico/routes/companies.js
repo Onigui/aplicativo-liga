@@ -7,7 +7,9 @@ import {
   deleteCompany,
   requestCompanyRegistration,
   getCompanyRequests,
-  updateCompanyStatus
+  updateCompanyStatus,
+  approveCompany,
+  rejectCompany
 } from '../controllers/companies.js';
 import { requireAdmin, validateToken } from '../controllers/auth.js';
 
@@ -24,5 +26,7 @@ router.post('/', validateToken, requireAdmin, createCompany);
 router.put('/:id', validateToken, requireAdmin, updateCompany);
 router.delete('/:id', validateToken, requireAdmin, deleteCompany);
 router.put('/:id/status', validateToken, requireAdmin, updateCompanyStatus);
+router.put('/:id/approve', validateToken, requireAdmin, approveCompany);
+router.put('/:id/reject', validateToken, requireAdmin, rejectCompany);
 
 export default router;

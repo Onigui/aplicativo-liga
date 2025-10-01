@@ -75,9 +75,11 @@ const AppRouter = () => {
       
       // Criar empresa no banco online
       console.log('🌐 [ROUTER] Criando empresa no banco online...');
+      console.log('🔍 [ROUTER] Dados da solicitação:', request);
+      
       const companyData = {
-        companyName: request.company_name,
-        name: request.name,
+        companyName: request.companyName || request.company_name || request.name,
+        name: request.name || request.companyName || request.company_name,
         cnpj: request.cnpj,
         password: request.password, // Senha original escolhida pela empresa
         email: request.email,
@@ -86,10 +88,12 @@ const AppRouter = () => {
         city: request.city,
         state: request.state,
         category: request.category,
-        discount: request.discount,
-        workingHours: request.working_hours,
-        description: request.description
+        discount: request.discount || 10,
+        workingHours: request.workingHours || request.working_hours,
+        description: request.description || ''
       };
+      
+      console.log('📝 [ROUTER] Dados formatados para criação:', companyData);
       
       const apiResult = await apiService.createCompany(companyData);
       if (!apiResult.success) {

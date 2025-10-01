@@ -3903,9 +3903,10 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
     
       // Aguardar um pouco para o modal fechar e depois mostrar a notificação
       setTimeout(() => {
+        console.log('🔔 Mostrando notificação de sucesso');
         addNotification({
           type: 'success',
-          title: 'Solicitação enviada com sucesso! 🎉 ��',
+          title: 'Solicitação enviada com sucesso! 🎉',
           message: `Sua solicitação para "${companyData.companyName}" foi enviada para aprovação. Nossa equipe irá analisar e você receberá uma notificação em breve. O processo de aprovação pode levar até 24 horas.`
         });
       }, 300);
