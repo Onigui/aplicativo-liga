@@ -36,26 +36,27 @@ const AppRouter = () => {
     loadApprovedCompanies();
   }, []);
 
-  // Carregar solicitações pendentes quando o aplicativo inicia
-  useEffect(() => {
-    const loadCompanyRequests = async () => {
-      try {
-        console.log('🔄 [ROUTER] Carregando solicitações de empresas...');
-        
-        const result = await apiService.getCompanyRequests();
-        if (result.success && result.requests) {
-          console.log('✅ [ROUTER] Solicitações carregadas:', result.requests.length);
-          setCompanyRequests(result.requests);
-        } else {
-          console.log('⚠️ [ROUTER] Nenhuma solicitação encontrada ou erro na API');
-          setCompanyRequests([]);
-        }
-      } catch (error) {
-        console.error('❌ [ROUTER] Erro ao carregar solicitações:', error);
+  // Função para carregar solicitações (pode ser chamada de qualquer lugar)
+  const loadCompanyRequests = async () => {
+    try {
+      console.log('🔄 [ROUTER] Carregando solicitações de empresas...');
+      
+      const result = await apiService.getCompanyRequests();
+      if (result.success && result.requests) {
+        console.log('✅ [ROUTER] Solicitações carregadas:', result.requests.length);
+        setCompanyRequests(result.requests);
+      } else {
+        console.log('⚠️ [ROUTER] Nenhuma solicitação encontrada ou erro na API');
         setCompanyRequests([]);
       }
-    };
+    } catch (error) {
+      console.error('❌ [ROUTER] Erro ao carregar solicitações:', error);
+      setCompanyRequests([]);
+    }
+  };
 
+  // Carregar solicitações pendentes quando o aplicativo inicia
+  useEffect(() => {
     loadCompanyRequests();
   }, []);
 
@@ -150,6 +151,7 @@ const AppRouter = () => {
             companyRequests={companyRequests}
             onApproveCompanyRequest={handleApproveCompanyRequest}
             onRejectCompanyRequest={handleRejectCompanyRequest}
+            onUpdateRequests={loadCompanyRequests}
           />
         } />
         {/* Rota principal - App público */}

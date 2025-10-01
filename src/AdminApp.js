@@ -22,14 +22,15 @@ axios.defaults.timeout = 10000;
 function AdminApp({ 
   companyRequests = [], 
   onApproveCompanyRequest, 
-  onRejectCompanyRequest 
+  onRejectCompanyRequest,
+  onUpdateRequests
 }) {
   console.log('🚀 [ADMIN] AdminApp.js carregado!');
   console.log('📝 [ADMIN] CompanyRequests recebidas:', companyRequests);
   console.log('📝 [ADMIN] Tipo de companyRequests:', typeof companyRequests);
   console.log('📝 [ADMIN] É array?', Array.isArray(companyRequests));
   console.log('📝 [ADMIN] Length:', companyRequests?.length);
-  console.log('📝 [ADMIN] Funções recebidas:', { onApproveCompanyRequest, onRejectCompanyRequest });
+  console.log('📝 [ADMIN] Funções recebidas:', { onApproveCompanyRequest, onRejectCompanyRequest, onUpdateRequests });
   
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -140,6 +141,7 @@ function AdminApp({
                   companyRequests={companyRequests}
                   onApprove={onApproveCompanyRequest}
                   onReject={onRejectCompanyRequest}
+                  onUpdateRequests={onUpdateRequests}
                 />
               } />
               <Route path="/reports" element={<Reports />} />

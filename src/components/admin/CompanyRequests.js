@@ -23,6 +23,12 @@ const CompanyRequests = ({ companyRequests, onApprove, onReject, onUpdateRequest
       await onApprove(request);
       setShowDetails(false);
       setSelectedRequest(null);
+      
+      // Atualizar lista automaticamente após aprovar
+      if (onUpdateRequests) {
+        console.log('🔄 [CompanyRequests] Atualizando lista após aprovação');
+        await onUpdateRequests();
+      }
     } catch (error) {
       console.error('Erro ao aprovar empresa:', error);
     }
@@ -33,6 +39,12 @@ const CompanyRequests = ({ companyRequests, onApprove, onReject, onUpdateRequest
       await onReject(request);
       setShowDetails(false);
       setSelectedRequest(null);
+      
+      // Atualizar lista automaticamente após rejeitar
+      if (onUpdateRequests) {
+        console.log('🔄 [CompanyRequests] Atualizando lista após rejeição');
+        await onUpdateRequests();
+      }
     } catch (error) {
       console.error('Erro ao rejeitar empresa:', error);
     }
