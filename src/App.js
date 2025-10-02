@@ -86,6 +86,8 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
   console.log('🚀 [DEBUG] App.js carregado - NOVO DESIGN MODERNO v2.0');
   console.log('📝 [DEBUG] CompanyRequests recebidas do router:', companyRequests);
   console.log('📝 [DEBUG] setCompanyRequests recebida:', !!setCompanyRequests);
+  console.log('📝 [DEBUG] sharedRegisteredCompanies recebidas:', sharedRegisteredCompanies);
+  console.log('📝 [DEBUG] isLoadingCompanies:', isLoadingCompanies);
 
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState('welcome');
@@ -2455,6 +2457,12 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
+          
+          {console.log('🔍 [DEBUG] Renderizando seção de parceiros:', {
+            sharedRegisteredCompanies: sharedRegisteredCompanies,
+            length: sharedRegisteredCompanies?.length,
+            isLoading: isLoadingCompanies
+          })}
           
           <div className="flex space-x-3 overflow-x-auto pb-2">
             {sharedRegisteredCompanies.slice(0, 5).map((company, index) => (
