@@ -18,7 +18,7 @@ import CompanyDashboard from './components/CompanyDashboard';
 import CompanyRegistrationModal from './components/CompanyRegistrationModal';
 import './App.css';
 
-console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - BOTÕES PADRONIZADOS');
+console.log('🚀 [DEBUG] App.js carregado - NOVO DESIGN MODERNO v2.0 - Cache Buster');
 
 // Componente para seção de promoções
 const PromotionsSection = ({ promotions }) => {
@@ -83,7 +83,7 @@ const PromotionsSection = ({ promotions }) => {
 };
 
 const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompanies = [], setSharedRegisteredCompanies, isLoadingCompanies = false }) => {
-  console.log('🚀 [DEBUG] App.js carregado - versão com MOCKAPI e sistema de parcerias empresariais - BOTÕES PADRONIZADOS');
+  console.log('🚀 [DEBUG] App.js carregado - NOVO DESIGN MODERNO v2.0 - Cache Buster');
   console.log('📝 [DEBUG] CompanyRequests recebidas do router:', companyRequests);
   console.log('📝 [DEBUG] setCompanyRequests recebida:', !!setCompanyRequests);
 
