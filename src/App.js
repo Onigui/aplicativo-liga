@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp, Trophy, QrCode, Shield, RefreshCw } from 'lucide-react';
+import { User, Store, Heart, Info, CreditCard, DollarSign, BookOpen, Phone, Calendar, Menu, ArrowLeft, MapPin, Clock, Globe, Check, X, Sparkles, Star, Award, UserPlus, LogIn, Building, Percent, Search, Filter, Tag, Clock3, ChevronDown, ChevronUp, ChevronRight, Trophy, QrCode, Shield, RefreshCw, Bell } from 'lucide-react';
 import apiService from './services/api2';
 import analyticsService from './services/analyticsService';
 import syncService from './services/syncService';
@@ -2256,225 +2256,298 @@ const App = ({ companyRequests = [], setCompanyRequests, sharedRegisteredCompani
   );
 
   const renderHome = () => (
-    <div className="p-6 space-y-8 slide-up">
-      {/* Welcome Card */}
-      <div className="glass text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden border border-white/20">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-400/30 to-purple-600/30 rounded-full -translate-y-8 translate-x-8"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-cyan-400/30 to-blue-600/30 rounded-full translate-y-4 -translate-x-4"></div>
-        
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Moderno */}
+      <div className="modern-header">
         <div className="relative z-10">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="glass rounded-full p-4 pulse-glow">
-              <Sparkles className="h-10 w-10 text-yellow-300" />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
-                Olá, {user?.name || 'Usuário'}! ✨
-              </h2>
-              <p className="text-purple-200 text-lg">Membro desde {user?.memberSince || '2024'}</p>
-            </div>
-          </div>
-          
-          <p className="text-xl text-purple-100 mb-6 font-medium">Obrigado por fazer parte da nossa família! 🐾💝</p>
-          
-          {/* Estatísticas do Usuário */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="glass rounded-2xl p-4 text-center">
-              <Award className="h-6 w-6 text-green-300 mx-auto mb-2" />
-              <p className="text-green-200 font-semibold text-sm">Status</p>
-              <p className="text-green-100 text-xs">Membro Ativo</p>
-            </div>
-            <div className="glass rounded-2xl p-4 text-center">
-              <Star className="h-6 w-6 text-yellow-300 mx-auto mb-2" />
-              <p className="text-yellow-200 font-semibold text-sm">Doações</p>
-              <p className="text-yellow-100 text-xs">R$ {user?.totalDonated?.toFixed(2) || '0,00'}</p>
-            </div>
-          </div>
-          
-          {/* Badge especial para novos usuários */}
-          {(!user?.totalDonated || user?.totalDonated === 0) && (
-            <div className="glass rounded-2xl p-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-400/30">
-              <div className="flex items-center space-x-3">
-                <Sparkles className="h-5 w-5 text-cyan-300" />
-                <div>
-                  <p className="text-cyan-200 font-medium text-sm">Bem-vindo! 🎉</p>
-                  <p className="text-cyan-300 text-xs">Explore nossos serviços para começar a ajudar!</p>
-                </div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <Heart className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">Olá, {user?.name || 'Usuário'}!</h1>
+                <p className="text-green-100 text-sm">Membro desde {user?.memberSince || '2024'}</p>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Menu Grid */}
-      <div className="grid grid-cols-2 gap-6">
-        <button 
-          onClick={() => {
-            loadProfileData();
-            setShowProfile(true);
-          }}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-emerald-400 to-green-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <img 
-              src="/icone-usuario.png" 
-              alt="Ícone Usuário" 
-              className="h-10 w-10 object-contain filter brightness-0 invert"
-            />
-          </div>
-          <span className="text-white font-bold text-lg">Meu Perfil</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('partners')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-blue-400 to-indigo-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <Store className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Parceiras</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('adoption')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-pink-400 to-rose-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <img 
-              src="/icone-adocao.png" 
-              alt="Ícone Adoção" 
-              className="h-10 w-10 object-contain filter brightness-0 invert"
-            />
-          </div>
-          <span className="text-white font-bold text-lg">Adoção</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('about')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-teal-400 to-cyan-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <Info className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Sobre</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('card')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-purple-400 to-violet-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <CreditCard className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Carteirinha</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('donations')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-amber-400 to-yellow-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <DollarSign className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Doações</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('guide')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-orange-400 to-red-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <BookOpen className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Guia PET</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('legislation')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-slate-400 to-gray-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <BookOpen className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Legislação</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('phones')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-red-400 to-pink-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <Phone className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Telefones</span>
-        </button>
-
-        <button 
-          onClick={() => setCurrentPage('events')}
-          className="group glass p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:bg-white/20 border border-white/20 glow-animation"
-        >
-          <div className="bg-gradient-to-br from-indigo-400 to-purple-500 p-4 rounded-2xl mb-4 mx-auto w-fit group-hover:scale-125 transition-transform duration-500 shadow-lg">
-            <Calendar className="h-10 w-10 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Eventos</span>
-        </button>
-      </div>
-
-      {/* Seção de Impacto da Liga do Bem */}
-      <div className="glass text-white p-6 rounded-3xl shadow-2xl border border-white/20">
-        <div className="text-center mb-6">
-          <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 bg-clip-text text-transparent mb-2">
-            📊 Nosso Impacto
-          </h3>
-          <p className="text-purple-200 text-sm">Veja como estamos fazendo a diferença juntos</p>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="glass rounded-2xl p-4 text-center bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-400/30">
-            <Heart className="h-8 w-8 text-green-300 mx-auto mb-2" fill="currentColor" />
-            <p className="text-green-200 font-bold text-lg">847</p>
-            <p className="text-green-300 text-xs">Animais Resgatados</p>
+            <div className="flex items-center space-x-2">
+              <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                <Bell className="h-5 w-5 text-white" />
+              </button>
+              <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+                <Menu className="h-5 w-5 text-white" />
+              </button>
+            </div>
           </div>
           
-          <div className="glass rounded-2xl p-4 text-center bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-400/30">
-            <User className="h-8 w-8 text-blue-300 mx-auto mb-2" />
-            <p className="text-blue-200 font-bold text-lg">2.341</p>
-            <p className="text-blue-300 text-xs">Membros Ativos</p>
+          {/* Card de Status */}
+          <div className="balance-card">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Status do Membro</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold text-gray-900">Ativo</span>
+                  <span className="status-badge active">Premium</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600 mb-1">Total Contribuído</p>
+                <p className="text-xl font-bold text-green-600">R$ {user?.totalDonated?.toFixed(2) || '0,00'}</p>
+              </div>
+            </div>
+            
+            {/* Badge especial para novos usuários */}
+            {(!user?.totalDonated || user?.totalDonated === 0) && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="h-4 w-4 text-blue-600" />
+                  <div>
+                    <p className="text-blue-800 font-medium text-sm">Bem-vindo! 🎉</p>
+                    <p className="text-blue-600 text-xs">Explore nossos serviços para começar a ajudar!</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-          
-          <div className="glass rounded-2xl p-4 text-center bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/30">
-            <Store className="h-8 w-8 text-purple-300 mx-auto mb-2" />
-            <p className="text-purple-200 font-bold text-lg">156</p>
-            <p className="text-purple-300 text-xs">Empresas Parceiras</p>
-          </div>
-          
-          <div className="glass rounded-2xl p-4 text-center bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-400/30">
-            <DollarSign className="h-8 w-8 text-yellow-300 mx-auto mb-2" />
-            <p className="text-yellow-200 font-bold text-lg">R$ 89k</p>
-            <p className="text-yellow-300 text-xs">Arrecadado em 2024</p>
-          </div>
-        </div>
-        
-        <div className="mt-4 text-center">
-          <p className="text-purple-200 text-xs italic">
-            💝 Dados atualizados em tempo real
-          </p>
         </div>
       </div>
 
-      {/* Dica do Dia */}
-      <div className="glass text-white p-6 rounded-3xl shadow-2xl border border-white/20 bg-gradient-to-r from-teal-500/20 to-cyan-500/20">
-        <div className="flex items-center space-x-3 mb-3">
-          <div className="glass rounded-full p-2 bg-gradient-to-br from-teal-400 to-cyan-500">
-            <Info className="h-5 w-5 text-white" />
+      {/* Conteúdo Principal */}
+      <div className="p-6 -mt-4 relative z-10">
+        {/* Seção de Destaques */}
+        <div className="highlights-section fade-in-up">
+          <div className="relative z-10">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <h2 className="text-lg font-bold text-white">Destaques</h2>
+            </div>
+            <p className="text-white/90 text-sm mb-4">
+              Obrigado por fazer parte da nossa família! 🐾💝
+            </p>
+            <div className="flex items-center space-x-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white">R$ {user?.totalDonated?.toFixed(2) || '0,00'}</p>
+                <p className="text-white/80 text-xs">Total Contribuído</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white">12</p>
+                <p className="text-white/80 text-xs">Meses Ativo</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white">5</p>
+                <p className="text-white/80 text-xs">Parceiros</p>
+              </div>
+            </div>
           </div>
-          <h3 className="text-lg font-bold text-teal-200">💡 Dica do Dia</h3>
         </div>
-        <p className="text-teal-100 text-sm leading-relaxed">
-          Mantenha sempre água fresca disponível para seu pet. No verão, adicione cubos de gelo 
-          na vasilha para refrescar! 🧊🐕
-        </p>
+
+        {/* Serviços Principais */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Serviços</h3>
+          <div className="modern-grid-2">
+            <button 
+              onClick={() => {
+                loadProfileData();
+                setShowProfile(true);
+              }}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-emerald-500 to-green-600">
+                <img 
+                  src="/icone-usuario.png" 
+                  alt="Ícone Usuário" 
+                  className="h-6 w-6 object-contain filter brightness-0 invert"
+                />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Meu Perfil</h4>
+              <p className="text-sm text-gray-600">Gerencie seus dados</p>
+            </button>
+
+            <button 
+              onClick={() => setCurrentPage('partners')}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-blue-500 to-indigo-600">
+                <Store className="h-6 w-6 text-white" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Parceiras</h4>
+              <p className="text-sm text-gray-600">Descontos exclusivos</p>
+            </button>
+
+            <button 
+              onClick={() => setCurrentPage('adoption')}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-pink-500 to-rose-600">
+                <img 
+                  src="/icone-adocao.png" 
+                  alt="Ícone Adoção" 
+                  className="h-6 w-6 object-contain filter brightness-0 invert"
+                />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Adoção</h4>
+              <p className="text-sm text-gray-600">Encontre seu pet</p>
+            </button>
+
+            <button 
+              onClick={() => setCurrentPage('card')}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-purple-500 to-violet-600">
+                <CreditCard className="h-6 w-6 text-white" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Carteirinha</h4>
+              <p className="text-sm text-gray-600">Cartão digital</p>
+            </button>
+          </div>
+        </div>
+
+        {/* Serviços Adicionais */}
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Mais Serviços</h3>
+          <div className="modern-grid-3">
+            <button 
+              onClick={() => setCurrentPage('donations')}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-amber-500 to-yellow-600">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Doações</h4>
+              <p className="text-sm text-gray-600">Contribua</p>
+            </button>
+
+            <button 
+              onClick={() => setCurrentPage('guide')}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-orange-500 to-red-600">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Guia PET</h4>
+              <p className="text-sm text-gray-600">Cuidados</p>
+            </button>
+
+            <button 
+              onClick={() => setCurrentPage('events')}
+              className="service-card fade-in-up"
+            >
+              <div className="service-icon bg-gradient-to-br from-indigo-500 to-purple-600">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <h4 className="font-semibold text-gray-900 mb-1">Eventos</h4>
+              <p className="text-sm text-gray-600">Próximos</p>
+            </button>
+          </div>
+        </div>
+
+        {/* Seção de Parceiros */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Parceiros com Desconto</h3>
+            <button 
+              onClick={() => setCurrentPage('partners')}
+              className="text-sm text-green-600 font-medium hover:text-green-700 flex items-center space-x-1"
+            >
+              <span>Ver todos</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          
+          <div className="flex space-x-3 overflow-x-auto pb-2">
+            {sharedRegisteredCompanies.slice(0, 5).map((company, index) => (
+              <div key={company.id || index} className="partner-card flex-shrink-0 w-32">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                    <Store className="h-6 w-6 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-gray-900 text-sm mb-1 truncate">
+                    {company.companyName || company.name}
+                  </h4>
+                  <p className="text-xs text-green-600 font-medium">
+                    {company.discount || 10}% OFF
+                  </p>
+                </div>
+              </div>
+            ))}
+            
+            {sharedRegisteredCompanies.length === 0 && (
+              <div className="partner-card flex-shrink-0 w-32">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gray-100 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                    <Store className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <h4 className="font-semibold text-gray-500 text-sm mb-1">
+                    Em breve
+                  </h4>
+                  <p className="text-xs text-gray-400">
+                    Novos parceiros
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Seção de Impacto */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mb-6">
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              🐾 Liga do Bem - Transformando Vidas 🐾
+            </h3>
+            <p className="text-gray-600 text-sm">Juntos, fazemos a diferença na vida dos animais!</p>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Heart className="h-6 w-6 text-pink-600" />
+              </div>
+              <h4 className="text-lg font-bold text-gray-900">+500</h4>
+              <p className="text-gray-600 text-xs">Animais Resgatados</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <UserPlus className="h-6 w-6 text-green-600" />
+              </div>
+              <h4 className="text-lg font-bold text-gray-900">+1.200</h4>
+              <p className="text-gray-600 text-xs">Famílias Felizes</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Award className="h-6 w-6 text-yellow-600" />
+              </div>
+              <h4 className="text-lg font-bold text-gray-900">+50</h4>
+              <p className="text-gray-600 text-xs">Parceiros</p>
+            </div>
+          </div>
+          
+          <div className="text-center">
+            <p className="text-gray-600 text-sm mb-4">
+              Sua contribuição mensal nos ajuda a continuar salvando vidas e promovendo o bem-estar animal.
+            </p>
+            <div className="flex space-x-3 justify-center">
+              <button 
+                onClick={() => setCurrentPage('donations')}
+                className="modern-button"
+              >
+                Contribuir Agora
+              </button>
+              <button 
+                onClick={() => setCurrentPage('about')}
+                className="px-4 py-2 text-sm font-medium text-green-600 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+              >
+                Saiba Mais
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
     </div>
   );
 
